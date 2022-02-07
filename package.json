@@ -8,7 +8,14 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@vue/composition-api": "^1.4.5",
     "core-js": "^3.6.5",
+    "rete": "^1.4.6-rc.1",
+    "rete-area-plugin": "^0.2.1",
+    "rete-connection-plugin": "^0.9.0",
+    "rete-context-menu-plugin": "^0.6.0",
+    "rete-vue-render-plugin": "^1.0.0-rc2",
     "vue": "^3.0.0"
   },
   "devDependencies": {
@@ -32,7 +39,12 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "vue/no-unused-components": "off",
+      "no-unused-vars": "off",
+      "no-unused-labels": "off",
+      "no-undef": "off"
+    }
   },
   "browserslist": [
     "> 1%",
