@@ -16,6 +16,9 @@
     "rete-connection-plugin": "^0.9.0",
     "rete-context-menu-plugin": "^0.6.0",
     "rete-vue-render-plugin": "^1.0.0-rc2",
+    "three": "^0.137.5",
+    "three-obj-exporter": "0.0.1",
+    "three-trackballcontrols": "^0.9.0",
     "vue": "^3.0.0"
   },
   "devDependencies": {
