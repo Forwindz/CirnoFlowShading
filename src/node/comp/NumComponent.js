@@ -1,22 +1,23 @@
 import "@babel/polyfill";
-import * as shared from '../utility/shared'
 import Rete from "rete";
 import NumControl from "../control/NumControl"
+import NodeComponent from "../NodeComponent";
 
-class NumComponent extends Rete.Component {
+class NumComponent extends NodeComponent {
 
     constructor() {
         super("Number");
     }
 
     builder(node) {
-        var out1 = new Rete.Output('num', "Number", shared.numSocket);
-
-        return node.addControl(new NumControl(this.editor, 'num')).addOutput(out1);
+        this._addNumSocketOutput(node,'num', "Number")
+        node.addControl(new NumControl(this.editor, 'num'));
+        return node;
     }
 
     worker(node, inputs, outputs) {
         outputs['num'] = node.data.num;
+        super.worker(node,inputs,outputs);
     }
 }
 

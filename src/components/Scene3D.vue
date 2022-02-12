@@ -18,12 +18,16 @@ import {
 export default {
     name: 'Scene3D',
     data: function() {
-        return {}
+        return {
+            //vertexShader:"", //TODO: selective, support vertex functioning
+            fragShader:"",
+            uniforms:{
+                "time": { value: 1.0 } //TODO: selective, make time dynamic
+            }
+        }
     },
+    props:[],
     created: function() {
-        
-        
-        
     },
     mounted: function() {
         const scene = new THREE.Scene()
@@ -43,7 +47,7 @@ export default {
             color: 'hsl(0, 100%, 50%)',
             wireframe: false
         })
-        const cube = new THREE.Mesh(geometry, material)
+        const mesh = new THREE.Mesh(geometry, material)
         const axes = new THREE.AxesHelper(5)
 
         this.eles = {
@@ -52,15 +56,16 @@ export default {
             controls: [],
             renderer: renderer,
             light: light,
-            cube: cube,
+            mesh: mesh,
             axes: axes,
-            speed: 0.01
+            speed: 0.01,
+            //shouldUpdate: false //delay the update to animate()
         }
         
         this.$refs.canvas.appendChild(this.eles.renderer.domElement)
         this.eles.scene.add(this.eles.camera)
         this.eles.scene.add(this.eles.light)
-        this.eles.scene.add(this.eles.cube)
+        this.eles.scene.add(this.eles.mesh)
         this.eles.scene.add(this.eles.axes)
         this.eles.light.position.set(0, 0, 10)
         this.eles.camera.position.z = 15
@@ -82,8 +87,28 @@ export default {
         animate: function() {
             requestAnimationFrame(this.animate)
             this.eles.renderer.render(this.eles.scene, this.eles.camera)
-            this.eles.cube.rotation.y += this.eles.speed
+            this.eles.mesh.rotation.y += this.eles.speed
             this.eles.controls.update()
+        },
+        makeShaders: function(){
+            const material = new THREE.ShaderMaterial({
+                uniforms:this.uniforms,
+                vertexShader: this.fullVertexShader,
+                fragmentShader: this.fullFragmentShader,
+
+            });
+            return material;
+        },
+        updateShader: function(){
+            console.log("Update shaders")
+            this.eles.mesh.material = this.makeShaders();
+        }
+    },
+    watch:{
+        fragShader:{
+            handler(newv,oldv){
+                this.updateShader();
+            }
         }
     },
     computed: {
@@ -93,6 +118,28 @@ export default {
             } else {
                 return this.eles.speed
             }
+        },
+        fullVertexShader: function(){
+            return "\
+varying vec2 vUv; \
+\
+void main()\
+{\
+    vUv = uv;\
+    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\
+    gl_Position = projectionMatrix * mvPosition;\
+}\
+"
+        },
+        fullFragmentShader:function(){
+            return "\
+uniform float time;\
+varying vec2 vUv;\
+void main( void ) {\
+    vec2 position = - 1.0f + 2.0f * vUv;\
+    gl_FragColor = vec4( " 
+        + this.fragShader +
+    ", 1.0f );}"
         }
     }
 }

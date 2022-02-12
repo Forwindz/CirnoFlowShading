@@ -1,6 +1,6 @@
 <template>
-  <Scene3D style = "width:20%;height:20vh;position:fixed;padding:10px"></Scene3D>
-  <Rete style = "width:100%;height:80vh"></Rete>
+  <Scene3D style = "width:20%;height:20vh;position:fixed;padding:10px" ref="previewAll"></Scene3D>
+  <Rete style = "width:100%;height:80vh" @changeResult="onChangeResult"></Rete>
 </template>
 
 <script>
@@ -11,6 +11,12 @@ export default {
   components: {
     Rete,
     Scene3D
+  },
+  methods:{
+    onChangeResult(result){
+      console.log("Detect changes")
+      this.$refs.previewAll.fragShader = result;
+    }
   }
 }
 </script>

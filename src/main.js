@@ -12,8 +12,8 @@ import AreaPlugin from "rete-area-plugin";
 import NumComponent from './node/comp/NumComponent'
 import AddComponent from './node/comp/AddComponent'
 
-createApp(App).mount('#app')
-
+let app = createApp(App).mount('#app')
+/*
 let asyncFunc = async () => {
     
 
@@ -62,7 +62,9 @@ let asyncFunc = async () => {
     editor.view.resize();
     AreaPlugin.zoomAt(editor);
     editor.trigger('process');
+    console.log(app)
+    console.log(app.$ref)
 };
 
 asyncFunc();
-
+*/
