@@ -6,6 +6,7 @@
 <script>
 import Rete from './components/Rete.vue'
 import Scene3D from './components/Scene3D.vue'
+import PreviewBoxVue from './components/PreviewBoxVue.vue'
 export default {
   name: 'App',
   components: {

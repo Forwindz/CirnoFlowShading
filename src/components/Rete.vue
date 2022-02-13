@@ -9,6 +9,7 @@ import VueRenderPlugin from "rete-vue-render-plugin";
 
 import ContextMenuPlugin from "rete-context-menu-plugin";
 import AreaPlugin from "rete-area-plugin";
+import PreviewBox from "../PreviewBox.js"
 
 import NumComponent from '../node/comp/NumComponent'
 import AddComponent from '../node/comp/AddComponent'
@@ -23,7 +24,7 @@ export default {
   },
   async mounted() {
     let container = this.$refs.rete;//document.querySelector('#rete');
-    let components = [new NumComponent(), new AddComponent(), new OutputComponent()];
+    let components = [new NumComponent(), new AddComponent(), new OutputComponent(), new PreviewBox.PreviewBoxComponent()];
     
     components[2].addWorkEvent((node)=>{
       console.log("--- Final result ---")
@@ -43,6 +44,7 @@ export default {
     editor.use(VueRenderPlugin);    
     editor.use(ContextMenuPlugin);
     editor.use(AreaPlugin);
+    editor.use(PreviewBox);
     //editor.use(CommentPlugin);
     //editor.use(HistoryPlugin);
     //editor.use(ConnectionMasteryPlugin);
@@ -58,6 +60,7 @@ export default {
     let n2 = await components[0].createNode({num: 0});
     let add = await components[1].createNode();
     let output = await components[2].createNode();
+    let pbox = await components[3].createNode();
 
     n1.position = [80, 200];
     n2.position = [80, 400];
@@ -68,6 +71,7 @@ export default {
     editor.addNode(n2);
     editor.addNode(add);
     editor.addNode(output);
+    editor.addNode(pbox);
 
     editor.connect(n1.outputs.get('num'), add.inputs.get('num'));
     editor.connect(n2.outputs.get('num'), add.inputs.get('num2'));
