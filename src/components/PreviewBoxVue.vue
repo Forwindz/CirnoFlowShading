@@ -1,18 +1,34 @@
 <template>
-  <div class="node" style="width:100px;height:200px">
-    
+  <div>
+    <div class="node" v-bind:style="nodeStyle">
+      <Scene3D ref="p1" style="width:48%;height:50px;float:left"></Scene3D>
+      <Scene3D ref="p1" style="width:48%;height:50px;float:right"></Scene3D>
+    </div>
   </div>
-  <div style="width:100px;height:200px">
-  </div>
+  
 </template>
 
 <script>
+import Scene3D from "./Scene3D.vue"
 
 export default {
   name: 'PreviewBoxVue',
+  props:["size"],
+  data:()=>{
+    return {}//{size:[300,500]}
+  },
   components: {
+    Scene3D
+  },
+  mounted(){
   },
   methods:{
+  },
+  computed:{
+    nodeStyle(){
+      //console.log("width:"+this.size[0]+"px"+";height:"+this.size[1]+"px")
+      return "width:"+this.size[0]+"px"+";height:"+this.size[1]+"px;min-width:0px";
+    }
   }
 }
 </script>
@@ -21,7 +37,7 @@ export default {
 @import "../assets/css/previewBox";
 
 .node {
-  background: $node-color;
+  background: rgba(0,0,0,0);
   border: 2px solid #4e58bf;
   border-radius: 10px;
   cursor: pointer;
@@ -32,10 +48,10 @@ export default {
   position: relative;
   user-select: none;
   &:hover {
-    background: lighten($node-color,4%);
+    background: rgba(0,0,0,0.05);
   }
   &.selected {
-    background: $node-color-selected;
+    background: rgba(0,0,0,0.1);
     border-color: #e3c000;
   }
   .title {

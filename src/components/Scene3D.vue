@@ -1,5 +1,7 @@
 <template>
+
     <div ref="canvas" id="canvas"></div>
+    
 </template>
 
 <script>
@@ -20,7 +22,7 @@ export default {
     data: function() {
         return {
             //vertexShader:"", //TODO: selective, support vertex functioning
-            fragShader:"",
+            fragShader:"0,0,0",
             uniforms:{
                 "time": { value: 1.0 } //TODO: selective, make time dynamic
             }
@@ -30,58 +32,10 @@ export default {
     created: function() {
     },
     mounted: function() {
-        const scene = new THREE.Scene()
-        // const composer = new THREE.EffectComposer(new WebGLRenderer())
-        // const effectPass = new THREE.EffectPass(camera, new BloomEffect())
-        const camera = new THREE.PerspectiveCamera(
-            75,
-            this.$refs.canvas.clientWidth / this.$refs.canvas.clientHeight,
-            0.1,
-            1000
-        )
-        const renderer = new THREE.WebGLRenderer({ antialias: true })
-        const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
-        const geometry = new THREE.BoxGeometry(1, 1, 1)
-        const material = new THREE.MeshStandardMaterial({
-            side: THREE.FrontSide,
-            color: 'hsl(0, 100%, 50%)',
-            wireframe: false
-        })
-        const mesh = new THREE.Mesh(geometry, material)
-        const axes = new THREE.AxesHelper(5)
-
-        this.eles = {
-            scene: scene,
-            camera: camera,
-            controls: [],
-            renderer: renderer,
-            light: light,
-            mesh: mesh,
-            axes: axes,
-            speed: 0.01,
-            //shouldUpdate: false //delay the update to animate()
-        }
-        
-        this.$refs.canvas.appendChild(this.eles.renderer.domElement)
-        this.eles.scene.add(this.eles.camera)
-        this.eles.scene.add(this.eles.light)
-        this.eles.scene.add(this.eles.mesh)
-        this.eles.scene.add(this.eles.axes)
-        this.eles.light.position.set(0, 0, 10)
-        this.eles.camera.position.z = 15
-        this.eles.scene.background = new THREE.Color('rgb(233,233,233)')
-        console.log(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
-        this.eles.renderer.setSize(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
-        this.eles.controls = new TrackballControls(this.eles.camera,this.$el)
-        this.eles.controls.rotateSpeed = 1.0
-        this.eles.controls.zoomSpeed = 5
-        this.eles.controls.panSpeed = 0.8
-        this.eles.controls.noZoom = false
-        this.eles.controls.noPan = false
-        this.eles.controls.staticMoving = true
-        this.eles.controls.dynamicDampingFactor = 0.3
-        this.animate()
-        
+        // delay, so that we will get correct clientWidth
+        setTimeout(()=>{
+            this.initRender();
+        }, 400)
     },
     methods: {
         animate: function() {
@@ -100,8 +54,67 @@ export default {
             return material;
         },
         updateShader: function(){
+            if(this.eles==undefined){
+                return;
+            }
             console.log("Update shaders")
             this.eles.mesh.material = this.makeShaders();
+            console.log(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
+            this.eles.renderer.setSize(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
+            this.eles.camera.aspect = this.$refs.canvas.clientWidth/ this.$refs.canvas.clientHeight
+        },
+        initRender:function(){
+            const scene = new THREE.Scene()
+            // const composer = new THREE.EffectComposer(new WebGLRenderer())
+            // const effectPass = new THREE.EffectPass(camera, new BloomEffect())
+            const camera = new THREE.PerspectiveCamera(
+                75,
+                this.$refs.canvas.clientWidth / this.$refs.canvas.clientHeight,
+                0.1,
+                1000
+            )
+            console.log(camera);
+            const renderer = new THREE.WebGLRenderer({ antialias: true })
+            const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
+            const geometry = new THREE.BoxGeometry(1, 1, 1)
+            const material = new THREE.MeshStandardMaterial({
+                side: THREE.FrontSide,
+                color: 'hsl(0, 100%, 50%)',
+                wireframe: false
+            })
+            const mesh = new THREE.Mesh(geometry, material)
+            const axes = new THREE.AxesHelper(5)
+
+            this.eles = {
+                scene: scene,
+                camera: camera,
+                controls: [],
+                renderer: renderer,
+                light: light,
+                mesh: mesh,
+                axes: axes,
+                speed: 0.01,
+                //shouldUpdate: false //delay the update to animate()
+            }
+
+            this.$refs.canvas.appendChild(this.eles.renderer.domElement)
+            this.eles.scene.add(this.eles.camera)
+            this.eles.scene.add(this.eles.light)
+            this.eles.scene.add(this.eles.mesh)
+            this.eles.scene.add(this.eles.axes)
+            this.eles.light.position.set(0, 0, 10)
+            this.eles.camera.position.z = 15
+            this.eles.scene.background = new THREE.Color('rgb(233,233,233)')
+            this.eles.renderer.setSize(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
+            this.eles.controls = new TrackballControls(this.eles.camera,this.$el)
+            this.eles.controls.rotateSpeed = 1.0
+            this.eles.controls.zoomSpeed = 5
+            this.eles.controls.panSpeed = 0.8
+            this.eles.controls.noZoom = false
+            this.eles.controls.noPan = false
+            this.eles.controls.staticMoving = true
+            this.eles.controls.dynamicDampingFactor = 0.3
+            this.animate()
         }
     },
     watch:{
@@ -132,6 +145,8 @@ void main()\
 "
         },
         fullFragmentShader:function(){
+            console.log("Frag shader:------------------")
+            console.log(this.fragShader)
             return "\
 uniform float time;\
 varying vec2 vUv;\
