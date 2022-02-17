@@ -56,10 +56,76 @@ class NodeComponent extends Rete.Component {
         this.eventManager.on("work",func);
     }
 
-    worker(node, inputs, outputs) {
-        this.eventManager.emit("work",node);
+    removeWorkEvent(func){
+        this.eventManager.removeListener("work",func);
     }
 
-}
+    worker(node, inputs, outputs) {
+        console.log("Work!------------------------------------------------")
+        if(node.data.eventManager==undefined){
+            node.data.eventManager = new EventEmitter();
+            node.data.addWorkEvent = (func)=>{node.data.eventManager.on("work",func)}
+            node.data.removeWorkEvent = (func)=>{node.data.eventManager.removeListener("work",func)}
+        }
+        node.data.eventManager.emit("work",node,inputs,outputs);
+        this.eventManager.emit("work",node, inputs, outputs);
+        
+        node.data.getPreviewCode = ()=> {
+            return this.getPreviewCode(node,node.data.cacheInput,node.data.cacheOutput)
+        }
+        console.log("installPreview")
+        console.log(node)
 
+        if(node.data.cacheOutput==undefined){
+            node.data.cacheOutput = outputs;
+            node.data.cacheInput = inputs
+            
+        }else{
+            node.data.cacheOutput = outputs;
+            node.data.cacheInput = inputs
+
+        }
+    }
+
+    getPreviewCode(node, inputs, outputs){
+        return "0,0,0"
+    }
+/*
+    createNode(data){
+        let node = super.createNode(data);
+        node.eventManager = new EventEmitter();
+        node.addWorkEvent = (func)=>{node.eventManager.on("work",func)}
+        node.removeWorkEvent = (func)=>{node.eventManager.removeListener("work",func)}
+        console.log(node)
+        return new Node2(data,this);//replace, since it use proxy
+    }*/
+    
+
+}
+/*
+class Node2 extends Rete.Node{
+
+    constructor(data,comp){
+        super()
+        this.eventManager = new EventEmitter();
+        this.cacheInput= {};
+        this.cacheOutput={};
+        this.comp=comp;
+        this.data=data;
+    }
+
+    addWorkEvent(func){
+        this.eventManager.on("work",func);
+    }
+
+    removeWorkEvent(func){
+        this.eventManager.removeListener("work",func);
+    }
+
+    getPreviewCode(node){
+        return this.comp(this,this.cacheInput,this.cacheOutput)
+    }
+
+
+}*/
 export default NodeComponent;

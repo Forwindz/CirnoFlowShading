@@ -24,6 +24,11 @@ class AddComponent extends NodeComponent {
 
         this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(sum);
         outputs['num'] = sum;
+        super.worker(node,inputs,outputs)
+    }
+
+    getPreviewCode(node,inputs,outputs){
+        return outputs["num"]+","+outputs["num"]+","+outputs["num"];
     }
 }
 

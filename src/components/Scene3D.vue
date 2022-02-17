@@ -22,13 +22,13 @@ export default {
     data: function() {
         return {
             //vertexShader:"", //TODO: selective, support vertex functioning
-            fragShader:"0,0,0",
+            //fshader:"0,0,0",
             uniforms:{
                 "time": { value: 1.0 } //TODO: selective, make time dynamic
             }
         }
     },
-    props:[],
+    props:["fshader","texts"],
     created: function() {
     },
     mounted: function() {
@@ -103,7 +103,7 @@ export default {
             this.eles.scene.add(this.eles.mesh)
             this.eles.scene.add(this.eles.axes)
             this.eles.light.position.set(0, 0, 10)
-            this.eles.camera.position.z = 15
+            this.eles.camera.position.z = 2
             this.eles.scene.background = new THREE.Color('rgb(233,233,233)')
             this.eles.renderer.setSize(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
             this.eles.controls = new TrackballControls(this.eles.camera,this.$el)
@@ -118,11 +118,12 @@ export default {
         }
     },
     watch:{
-        fragShader:{
+        fshader:{
             handler(newv,oldv){
                 this.updateShader();
             }
         }
+        
     },
     computed: {
         rotate: function() {
@@ -146,14 +147,14 @@ void main()\
         },
         fullFragmentShader:function(){
             console.log("Frag shader:------------------")
-            console.log(this.fragShader)
+            console.log(this.fshader)
             return "\
 uniform float time;\
 varying vec2 vUv;\
 void main( void ) {\
     vec2 position = - 1.0f + 2.0f * vUv;\
     gl_FragColor = vec4( " 
-        + this.fragShader +
+        + this.fshader +
     ", 1.0f );}"
         }
     }

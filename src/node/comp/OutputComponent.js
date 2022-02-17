@@ -21,6 +21,10 @@ class OutputComponent extends NodeComponent{
         }
         super.worker(node,inputs,outputs);
     }
+
+    getPreviewCode(node,inputs,outputs){
+        return inputs["out"]+","+inputs["out"]+","+inputs["out"];
+    }
 }
 
 export default OutputComponent;

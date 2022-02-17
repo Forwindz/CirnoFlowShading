@@ -95,8 +95,8 @@ export default {
   watch:{
     result:{
       handler(val, oldVal) {
-        this.$emit('change-result', this.result)
         console.log("emit!")
+        this.$emit('change-result', this.result)
       },
       deep: true
     }

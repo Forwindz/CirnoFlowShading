@@ -19,6 +19,12 @@ class NumComponent extends NodeComponent {
         outputs['num'] = node.data.num;
         super.worker(node,inputs,outputs);
     }
+
+    getPreviewCode(node,inputs,outputs){
+        //console.log(inputs)
+        //console.log(outputs)
+        return outputs["num"]+","+outputs["num"]+","+outputs["num"];
+    }
 }
 
 export default NumComponent;

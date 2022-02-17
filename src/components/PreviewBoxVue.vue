@@ -1,8 +1,13 @@
 <template>
   <div>
+    
+    <button>+</button>
+    <button style="float:right">☆</button>
+    <button style="float:right">三</button>
+    <button style="float:right">?</button>
     <div class="node" v-bind:style="nodeStyle">
-      <Scene3D ref="p1" style="width:48%;height:50px;float:left"></Scene3D>
-      <Scene3D ref="p1" style="width:48%;height:50px;float:right"></Scene3D>
+      <Scene3D ref="p1" style="width:48%;height:70px;float:left" v-bind:fshader="frag1"></Scene3D>
+      <Scene3D ref="p2" style="width:48%;height:50px;float:right" v-if="show2c" v-bind:fshader="frag2"></Scene3D>
     </div>
   </div>
   
@@ -10,10 +15,11 @@
 
 <script>
 import Scene3D from "./Scene3D.vue"
+//f*ck framwork
 
 export default {
   name: 'PreviewBoxVue',
-  props:["size"],
+  props:["size","datas"],
   data:()=>{
     return {}//{size:[300,500]}
   },
@@ -28,6 +34,10 @@ export default {
     nodeStyle(){
       //console.log("width:"+this.size[0]+"px"+";height:"+this.size[1]+"px")
       return "width:"+this.size[0]+"px"+";height:"+this.size[1]+"px;min-width:0px";
+    },
+    show2c(){
+      console.log("show!!!!!!!!!!!!!!!!!!!")
+      return this.show2;
     }
   }
 }
@@ -41,7 +51,7 @@ export default {
   border: 2px solid #4e58bf;
   border-radius: 10px;
   cursor: pointer;
-  min-width: $node-width;
+  min-width: 10px;
   height: auto;
   padding-bottom: 6px;
   box-sizing: content-box;
