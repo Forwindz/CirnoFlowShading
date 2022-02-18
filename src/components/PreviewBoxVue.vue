@@ -6,8 +6,8 @@
     <button style="float:right">三</button>
     <button style="float:right">?</button>
     <div class="node" v-bind:style="nodeStyle">
-      <Scene3D ref="p1" style="width:48%;height:70px;float:left" v-bind:fshader="frag1"></Scene3D>
-      <Scene3D ref="p2" style="width:48%;height:50px;float:right" v-if="show2c" v-bind:fshader="frag2"></Scene3D>
+      <Scene3D ref="p1" style="width:48%;height:70px;float:left" v-bind:fshader="frag1c"></Scene3D>
+      <Scene3D ref="p2" style="width:48%;height:50px;float:right" v-if="show2c" v-bind:fshader="frag2c"></Scene3D>
     </div>
   </div>
   
@@ -15,11 +15,12 @@
 
 <script>
 import Scene3D from "./Scene3D.vue"
+import { nextTick } from 'vue'
 //f*ck framwork
 
 export default {
   name: 'PreviewBoxVue',
-  props:["size","datas"],
+  props:["size","frag1","frag2","show2"],
   data:()=>{
     return {}//{size:[300,500]}
   },
@@ -27,8 +28,15 @@ export default {
     Scene3D
   },
   mounted(){
+    setInterval(function(){nextTick(); }, 1000);
   },
   methods:{
+    forceUpdate(){
+      this.$forceUpdate();
+    }
+  },
+  updated:()=>{
+    console.log("Updated!!!!!!!!!!!!!!!!!!!!")
   },
   computed:{
     nodeStyle(){
@@ -37,8 +45,37 @@ export default {
     },
     show2c(){
       console.log("show!!!!!!!!!!!!!!!!!!!")
-      return this.show2;
+      return this.show2.value;
+    },
+    frag1c(){
+      console.log("frag1------------------!")
+      return this.frag1.value;
+    },
+    frag2c(){
+      console.log("frag2------------------!")
+      return this.frag2.value;
     }
+  },
+  renderTriggered:({ key, target, type })=>{
+    console.log("Updated rerender!!!!!!!!!!!!!!!!!!!!"+{ key, target, type })
+  },
+  watch:{
+    frag1:{
+      handler:function(newv,oldv){
+      console.log("frag1------------------!w")
+      },
+      immediate: true,
+      deep: true
+    },
+    frag2:{
+      handler:function(newv,oldv){
+      console.log("frag2------------------!w ")
+      console.log(newv)
+      console.log(oldv)
+      },
+      immediate: true,
+      deep: true
+    },
   }
 }
 </script>

@@ -28,7 +28,7 @@ export default {
             }
         }
     },
-    props:["fshader","texts"],
+    props:["fshader","t"],
     created: function() {
     },
     mounted: function() {
@@ -120,10 +120,10 @@ export default {
     watch:{
         fshader:{
             handler(newv,oldv){
+                console.log("fshader updata")
                 this.updateShader();
             }
         }
-        
     },
     computed: {
         rotate: function() {

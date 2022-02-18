@@ -1,7 +1,7 @@
 import "@babel/polyfill";
 import Rete from "rete";
 import PreviewBoxVue from "./components/PreviewBoxVue.vue";
-import { createApp,reactive } from 'vue';
+import { createApp,reactive,ref } from 'vue';
 import EventEmitter from 'events';
 // a class for preview box
 class PreviewBoxComponent extends Rete.Component {
@@ -28,9 +28,9 @@ class PreviewBoxNode extends Rete.Node{
         this.vueContext = null;
         this.name = "PreviewBox"
         this.size=reactive([100,300])
-        this.datas=reactive(["0,0,0","0,0,0",false])
-        console.log("---------------------------")
-        console.log(this.datas)
+        this.frag1 = ref("0,0,0")
+        this.frag2 = ref("0,0,0")
+        this.show2 = ref(false)
         this.edgeReact = 20;
 
         this.state = 0
@@ -41,7 +41,17 @@ class PreviewBoxNode extends Rete.Node{
 
     createVueComp(el){
         this.dom = el;
-        let app= createApp(PreviewBoxVue, {size: this.size, datas:this.datas});
+        console.log(this.frag1)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        console.log(this.frag2)
+        let app= createApp(PreviewBoxVue, {size: this.size, frag1:this.frag1,frag2:this.frag2,show2:this.show2});
         const IDLE = 0;
         const DOWNEDGE = 1
         const DOWN=2;
@@ -108,11 +118,11 @@ class PreviewBoxNode extends Rete.Node{
         console.log("Preview focused code is changed!")
         const code = node.data.getPreviewCode();
         console.log(code);
-        console.log(this.datas);
-        this.datas.frag1 = code;
-        this.datas.frag2 = code;
-        this.datas.show2 = true;
-        console.log(this.datas)
+        console.log(this.frag2);
+        this.frag2.value = code;
+        console.log(this.frag2);
+        this.show2.value = true;
+        this.vueContext.$nextTick();
     }
 
     //scan nodes and try to find if the node is in the area
@@ -148,6 +158,8 @@ class PreviewBoxNode extends Rete.Node{
         }
         let node=selectedNode;
         if(node==null){
+            this.show2.value=false;
+            console.log("null!")
             return;
         }
         if(node.eventManager==undefined){
@@ -163,7 +175,9 @@ class PreviewBoxNode extends Rete.Node{
         }
         this.linkNode = selectedNode;
         this.linkNode.data.addWorkEvent(this.onNodeUpdate);
+        
         this.onNodeUpdate(this.linkNode);
+
         
     }
 
