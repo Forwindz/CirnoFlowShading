@@ -3,7 +3,11 @@
 ## Project setup
 ```
 npm install
+npm i -g rete-cli
+build.bat
 ```
+shell file is not provided currently, we may add it later
+build.bat will compile some packages installed from github
 
 ### Compiles and hot-reloads for development
 ```

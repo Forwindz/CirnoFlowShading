@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import "@babel/polyfill";
+/*
 import Rete from "rete";
 import ConnectionPlugin from "rete-connection-plugin";
 import VueRenderPlugin from "rete-vue-render-plugin";
@@ -11,7 +12,7 @@ import AreaPlugin from "rete-area-plugin";
 
 import NumComponent from './node/comp/NumComponent'
 import AddComponent from './node/comp/AddComponent'
-
+*/
 let app = createApp(App).mount('#app')
 /*
 let asyncFunc = async () => {
