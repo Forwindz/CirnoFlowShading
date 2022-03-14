@@ -28,7 +28,7 @@ export default {
             }
         }
     },
-    props:["fshader","t"],
+    props:["fshader"],
     created: function() {
     },
     mounted: function() {

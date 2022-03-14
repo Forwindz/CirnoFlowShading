@@ -10,6 +10,7 @@ class OutputComponent extends NodeComponent{
     }
 
     builder(node) {
+        super.builder(node);
         this._addInput(node,"out","Output Color");
         return node
     }

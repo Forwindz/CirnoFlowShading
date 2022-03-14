@@ -2,24 +2,32 @@ import "@babel/polyfill";
 import Rete from "rete";
 import NumControl from "./control/NumControl"
 import EventEmitter from 'events';
-
-const socketTypes = {}
-const types = {
-    "Number":[],
-    "Any":[]
-}
-for(let k in types){
-    socketTypes[k] = new Rete.Socket(k);
-}
-
-for(let k in types){
-    for(let v of types[k]){
-        socketTypes[k].combineWith(socketTypes[v]);
+import { Types } from "./utility/DataDefine";
+import { getSocket } from "./utility/Types";
+import { textWorker } from "./utility/Compile";
+class NodeSpector {
+    constructor(node){
+        node.data.spector = this;
+        this._node=node;
+        this.cacheInput = {}
+        this.cacheOutput = {}
+        this.eventManager = new EventEmitter();
     }
-    socketTypes[k].combineWith(socketTypes["Any"]);
-}
-console.log(socketTypes);
 
+    addWorkEvent(func){
+        this.eventManager.on("work",func);
+    }
+
+    removeWorkEvent(func){
+        this.eventManager.removeListener("work",func);
+    }
+
+    trigger(inputs,outputs){
+        this.eventManager.emit("work",this._node,inputs,outputs)
+        this.cacheInput=inputs;
+        this.cacheOutput=outputs;
+    }
+}
 // a utility class for faster coding
 class NodeComponent extends Rete.Component {
 
@@ -28,28 +36,36 @@ class NodeComponent extends Rete.Component {
         this.eventManager = new EventEmitter();
     }
 
-    _addInput(node,key,text,socketType = "Any"){
-        let p = new Rete.Input(key,text,socketTypes[socketType]);
+    _getSocket(name){
+        return getSocket(name);
+    }
+
+    _addInput(node,key,text,socketType = "any"){
+        let p = new Rete.Input(key,text,getSocket(socketType));
         node.addInput(p);
     }
 
-    _addNumSocketInput(node,key,text,socketType="Number"){
-        let p =new Rete.Input(key,text,socketTypes[socketType]);
+    _addNumSocketInput(node,key,text,socketType="float"){
+        let p =new Rete.Input(key,text,getSocket(socketType));
         p.addControl(new NumControl(this.editor, key))
         node.addInput(p);
     }
 
-    _addNumSocketOutput(node,key,text,socketType="Number"){
-        node.addOutput(new Rete.Output(key,text,socketTypes[socketType]));
+    _addNumSocketOutput(node,key,text,socketType="float"){
+        node.addOutput(new Rete.Output(key,text,getSocket(socketType)));
     }
 
 
     _textWorker(inputs,grammar){
-        let t = grammar;
-        for(let k in inputs){
-            t = t.replace("#"+k+"#",str(inputs[k]))
+        return textWorker(inputs,grammar)
+    }
+
+    _extractInput(inputs){
+        let input2 = {}
+        for(let i in inputs){
+            input2[i]=inputs[i][0]
         }
-        return t;
+        return input2;
     }
 
     addWorkEvent(func){
@@ -61,30 +77,14 @@ class NodeComponent extends Rete.Component {
     }
 
     worker(node, inputs, outputs) {
-        console.log("Work!------------------------------------------------")
-        if(node.data.eventManager==undefined){
-            node.data.eventManager = new EventEmitter();
-            node.data.addWorkEvent = (func)=>{node.data.eventManager.on("work",func)}
-            node.data.removeWorkEvent = (func)=>{node.data.eventManager.removeListener("work",func)}
-        }
-        node.data.eventManager.emit("work",node,inputs,outputs);
         this.eventManager.emit("work",node, inputs, outputs);
-        
-        node.data.getPreviewCode = ()=> {
-            return this.getPreviewCode(node,node.data.cacheInput,node.data.cacheOutput)
-        }
-        console.log("installPreview")
-        console.log(node)
+        node.data.spector.trigger(inputs,outputs);
 
-        if(node.data.cacheOutput==undefined){
-            node.data.cacheOutput = outputs;
-            node.data.cacheInput = inputs
-            
-        }else{
-            node.data.cacheOutput = outputs;
-            node.data.cacheInput = inputs
+    }
 
-        }
+    builder(node){
+        let spector = new NodeSpector(node);
+        return node;
     }
 
     getPreviewCode(node, inputs, outputs){

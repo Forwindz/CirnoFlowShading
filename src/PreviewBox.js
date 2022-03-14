@@ -128,6 +128,7 @@ class PreviewBoxNode extends Rete.Node{
     //scan nodes and try to find if the node is in the area
     scanNodes(){
         let includeNodes = []
+        console.log(this.editor)
         let nodes = this.editor.nodes;
         //TODO:
         const r = this.editor.view.area.transform.k;
