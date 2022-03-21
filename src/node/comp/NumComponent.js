@@ -8,7 +8,7 @@ function toFloat(x){
     if (typeof x=="number"){
         return x;
     }else if (typeof x=="string"){
-        return parseInt(x)
+        return parseFloat(x)
     }else{
         console.log("Failed to parse "+x);
         console.log(x);

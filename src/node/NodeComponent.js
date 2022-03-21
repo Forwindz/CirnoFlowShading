@@ -2,7 +2,7 @@ import "@babel/polyfill";
 import Rete from "rete";
 import NumControl from "./control/NumControl"
 import EventEmitter from 'events';
-import { Types } from "./utility/DataDefine";
+import { Types, Variable } from "./utility/DataDefine";
 import { getSocket } from "./utility/Types";
 import { textWorker } from "./utility/Compile";
 class NodeSpector {
@@ -34,6 +34,7 @@ class NodeComponent extends Rete.Component {
     constructor(name) {
         super(name);
         this.eventManager = new EventEmitter();
+        this.defaultInput = {};
     }
 
     _getSocket(name){
@@ -42,17 +43,18 @@ class NodeComponent extends Rete.Component {
 
     _addInput(node,key,text,socketType = "any"){
         let p = new Rete.Input(key,text,getSocket(socketType));
-        node.addInput(p);
+        return node.addInput(p);
     }
 
-    _addNumSocketInput(node,key,text,socketType="float"){
+    _addNumSocketInput(node,key,text,socketType="float",defaultInput = new Variable("float",0)){
         let p =new Rete.Input(key,text,getSocket(socketType));
         p.addControl(new NumControl(this.editor, key))
-        node.addInput(p);
+        this.defaultInput[key]=defaultInput;
+        return node.addInput(p);
     }
 
     _addNumSocketOutput(node,key,text,socketType="float"){
-        node.addOutput(new Rete.Output(key,text,getSocket(socketType)));
+        return node.addOutput(new Rete.Output(key,text,getSocket(socketType)));
     }
 
 
@@ -60,10 +62,24 @@ class NodeComponent extends Rete.Component {
         return textWorker(inputs,grammar)
     }
 
-    _extractInput(inputs){
+    // extract input from raw inputs
+    // if input is undefined, then use the data in node.data
+    // otherwise, return an undefined value
+    _extractInput(node,inputs){
         let input2 = {}
         for(let i in inputs){
-            input2[i]=inputs[i][0]
+            if(inputs[i].length){ // is array (input from other node)
+                input2[i]=inputs[i][0]
+            }else{ // no connection, but control input
+                input2[i] = node.data[i];
+                if(!input2[i]){ // no control input and connection, use default value
+                    input2[i] = this.defaultInput[i];
+                    if(!this.defaultInput[i]){
+                        console.warn("Unknown key in _extractInput: "+i);
+                        console.log(node);
+                    }
+                }
+            }
         }
         return input2;
     }

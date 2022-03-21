@@ -10,18 +10,22 @@ class AddComponent extends NodeComponent {
     }
 
     builder(node) {
+        
         super.builder(node);
         this._addNumSocketInput(node,'num', "Number1")
         this._addNumSocketInput(node,'num2', "Number2")
         this._addNumSocketOutput(node,'num', "Result")
-        return node.addControl(new NumControl(this.editor, 'preview', true))
+        node.addControl(new NumControl(this.editor, 'preview', true))
+        return node;
     }
 
     worker(node, inputs, outputs) {
-        let methodList = methods["add"];
-        let input2 = this._extractInput(inputs);
-        let method = Method.matchMethod(methodList,"add",input2);
         console.log("Worker+++++++++++++++++++++++++++++")
+        console.log(inputs)
+        console.log(node.data)
+        let methodList = methods["add"];
+        let input2 = this._extractInput(node,inputs);
+        let method = Method.matchMethod(methodList,"add",input2);
         console.log(methodList);
         console.log(input2);
         console.log(method);
