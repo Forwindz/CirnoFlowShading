@@ -20,25 +20,15 @@ class AddComponent extends NodeComponent {
     }
 
     worker(node, inputs, outputs) {
-        console.log("Worker+++++++++++++++++++++++++++++")
-        console.log(inputs)
-        console.log(node.data)
         let methodList = methods["add"];
         let input2 = this._extractInput(node,inputs);
         let method = Method.matchMethod(methodList,"add",input2);
-        console.log(methodList);
-        console.log(input2);
-        console.log(method);
         let result = method.execute(input2);
-        console.log(result);
 
         this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(result.value);
         outputs['num'] = result;
         super.worker(node,inputs,outputs)
-    }
-
-    computeSingle(a,b,lambda){
-
+        console.log(node);
     }
 
     getPreviewCode(node,inputs,outputs){

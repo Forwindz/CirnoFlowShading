@@ -8,6 +8,8 @@
 // import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import * as THREE from 'three'
 import TrackballControls from 'three-trackballcontrols'
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import ModelStore from '../node/utility/ModelStore'
 /*
 import {
     BloomEffect,
@@ -83,6 +85,11 @@ export default {
                 wireframe: false
             })
             const mesh = new THREE.Mesh(geometry, material)
+            //TODO: write shader like this: https://github.com/mrdoob/three.js/blob/1ba0eb4f57f6a34b843c8e17d1756dcee99f2b08/examples/jsm/shaders/AfterimageShader.js
+            
+            let mstore = new ModelStore(scene)
+            mstore.load(require('./../assets/model/Chocola.fbx'))
+            
             const axes = new THREE.AxesHelper(5)
 
             this.eles = {

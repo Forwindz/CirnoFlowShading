@@ -1,4 +1,4 @@
-import { textWorker, varWorker } from "./Compile";
+import { varWorker } from "./Compile";
 function convertToEnumType(name) {
     if (typeof name == "string") {
         const v = Types.members[name];
