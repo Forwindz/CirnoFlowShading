@@ -2,8 +2,8 @@ import "@babel/polyfill";
 import Rete from "rete";
 import NumControl from "../control/NumControl"
 import NodeComponent from '../NodeComponent';
-import { methods } from "../utility/PredefinedMethod";
-import { Method } from "../utility/DataDefine";
+import { methods } from "../compile/PredefinedMethod";
+import { Method } from "../compile/DataDefine";
 class AddComponent extends NodeComponent {
     constructor() {
         super("Add");
@@ -12,9 +12,9 @@ class AddComponent extends NodeComponent {
     builder(node) {
         
         super.builder(node);
-        this._addNumSocketInput(node,'num', "Number1")
-        this._addNumSocketInput(node,'num2', "Number2")
-        this._addNumSocketOutput(node,'num', "Result")
+        this._addNumSocketInput(node,'num', "Number1","any")
+        this._addNumSocketInput(node,'num2', "Number2","any")
+        this._addNumSocketOutput(node,'num', "Result","any")
         node.addControl(new NumControl(this.editor, 'preview', true))
         return node;
     }
@@ -29,10 +29,6 @@ class AddComponent extends NodeComponent {
         outputs['num'] = result;
         super.worker(node,inputs,outputs)
         console.log(node);
-    }
-
-    getPreviewCode(node,inputs,outputs){
-        return outputs["num"]+","+outputs["num"]+","+outputs["num"];
     }
 }
 

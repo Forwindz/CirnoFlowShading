@@ -2,19 +2,9 @@ import "@babel/polyfill";
 import Rete from "rete";
 import NumControl from "../control/NumControl"
 import NodeComponent from "../NodeComponent";
-import { Variable } from "../utility/DataDefine";
+import { Variable } from "../compile/DataDefine";
+import { string2Float } from "../utility/utility";
 
-function toFloat(x){
-    if (typeof x=="number"){
-        return x;
-    }else if (typeof x=="string"){
-        return parseFloat(x)
-    }else{
-        console.log("Failed to parse "+x);
-        console.log(x);
-        return 0;
-    }
-}
 class NumComponent extends NodeComponent {
 
     constructor() {
@@ -29,12 +19,8 @@ class NumComponent extends NodeComponent {
     }
 
     worker(node, inputs, outputs) {
-        outputs['num'] = new Variable("float",toFloat(node.data.num));
+        outputs['num'] = new Variable("float",string2Float(node.data.num));
         super.worker(node,inputs,outputs);
-    }
-
-    getPreviewCode(node,inputs,outputs){
-        return outputs["num"]+","+outputs["num"]+","+outputs["num"];
     }
 }
 

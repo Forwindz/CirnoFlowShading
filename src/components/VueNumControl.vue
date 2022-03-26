@@ -10,7 +10,7 @@
   />
 </template>
 <script>
-import {Variable} from "./../node/utility/DataDefine.js"
+import {Variable} from "../node/compile/DataDefine.js"
 export default {
   name: "VueNumControl",
   props: ["readonly", "emitter", "ikey", "getData", "putData"],

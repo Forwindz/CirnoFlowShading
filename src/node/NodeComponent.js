@@ -2,9 +2,9 @@ import "@babel/polyfill";
 import Rete from "rete";
 import NumControl from "./control/NumControl"
 import EventEmitter from 'events';
-import { Types, Variable } from "./utility/DataDefine";
-import { getSocket } from "./utility/Types";
-import { textWorker } from "./utility/Compile";
+import { Types, Variable } from "./compile/DataDefine";
+import { getSocket } from "./compile/Types";
+import { textWorker } from "./compile/Compile";
 class NodeSpector {
     constructor(node){
         node.data.spector = this;
@@ -46,9 +46,9 @@ class NodeComponent extends Rete.Component {
         return node.addInput(p);
     }
 
-    _addNumSocketInput(node,key,text,socketType="float",defaultInput = new Variable("float",0)){
+    _addNumSocketInput(node,key,text,socketType="float", controlType=NumControl, defaultInput = new Variable("float",0)){
         let p =new Rete.Input(key,text,getSocket(socketType));
-        p.addControl(new NumControl(this.editor, key))
+        p.addControl(new controlType(this.editor, key))
         this.defaultInput[key]=defaultInput;
         return node.addInput(p);
     }
@@ -103,6 +103,7 @@ class NodeComponent extends Rete.Component {
         return node;
     }
 
+    //TODO: remove
     getPreviewCode(node, inputs, outputs){
         return "0,0,0"
     }

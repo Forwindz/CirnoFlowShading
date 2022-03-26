@@ -29,7 +29,7 @@ class Variable {
     constructor(type, value = null) {
         this.type = convertToEnumType(type)
         this._value = value;
-        this.isConstValue = typeof value != "string";
+        this.isConstValue = typeof value != "string"; //if is constant, we will compute directly, otherwise, use shader to compute
     }
 
     toString(){

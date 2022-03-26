@@ -1,4 +1,4 @@
-import { Method } from "../utility/DataDefine";
+import { Method } from "./DataDefine";
 import { textWorker } from "./Compile";
 class MethodTemplate{
     constructor(name,inputs,outputType,func,grammar,templateVar){
@@ -28,7 +28,7 @@ function generateOperationMethod(name,singleOp,singleOpText){
     const acceptType=[
         "float","int","vec2","vec3","vec4"
     ]
-    const grammar = "a"+singleOpText+"b";
+    const grammar = "#num#"+singleOpText+"#num2#";
     let template = new MethodTemplate(
         name,
         {"num":"#IT1#","num2":"#IT2#"},
