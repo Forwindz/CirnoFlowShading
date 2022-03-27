@@ -1,6 +1,6 @@
 import "@babel/polyfill";
 import NodeComponent from "../NodeComponent";
-import { Variable } from "../utility/DataDefine";
+import { Variable } from "../compile/DataDefine";
 
 // this component mainly manage the buffer input data from model (like normal, uv, vertex position, tangent)
 class InputComponent extends NodeComponent{

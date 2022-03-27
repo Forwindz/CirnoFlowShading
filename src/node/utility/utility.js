@@ -26,4 +26,34 @@ function vecString2Float(x){
     return newv;
 }
 
-export {string2Float, vecString2Float}
+//input mesh.geometry each buffer input
+//return a type name in glsl
+function extractMeshBufferType(v){
+    let typeName = null;
+    if(v instanceof Float32BufferAttribute){
+        switch(v.itemSize){
+            case 1:
+                typeName=`float`;
+                break;
+            case 2:
+            case 3:
+            case 4:
+                typeName=`vec${v.itemSize}`
+                break;
+            default:
+                console.log("buffer itemSize>4, this should not happen >"+v.itemSize);
+                console.log(v);
+                break;
+        }
+    }else{
+        console.log("Not implemented! for other type of buffer attribute");
+    }
+    return typeName;
+}
+
+function emptyDom(element) {
+    while(element.firstElementChild) {
+       element.firstElementChild.remove();
+    }
+}
+export {string2Float, vecString2Float, extractMeshBufferType, emptyDom}

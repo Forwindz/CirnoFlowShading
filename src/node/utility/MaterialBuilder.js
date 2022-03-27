@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { Float32BufferAttribute } from 'three';
+import extractMeshBufferType from "./utility"
 
 const SUFFIX="_";
 class MaterialBuilder{
@@ -76,23 +77,11 @@ class MaterialBuilder{
 
         for(const k in attrs){
             const v = attrs[k];
-            if(v instanceof Float32BufferAttribute){
-                switch(v.itemSize){
-                    case 1:
-                        s+=`${attrType} float ${k}${attrSuffix};\n`
-                        break;
-                    case 2:
-                    case 3:
-                    case 4:
-                        s+=`${attrType} vec${v.itemSize} ${k}${attrSuffix};\n`
-                        break;
-                    default:
-                        console.log("buffer itemSize>4, this should not happen >"+v.itemSize);
-                        console.log(v);
-                        break;
-                }
+            const typeName = extractMeshBufferType(v);
+            if(typeName){
+                s+=`${attrType} ${typeName} ${k}${attrSuffix};\n`
             }else{
-                console.log("Not implemented! for other type of buffer attribute");
+                console.log("Unknown type for buffer, ignore");
             }
         }
         return s;

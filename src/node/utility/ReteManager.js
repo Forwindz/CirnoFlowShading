@@ -9,38 +9,31 @@ import AreaPlugin from "rete-area-plugin";
 import NumComponent from "../comp/NumComponent";
 import AddComponent from "../comp/AddComponent";
 import OutputComponent from "../comp/OutputComponent";
+import InputComponent from "../comp/InputComponent"
+import { Variable } from "../compile/DataDefine";
+
+import {emptyDom} from "./utility"
 
 class ReteManager{
 
     constructor(container){
         this.container = container;
+        //this is a global context description, when it changes, the whole editor will be changed
+        //mesh indicates a reference of the input data structure.
+        this.context={mesh:null,name:"shader"}; 
         this._buildComponents();
-        this._initEditor();
+        this._initEditor("shader");
     }
 
-    _initEditor(){
-        let editor = new Rete.NodeEditor("shaderEditor@0.1.0", this.container);
+    _initEditor(name){
+        let editor = new Rete.NodeEditor(`${name}@0.1.0`, this.container);
         this.editor = editor;
         editor.use(ConnectionPlugin);
         editor.use(VueRenderPlugin);
-        editor.use(ContextMenuPlugin, {
-          searchBar: true,
-          delay: 100,
-          allocate(component) {
-            return component;
-          },
-          rename(component) {
-            return component.name;
-          },
-          items: {
-            "Click me"() {
-              console.log("Works!");
-            },
-          },
-        });
+        editor.use(ContextMenuPlugin);
         editor.use(AreaPlugin);
 
-        let engine = new Rete.Engine("shaderEditor@0.1.0");
+        let engine = new Rete.Engine(`${name}@0.1.0`);
         this.engine = engine;
 
         this.components.map((c) => {
@@ -67,6 +60,13 @@ class ReteManager{
         console.log(this.editor);
     }
 
+    removeAll(){
+        delete this.editor;
+        delete this.engine;
+        this.components = []
+        emptyDom(this.container);
+    }
+
     _buildComponents(){
         this.components =[
             new NumComponent(),
@@ -74,6 +74,18 @@ class ReteManager{
             new OutputComponent()
         ];
   
+        const mesh = this.context.mesh;
+        if(mesh){
+            const attrs = mesh.geometry.attributes;
+            for(const k in attrs){
+                const v = attrs[k];
+                const typeName = extractMeshBufferType(v);
+                if(typeName){
+                    let comp = new InputComponent(`${k} (${typeName})`,typeName,new Variable(typeName,k));
+                    this.dynamicComponents.push(comp);
+                }
+            }
+        }
         this.components[2].addWorkEvent((node) => {
           console.log("--- Final result ---");
           console.log(node.result[0]);
@@ -86,11 +98,23 @@ class ReteManager{
           this.result = r + "," + r + "," + r; //a simple way to implement, TODO: better
           console.log(this.result);
         });
+
+        this.dynamicComponents = [];
     }
 
-    setMesh(mesh){
-        // register extra components for input
+    //rebuild the whole node editor, this will remove all the content we have currently
+    rebuild(){
+        this.removeAll();
+        this._buildComponents();
+        this._initEditor(this.context.name);
+    }
 
+    set mesh(mesh_){
+        this.context.mesh=mesh_;
+        if(mesh_){
+            this.context.name = mesh_.uuid;
+        }
+        this.rebuild();
     }
 
     async _initNode(){
