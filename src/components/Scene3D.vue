@@ -6,30 +6,39 @@
 
 <script>
 import RenderManager from "../node/utility/RenderManager"
+import {toRaw} from "vue"
 export default {
     name: 'Scene3D',
     data: function() {
         return {
-        }
-    },
-    props:[],
-    created: function() {
-    },
-    mounted: function() {
-        // delay, so that we will get correct clientWidth
-        setTimeout(()=>{
-            this.initRender();
-        }, 400)
-    },
-    methods: {
-        initRender:function(){
-            this.renderManager = new RenderManager();
-            this.renderManager.mountView(this.$refs.canvas)
-            this.renderManager.animate();
 
         }
     },
+    props:["modelStore"],
+    created: function() {
+    },
+    rawData:{
+        renderManager:null
+    },
+    mounted: function() {
+        // delay, so that we will get correct clientWidth
+        let renderManager = this.$options.rawData.renderManager;
+        this.$options.rawData.renderManager = renderManager=new RenderManager();
+        console.log(renderManager)
+        setTimeout(()=>{
+            console.log(renderManager)
+            renderManager.mountView(this.$refs.canvas)
+            renderManager.animate();
+        }, 400)
+    },
+    methods: {
+    },
     watch:{
+        modelStore:function(newv,oldv){
+            console.log("Update Mesh in Scene3D")
+            let renderManager = this.$options.rawData.renderManager;
+            renderManager.mesh = toRaw(newv).objects;
+        }
     },
     computed: {
     }

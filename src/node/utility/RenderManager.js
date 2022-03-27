@@ -7,12 +7,11 @@ const defualtMaterial = new THREE.MeshStandardMaterial({
     wireframe: false
 })
 const defaultGeometry = new THREE.BoxGeometry(1, 1, 1)
-const defualtMesh = new THREE.Mesh(defaultGeometry,defualtMaterial);
-
+const defaultMesh = [new THREE.Mesh(defaultGeometry,defualtMaterial)];
 
 class RenderManager{
 
-    constructor(mesh = defualtMesh){
+    constructor(mesh = defaultMesh){
         this._dom = null;
         const scene = new THREE.Scene()
         const camera = new THREE.PerspectiveCamera(
@@ -26,7 +25,7 @@ class RenderManager{
         const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
         //TODO: write shader like this: https://github.com/mrdoob/three.js/blob/1ba0eb4f57f6a34b843c8e17d1756dcee99f2b08/examples/jsm/shaders/AfterimageShader.js
 
-        const axes = new THREE.AxesHelper(5)
+        const axes = new THREE.AxesHelper(100)
         this.eles = {
             scene: scene,
             camera: camera,
@@ -35,18 +34,27 @@ class RenderManager{
             light: light,
             mesh: mesh,
             axes: axes,
-            speed: 0.01,
+            speed: 0.002,
             //shouldUpdate: false //delay the update to animate()
         }
         this.eles.scene.add(this.eles.camera)
-        this.eles.scene.add(this.eles.light)
+        //this.eles.scene.add(this.eles.light)
         this.eles.scene.add(this.eles.axes)
-        this.eles.scene.add(this.eles.mesh)
-        this.eles.light.position.set(0, 0, 10)
-        this.eles.camera.position.z = 2
-        this.eles.scene.background = new THREE.Color('rgb(255,255,255)')
+        for(const i of this.eles.mesh){
+            this.eles.scene.add(i)
+        }
+        this.eles.light.position.set(0, 20, 200)
+        this.eles.camera.position.z = 0
+        this.eles.camera.position.y = 0;
+        this.eles.camera.position.x = 200
+        this.eles.scene.background = new THREE.Color('rgb(233,233,233)')
+        //this.eles.scene.add(new THREE.AmbientLight(new THREE.Color(1,1,1)))
         this.eles.renderer.setSize(100,100)
 
+    }
+
+    unmountView(){
+        this._dom=null;
     }
 
     _setControl(){
@@ -72,9 +80,12 @@ class RenderManager{
     }
 
     animate(){
+        if(!this._dom){
+            return;
+        }
         requestAnimationFrame(()=>{this.animate()})
         this.eles.renderer.render(this.eles.scene, this.eles.camera)
-        this.eles.mesh.rotation.y += this.eles.speed
+        this.eles.mesh[0].rotation.y += this.eles.speed
         this.eles.controls.update()
     }
 
@@ -86,9 +97,23 @@ class RenderManager{
     }
 
     set mesh(m){
-        this.eles.scene.remove(this.eles.mesh)
-        this.eles.scene.add(m);
+        if(m.length==0){
+            console.log("ignore empty mesh")
+            console.log(m);
+            return;
+        }
+        console.log("set mesh")
+        console.log(m);
+        
+        for(const i of this.eles.mesh){
+            this.eles.scene.remove(i)
+        }
+        
+        for(const i of m){
+            this.eles.scene.add(i);
+        }
         this.eles.mesh = m;
+        console.log(this.eles.scene)
     }
 }
 

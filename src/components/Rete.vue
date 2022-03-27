@@ -2,27 +2,27 @@
   <div id="rete" ref="rete"></div>
 </template>
 <script>
-import ReteManager from "./../node/utility/ReteManager"
-
+import ReteManager from "./../node/utility/ReteManager";
+import {toRaw} from "vue"
 export default {
   data() {
     return {
-      result: "",
     };
   },
+  props: ["modelStore"],
   async mounted() {
-    let container = this.$refs.rete; //document.querySelector('#rete');
-    let rete = new ReteManager(container);
-    this.rete=rete;
+    let container = this.$refs.rete;
+    let rete = new ReteManager(container, this.modelStore);
+    this.$options.rawData.rete = rete;
+  },
+  rawData:{
+    rete:null
   },
   watch: {
-    result: {
-      handler(val, oldVal) {
-        console.log("emit!");
-        this.$emit("change-result", this.result);
-      },
-      deep: true,
-    },
+    modelStore: function (newv, oldv) {
+      console.log("Update Mesh in Scene3D");
+      this.$options.rawData.rete.modelStore = toRaw(newv);
+    }
   },
 };
 </script>

@@ -1,4 +1,6 @@
 
+import {Float32BufferAttribute} from "three"
+
 function string2Float(x){
     if(typeof x=="number"){
         return x;
@@ -62,4 +64,15 @@ function emptyDom(element) {
 function bindFunction(func,...vars){
     return ()=>{func(...vars)};
 }
-export {string2Float, vecString2Float, extractMeshBufferType, emptyDom, bindFunction}
+
+// convert number to 0.0f format, to indicate it is a float number.
+function float2PointString(v){
+    let r = v.toString();
+    if(r.indexOf(".")==-1){
+        r+=".0f";
+    }else{
+        r+="f";
+    }
+    return r;
+}
+export {string2Float, vecString2Float, extractMeshBufferType, emptyDom, bindFunction, float2PointString}

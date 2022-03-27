@@ -15,11 +15,11 @@ import { Variable } from "../compile/DataDefine";
 import {emptyDom} from "./utility"
 
 import MaterialBuilder from "./MaterialBuilder";
-import ModelStore from "./ModelStore";
+import {extractMeshBufferType} from "./utility"
 
 class ReteManager{
 
-    constructor(container){
+    constructor(container,modelStore_=null){
         this.container = container;
         //this is a global context description, when it changes, the whole editor will be changed
         //mesh indicates a reference of the input data structure.
@@ -27,7 +27,7 @@ class ReteManager{
             mesh:null,
             name:"shader",
             matBuilder : new MaterialBuilder(),
-            modelStore : null
+            modelStore : modelStore_
         }; 
         this._buildComponents();
         this._initEditor("shader");
@@ -90,24 +90,20 @@ class ReteManager{
                 const typeName = extractMeshBufferType(v);
                 if(typeName){
                     let comp = new InputComponent(`${k} (${typeName})`,typeName,new Variable(typeName,k));
-                    this.dynamicComponents.push(comp);
+                    console.log(`Add component: ${k} (${typeName})`)
+                    this.components.push(comp);
                 }
             }
         }
         this.components[2].addWorkEvent((node) => {
           console.log("--- Final result ---");
-          console.log(node.result[0]);
-          let r = parseFloat(node.result[0]);
-          if (!r) {
-            r = 0.0;
-          } else {
-            r /= 256.0;
-          }
-          this.result = r + "," + r + "," + r; //a simple way to implement, TODO: better
-          console.log(this.result);
+          let result = node.result[0];
+          console.log(result);
+          this.context.matBuilder.fragShader = result;
+          console.log("------- END -------")
+          this.context.modelStore.applyMaterialToAll(this.context.matBuilder.newMaterial)
         });
 
-        this.dynamicComponents = [];
     }
 
     //rebuild the whole node editor, this will remove all the content we have currently
@@ -119,6 +115,7 @@ class ReteManager{
 
     // set model store
     set modelStore(ms){
+        console.log("Set modelStore in rete")
         this.context.modelStore = ms;
         this.mesh = ms.sampleMesh;
     }
