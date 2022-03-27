@@ -9,9 +9,11 @@ const defualtMaterial = new THREE.MeshStandardMaterial({
 const defaultGeometry = new THREE.BoxGeometry(1, 1, 1)
 const defualtMesh = new THREE.Mesh(defaultGeometry,defualtMaterial);
 
+
 class RenderManager{
 
     constructor(mesh = defualtMesh){
+        this._dom = null;
         const scene = new THREE.Scene()
         const camera = new THREE.PerspectiveCamera(
             75,
@@ -28,7 +30,7 @@ class RenderManager{
         this.eles = {
             scene: scene,
             camera: camera,
-            controls: [],
+            controls: null,
             renderer: renderer,
             light: light,
             mesh: mesh,
@@ -38,13 +40,21 @@ class RenderManager{
         }
         this.eles.scene.add(this.eles.camera)
         this.eles.scene.add(this.eles.light)
-        this.eles.scene.add(this.eles.mesh)
         this.eles.scene.add(this.eles.axes)
+        this.eles.scene.add(this.eles.mesh)
         this.eles.light.position.set(0, 0, 10)
         this.eles.camera.position.z = 2
         this.eles.scene.background = new THREE.Color('rgb(255,255,255)')
         this.eles.renderer.setSize(100,100)
-        this.eles.controls = new TrackballControls(this.eles.camera,this.$el)
+
+    }
+
+    _setControl(){
+        if(this.eles.controls){
+            delete this.eles.controls;
+        }
+        this.eles.controls = null;
+        this.eles.controls = new TrackballControls(this.eles.camera,this._dom)
         this.eles.controls.rotateSpeed = 1.0
         this.eles.controls.zoomSpeed = 5
         this.eles.controls.panSpeed = 0.8
@@ -52,7 +62,6 @@ class RenderManager{
         this.eles.controls.noPan = false
         this.eles.controls.staticMoving = true
         this.eles.controls.dynamicDampingFactor = 0.3
-        
     }
 
     setSize(width,height){
@@ -63,21 +72,23 @@ class RenderManager{
     }
 
     animate(){
-        requestAnimationFrame(this.animate)
+        requestAnimationFrame(()=>{this.animate()})
         this.eles.renderer.render(this.eles.scene, this.eles.camera)
         this.eles.mesh.rotation.y += this.eles.speed
         this.eles.controls.update()
     }
 
     mountView(ele){
+        this._dom=ele;
         this.setSize(ele.clientWidth,ele.clientHeight)
         ele.appendChild(this.eles.renderer.domElement)
-        this.animate()
+        this._setControl();
     }
 
     set mesh(m){
-        this.eles.scene.clear();
+        this.eles.scene.remove(this.eles.mesh)
         this.eles.scene.add(m);
+        this.eles.mesh = m;
     }
 }
 

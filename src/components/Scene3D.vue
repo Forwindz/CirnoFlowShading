@@ -5,32 +5,14 @@
 </template>
 
 <script>
-// import { Clock, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import * as THREE from 'three'
-import TrackballControls from 'three-trackballcontrols'
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
-import ModelStore from '../node/utility/ModelStore'
-/*
-import {
-    BloomEffect,
-    EffectComposer,
-    GlitchPass,
-    EffectPass,
-    RenderPass
-} from 'postprocessing'*/
-
+import RenderManager from "../node/utility/RenderManager"
 export default {
     name: 'Scene3D',
     data: function() {
         return {
-            //vertexShader:"", //TODO: selective, support vertex functioning
-            //fshader:"0,0,0",
-            uniforms:{
-                "time": { value: 1.0 } //TODO: selective, make time dynamic
-            }
         }
     },
-    props:["fshader"],
+    props:[],
     created: function() {
     },
     mounted: function() {
@@ -40,130 +22,16 @@ export default {
         }, 400)
     },
     methods: {
-        animate: function() {
-            requestAnimationFrame(this.animate)
-            this.eles.renderer.render(this.eles.scene, this.eles.camera)
-            this.eles.mesh.rotation.y += this.eles.speed
-            this.eles.controls.update()
-        },
-        makeShaders: function(){
-            const material = new THREE.ShaderMaterial({
-                uniforms:this.uniforms,
-                vertexShader: this.fullVertexShader,
-                fragmentShader: this.fullFragmentShader,
-
-            });
-            return material;
-        },
-        updateShader: function(){
-            if(this.eles==undefined){
-                return;
-            }
-            console.log("Update shaders")
-            this.eles.mesh.material = this.makeShaders();
-            console.log(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
-            this.eles.renderer.setSize(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
-            this.eles.camera.aspect = this.$refs.canvas.clientWidth/ this.$refs.canvas.clientHeight
-        },
         initRender:function(){
-            const scene = new THREE.Scene()
-            // const composer = new THREE.EffectComposer(new WebGLRenderer())
-            // const effectPass = new THREE.EffectPass(camera, new BloomEffect())
-            const camera = new THREE.PerspectiveCamera(
-                75,
-                this.$refs.canvas.clientWidth / this.$refs.canvas.clientHeight,
-                0.1,
-                1000
-            )
-            console.log(camera);
-            const renderer = new THREE.WebGLRenderer({ antialias: true })
-            const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
-            const geometry = new THREE.BoxGeometry(1, 1, 1)
-            const material = new THREE.MeshStandardMaterial({
-                side: THREE.FrontSide,
-                color: 'hsl(0, 100%, 50%)',
-                wireframe: false
-            })
-            const mesh = new THREE.Mesh(geometry, material)
-            //TODO: write shader like this: https://github.com/mrdoob/three.js/blob/1ba0eb4f57f6a34b843c8e17d1756dcee99f2b08/examples/jsm/shaders/AfterimageShader.js
-            
-            let mstore = new ModelStore(scene)
-            mstore.load(require('./../assets/model/Chocola.fbx'))
-            
-            const axes = new THREE.AxesHelper(5)
+            this.renderManager = new RenderManager();
+            this.renderManager.mountView(this.$refs.canvas)
+            this.renderManager.animate();
 
-            this.eles = {
-                scene: scene,
-                camera: camera,
-                controls: [],
-                renderer: renderer,
-                light: light,
-                mesh: mesh,
-                axes: axes,
-                speed: 0.01,
-                //shouldUpdate: false //delay the update to animate()
-            }
-
-            this.$refs.canvas.appendChild(this.eles.renderer.domElement)
-            this.eles.scene.add(this.eles.camera)
-            this.eles.scene.add(this.eles.light)
-            this.eles.scene.add(this.eles.mesh)
-            this.eles.scene.add(this.eles.axes)
-            this.eles.light.position.set(0, 0, 10)
-            this.eles.camera.position.z = 2
-            this.eles.scene.background = new THREE.Color('rgb(233,233,233)')
-            this.eles.renderer.setSize(this.$refs.canvas.clientWidth, this.$refs.canvas.clientHeight)
-            this.eles.controls = new TrackballControls(this.eles.camera,this.$el)
-            this.eles.controls.rotateSpeed = 1.0
-            this.eles.controls.zoomSpeed = 5
-            this.eles.controls.panSpeed = 0.8
-            this.eles.controls.noZoom = false
-            this.eles.controls.noPan = false
-            this.eles.controls.staticMoving = true
-            this.eles.controls.dynamicDampingFactor = 0.3
-            this.animate()
         }
     },
     watch:{
-        fshader:{
-            handler(newv,oldv){
-                console.log("fshader updata")
-                this.updateShader();
-            }
-        }
     },
     computed: {
-        rotate: function() {
-            if (this.eles.speed === '') {
-                return 0
-            } else {
-                return this.eles.speed
-            }
-        },
-        fullVertexShader: function(){
-            return "\
-varying vec2 vUv; \
-\
-void main()\
-{\
-    vUv = uv;\
-    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\
-    gl_Position = projectionMatrix * mvPosition;\
-}\
-"
-        },
-        fullFragmentShader:function(){
-            console.log("Frag shader:------------------")
-            console.log(this.fshader)
-            return "\
-uniform float time;\
-varying vec2 vUv;\
-void main( void ) {\
-    vec2 position = - 1.0f + 2.0f * vUv;\
-    gl_FragColor = vec4( " 
-        + this.fshader +
-    ", 1.0f );}"
-        }
     }
 }
 </script>

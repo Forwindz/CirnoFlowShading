@@ -56,4 +56,10 @@ function emptyDom(element) {
        element.firstElementChild.remove();
     }
 }
-export {string2Float, vecString2Float, extractMeshBufferType, emptyDom}
+
+// some issues with core.js settings, I cannot use function.bind(variables), so I write an own version
+// just to make sure the project is able to run.
+function bindFunction(func,...vars){
+    return ()=>{func(...vars)};
+}
+export {string2Float, vecString2Float, extractMeshBufferType, emptyDom, bindFunction}
