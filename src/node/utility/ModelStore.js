@@ -1,36 +1,49 @@
-import * as THREE from 'three'
-import { MeshPhongMaterial } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 //TODO:!!!
 class ModelStore{
 
-    constructor(scene){
-        this.scene = scene; 
+    constructor(){
         this.meshes = {};
-        this.meshMaterial = {};
+        this.textureMaterialMap = {};
+        this.object = [];
     }
 
     load(path){
         const fbxLoader = new FBXLoader()
+        let innerRecusive;
         fbxLoader.load(
             path,
-            (object) => {
+            innerRecusive = function(object){
                 console.log(object)
                 const subobjs = object.children;
                 for(const subobj of subobjs){
                     if(subobj.type == "Mesh"){
                         this.meshes[subobj.uuid] = subobj
                         const orgmat = subobj.material;
-                        console.log(typeof orgmat)
+                        if(orgmat.map){
+                            if(!this.textureMaterialMap[orgmat.map.uuid]){
+                                this.textureMaterialMap[orgmat.map.uuid] = {
+                                    "relatedMesh":[subobj],
+                                    "texture":[orgmat.map]
+                                }
+                            }else{
+                                let tmmap=this.textureMaterialMap[orgmat.map.uuid];
+                                tmmap.relatedMesh.push(subobj);
+                            }
+                        }
                         if(orgmat == "MeshPhongMaterial"){
                             //
                         }
                         //TODO: Other types of material
                     }else if(subobj.type == "AmbientLight"){
                         //TODO: parse this
+                    }else if(subobj.type == "Group"){
+                        innerRecusive(subobj);
                     }
                 }
-                console.log(this);
+                this.object.push(this)
+                console.log(this.object);
+                console.log(this.textureMaterialMap)
             },
             (xhr) => {
                 console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
@@ -39,6 +52,31 @@ class ModelStore{
                 console.log(error)
             }
         )
+    }
+
+    get sampleMesh(){
+        for(const i of this.meshes){
+            return i;
+        }
+        return null;
+    }
+
+    //set all model with the specific material
+    applyMaterialToAll(mat){
+        let tempSet = new Set();
+        for(let mesh of this.meshes){
+            mesh.material = mat;
+            let texture=mesh.material.map;
+            if(texture && !(tempSet.has(texture.uuid))){ //retain the texture settings
+                let newmat = mat.clone();
+                newmat.map = texture;
+                let textMesh = this.textureMaterialMap[texture.uuid];
+                for(let rmesh of textMesh.relatedMesh){
+                    rmesh.material = newmat;
+                }
+                tempSet.add(texture.uuid);
+            }
+        }
     }
 }
 

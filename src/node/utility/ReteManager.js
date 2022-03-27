@@ -14,13 +14,21 @@ import { Variable } from "../compile/DataDefine";
 
 import {emptyDom} from "./utility"
 
+import MaterialBuilder from "./MaterialBuilder";
+import ModelStore from "./ModelStore";
+
 class ReteManager{
 
     constructor(container){
         this.container = container;
         //this is a global context description, when it changes, the whole editor will be changed
         //mesh indicates a reference of the input data structure.
-        this.context={mesh:null,name:"shader"}; 
+        this.context={
+            mesh:null,
+            name:"shader",
+            matBuilder : new MaterialBuilder(),
+            modelStore : null
+        }; 
         this._buildComponents();
         this._initEditor("shader");
     }
@@ -109,8 +117,15 @@ class ReteManager{
         this._initEditor(this.context.name);
     }
 
+    // set model store
+    set modelStore(ms){
+        this.context.modelStore = ms;
+        this.mesh = ms.sampleMesh;
+    }
+
     set mesh(mesh_){
         this.context.mesh=mesh_;
+        this.context.matBuilder.mesh=mesh_;
         if(mesh_){
             this.context.name = mesh_.uuid;
         }

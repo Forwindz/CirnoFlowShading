@@ -6,7 +6,7 @@ const SUFFIX="_";
 class MaterialBuilder{
 
     constructor(){
-        this.model = null;
+        this.mesh = null;
         this.fragShaderText = "";
         this.vertShaderText = "\
         varying vec2 vUv; \
@@ -54,7 +54,7 @@ class MaterialBuilder{
     }
 
     _genFragShader(code){
-        let s = this._generateFragShaderHeader(this.model)
+        let s = this._generateFragShaderHeader(this.mesh)
         s+="void main(){\
             gl_FragColor = vec4("+code+",1.0f);}"
         return s;
