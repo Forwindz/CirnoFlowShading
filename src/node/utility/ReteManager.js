@@ -10,6 +10,8 @@ import NumComponent from "../comp/NumComponent";
 import AddComponent from "../comp/AddComponent";
 import OutputComponent from "../comp/OutputComponent";
 import InputComponent from "../comp/InputComponent"
+import Floats2RGBComponent from "../comp/Floats2RGBComponent";
+//import component here
 import { Variable } from "../compile/DataDefine";
 
 import {emptyDom} from "./utility"
@@ -79,9 +81,11 @@ class ReteManager{
         this.components =[
             new NumComponent(),
             new AddComponent(),
-            new OutputComponent()
+            new Floats2RGBComponent()
+            // Add component here
         ];
   
+        // Input component, automatically generated.
         const mesh = this.context.mesh;
         if(mesh){
             const attrs = mesh.geometry.attributes;

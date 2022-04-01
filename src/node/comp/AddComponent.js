@@ -12,9 +12,9 @@ class AddComponent extends NodeComponent {
     builder(node) {
         
         super.builder(node);
-        this._addNumSocketInput(node,'num', "Number1","any")
-        this._addNumSocketInput(node,'num2', "Number2","any")
-        this._addNumSocketOutput(node,'num', "Result","any")
+        this._addNumSocketInput(node,'num', "Number1","float")
+        this._addNumSocketInput(node,'num2', "Number2","float")
+        this._addNumSocketOutput(node,'num', "Result","float")
         node.addControl(new NumControl(this.editor, 'preview', true))
         return node;
     }

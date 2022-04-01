@@ -29,8 +29,8 @@ export default {
       if(!n){
         n=0;
       }
-      if (this.ikey) this.putData(this.ikey, new Variable('float',n));
-      this.emitter.trigger("process");
+      if (this.ikey) this.putData(this.ikey, new Variable('float',n)); // use putData to transfer data from ui to node graph
+      this.emitter.trigger("process"); // let the program compute the result of node graph
     },
   },
   mounted() {
