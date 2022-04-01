@@ -2,8 +2,19 @@ import "@babel/polyfill";
 import Rete from "rete";
 import NumControl from "../control/NumControl"
 import NodeComponent from "../NodeComponent";
-import { Variable } from "../compile/DataDefine";
+import { Method, Variable } from "../compile/DataDefine";
 import { float2PointString } from "../utility/utility";
+
+
+const methodExecute = new Method("floats2rgb",
+        {  
+            "r":"float",
+            "g":"float",
+            "b":"float"
+        },"vec3",
+        (r,g,b)=>{return [r,g,b];},
+        "vec3(#r#,#g#,#b#)"
+        )
 
 class Floats2RGBComponent extends NodeComponent {
 
@@ -22,13 +33,17 @@ class Floats2RGBComponent extends NodeComponent {
     }
 
     worker(node, inputs, outputs) {
-        console.log(inputs["r"]);
-        console.log(inputs["g"]);
-        console.log(inputs["b"]);
-        console.log(inputs);
+        
+        // three methods to compute the result, recommend the third method, if too hard, use the first/second method
+
         //outputs["rgb"] = new Variable("vec3","vec3("+inputs["r"][0]+","+inputs["g"][0]+","+inputs["b"][0]+")");
-        outputs["rgb"] = new Variable("vec3",`vec3(${float2PointString(inputs["r"][0])},${float2PointString(inputs["g"][0])},${float2PointString(inputs["b"][0])})`);
-        console.log(outputs);
+        const inputs2 = this._extractInput(node,inputs);
+        console.log(inputs)
+        console.log(inputs2)
+        console.log(node.data);
+        outputs["rgb"] = new Variable("vec3",`vec3(${inputs2["r"]},${inputs2["g"]},${inputs2["b"]})`);
+        //outputs["rgb"] = methodExecute.execute(this._extractInput(inputs2));
+        console.log(outputs)
         super.worker(node,inputs,outputs); //remember to invoke super last
     }
 }
@@ -36,4 +51,3 @@ class Floats2RGBComponent extends NodeComponent {
 export default Floats2RGBComponent; //export default
 // then find node/utility/ReteManager.js, 
 // import this file, in _buildComponents(){ add component
-//

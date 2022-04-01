@@ -19,7 +19,7 @@ class NumComponent extends NodeComponent {
     }
 
     worker(node, inputs, outputs) {
-        outputs['num'] = new Variable("float",string2Float(node.data.num));
+        outputs['num'] = node.data.num;
         super.worker(node,inputs,outputs);
     }
 }

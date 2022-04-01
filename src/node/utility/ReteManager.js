@@ -31,8 +31,9 @@ class ReteManager{
             matBuilder : new MaterialBuilder(),
             modelStore : modelStore_
         }; 
-        this._buildComponents();
-        this._initEditor("shader");
+        this.components=[];
+        //this._buildComponents();
+        //this._initEditor("shader");
     }
 
     _initEditor(name){
@@ -73,6 +74,10 @@ class ReteManager{
     removeAll(){
         delete this.editor;
         delete this.engine;
+        for(let i=0;i<this.components.length;i++){
+            delete this.components[i];
+        }
+        delete this.components;
         this.components = []
         emptyDom(this.container);
     }
@@ -81,6 +86,7 @@ class ReteManager{
         this.components =[
             new NumComponent(),
             new AddComponent(),
+            new OutputComponent(),
             new Floats2RGBComponent()
             // Add component here
         ];

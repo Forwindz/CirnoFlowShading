@@ -21,6 +21,8 @@ class AddComponent extends NodeComponent {
 
     worker(node, inputs, outputs) {
         let methodList = methods["add"];
+        console.log(inputs)
+        console.log(outputs)
         let input2 = this._extractInput(node,inputs);
         let method = Method.matchMethod(methodList,"add",input2);
         let result = method.execute(input2);

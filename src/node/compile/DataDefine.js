@@ -33,7 +33,7 @@ class Variable {
     }
 
     toString(){
-        return `${this._value}`
+        return this.type.turnVar2String(this);
     }
 
     get value() {
@@ -50,12 +50,25 @@ class Variable {
 }
 
 class Types {
-    constructor(name) {
+    constructor(name,toStringFunc = null) {
         this.name = name;
         this.implicitTransform = {}
         //this.father = Set();
         //this.children = Set();
         Types.members[name] = this;
+        this.toStringFunc = toStringFunc;
+    }
+
+    turnVar2String(v){
+        const vv = v.value;
+        if(typeof vv =="string"){
+            return vv;
+        }
+        if(this.toStringFunc){
+            return this.toStringFunc(vv);
+        }else{
+            return `${vv}`;
+        }
     }
 
     // transform from the type
@@ -106,8 +119,8 @@ Types.isCompact = function (a, b) {
     return false;
 }
 
-Types.define = function (name) {
-    new Types(name);
+Types.define = function (name, toStringFunc) {
+    new Types(name, toStringFunc);
 }
 
 Types.defineImplicit = function (fromName, toName, func, grammar) {

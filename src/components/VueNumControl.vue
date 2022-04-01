@@ -35,6 +35,12 @@ export default {
   },
   mounted() {
     this.value = this.getData(this.ikey);
+    if(!this.value){
+      this.value = 0;
+      this.putData(this.ikey, new Variable('float',0));
+    }else{
+      this.putData(this.ikey, new Variable('float',this.value));
+    }
   },
 };
 </script>
