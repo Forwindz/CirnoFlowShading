@@ -13,6 +13,7 @@ import InputComponent from "../comp/InputComponent"
 import Floats2RGBComponent from "../comp/Floats2RGBComponent";
 import Vec2Component from "../comp/Vec2Component";
 import Vec3Component from "../comp/Vec3Component";
+import Vec4Component from "../comp/Vec4Component";
 //import component here
 import { Variable } from "../compile/DataDefine";
 
@@ -92,6 +93,7 @@ class ReteManager{
             new Floats2RGBComponent(),
             new Vec2Component(),
             new Vec3Component(),
+            new Vec4Component(),
             // Add component here
         ];
   

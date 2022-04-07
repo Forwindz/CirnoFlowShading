@@ -70,6 +70,8 @@ class MaterialBuilder{
         if(code instanceof Variable){
             switch(code.type.name){
                 case "vec4":
+                    finalString = `vec4(${code.value})`
+                    break;
                 case "vec3":
                     finalString = `vec4(${code.value},1.0f)`
                     break;
