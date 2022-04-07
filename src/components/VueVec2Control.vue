@@ -61,6 +61,7 @@ export default {
 <style scoped>
     input {
         width:50px;
+        padding-left: 5px;
         display: inline;
     }
 </style>

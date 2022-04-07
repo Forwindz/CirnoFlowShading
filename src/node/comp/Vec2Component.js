@@ -1,7 +1,6 @@
 import "@babel/polyfill";
 import Vec2Control from "../control/Vec2Control";
 import NodeComponent from "../NodeComponent";
-import { Variable } from "../compile/DataDefine";
 class Vec2Component extends NodeComponent {
 
     constructor() {
