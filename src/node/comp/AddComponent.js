@@ -4,6 +4,7 @@ import NumControl from "../control/NumControl"
 import NodeComponent from '../NodeComponent';
 import { methods } from "../compile/PredefinedMethod";
 import { Method } from "../compile/DataDefine";
+// dynamic node by: http://jsfiddle.net/vmxdcLbq/27/
 class AddComponent extends NodeComponent {
     constructor() {
         super("Add");

@@ -74,8 +74,89 @@ function defineOpMethods(methods){
     methods["div"] = generateOperationMethod("div",(a,b)=>{return a/b},"/");
 }
 
+const _fetchIndex2TextList = "rgba";
+function fetchIndex2Text(fetchIndex){
+    let s=""
+    for(let i of fetchIndex){
+        s+=_fetchIndex2TextList[i];
+    }
+    return s;
+}
+function generateBreakDownMethod(namePrefix,fetchIndex){
+    const grammar = "#v#.#s#";
+    const fetchName = fetchIndex2Text(fetchIndex);
+    const name = namePrefix+"_"+fetchName;
+    let outputType = "float"
+    if(fetchName.length>1){
+        outputType = `vec${fetchName.length}`;
+    }
+    let template = new MethodTemplate(
+        name,
+        {"v":"#IT#"},
+        "#OT#",
+        (v)=>{
+            result = [];
+            for (i of fetchIndex)
+            {
+                result.push(v[fetchIndex]);
+            }
+            return result;
+        },
+        grammar
+    );
+
+    let inputs=[];
+    const maxv = Math.max(2,Math.max(...fetchIndex)+1);
+    for(let i =4;i>=maxv;i--){
+        inputs.push(`vec${i}`);
+    }
+
+    let methodList = [];
+    for(let i of inputs){
+        methodList.push(template.specialize({"s":fetchName,"IT":i,"OT":outputType}));
+    }
+    return methodList;
+    
+}
+
+function genFetchIndexes(fetchIndexes = [], layer=0){
+    if(layer<0){
+        return fetchIndexes;
+    }
+    let result=[]
+    for(let i=0;i<4;i++){
+        for(let f of fetchIndexes){
+            result.push(f.concat([i]));
+        }
+    }
+    return genFetchIndexes(result,layer-1);
+    
+}
+
+function moveArray(froma, toa){
+    for(const i of toa){
+        froma.push(i)
+    }
+    return froma;
+}
+
+function defineBreakDownMethods(methods_){
+    let fetchIndexes = []
+    const basicIndexes=[[0],[1],[2],[3]]
+    fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,-1));
+    fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,0));
+    fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,1));
+    fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,2));
+    let methods = [];
+    for(let i of fetchIndexes){
+        methods = moveArray(methods,generateBreakDownMethod("extract",i));
+    }
+    methods_["extract"] = methods;
+}
+
 var methods= {}
 defineOpMethods(methods)
+defineBreakDownMethods(methods);
 console.log(methods);
 
 export {methods}
