@@ -1,7 +1,7 @@
 import "@babel/polyfill";
 import Vec2Control from "../control/Vec2Control";
 import NodeComponent from "../NodeComponent";
-import { Variable } from "../utility/DataDefine";
+import { Variable } from "../compile/DataDefine";
 class Vec2Component extends NodeComponent {
 
     constructor() {
@@ -16,7 +16,8 @@ class Vec2Component extends NodeComponent {
     }
 
     worker(node, inputs, outputs) {
-        outputs['num'] = new Variable("vec2",node.data.num);
+        outputs['num'] = node.data.num;
+        console.log(outputs);
         super.worker(node,inputs,outputs);
     }
 }

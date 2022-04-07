@@ -4,7 +4,7 @@
     type="number"
     placeholder="X"
     :readonly="readonly"
-    :value="value"
+    :value="value[0]"
     @input="change($event)"
     @dblclick.stop=""
     @pointerdown.stop=""
@@ -15,7 +15,7 @@
     type="number"
     placeholder="Y"
     :readonly="readonly"
-    :value="value"
+    :value="value[1]"
     @input="change($event)"
     @dblclick.stop=""
     @pointerdown.stop=""
@@ -24,25 +24,22 @@
 </template>
 <script>
 import {Variable} from "../node/compile/DataDefine.js"
-import vecString2Float from "./../node/utility/utility"
+import {vecString2Float} from "./../node/utility/utility"
 
 export default {
   name: "VueNumControl",
   props: ["readonly", "emitter", "ikey", "getData", "putData"],
   data() {
     return {
-      value: 0,
+      value: [0,0],
     };
   },
   methods: {
-    obtainValues(){
-        return vecString2Float([
+    change(e) {
+      this.value = vecString2Float([
             this.$refs.x.value,
             this.$refs.y.value
-        ])
-    },
-    change(e) {
-      this.value = this.obtainValues();
+        ]);
       this.update();
     },
     update() {
@@ -52,12 +49,18 @@ export default {
   },
   mounted() {
     this.value = this.getData(this.ikey);
+    if(!this.value){
+      this.value = [0,0];
+      this.putData(this.ikey, new Variable('vec2',[0,0]));
+    }else{
+      this.putData(this.ikey, new Variable('vec2',this.value));
+    }
   },
 };
 </script>
 <style scoped>
     input {
-        width:40%;
+        width:50px;
         display: inline;
     }
 </style>
