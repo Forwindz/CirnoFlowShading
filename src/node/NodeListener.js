@@ -20,7 +20,8 @@ import EventEmitter from 'events';
     "zoom","zoomed","click","mousemove","contextmenu","import","export","process","error","warn"] 
  */
 const eventsNodeDirect = [
-    "nodedraged","nodeselect","nodeselected"]
+    "nodedraged","nodeselect","nodeselected","nodework","nodeworked"
+]
 
 const eventsNodeIndirect = [
     "translatenode","nodetranslate","nodetranslated","selectnode"
@@ -31,30 +32,41 @@ function install(editor){
     var subEvents = editor.subEvents;
     
     Rete.Node.prototype.on = function(name,func){
-        subEvents.get(this).on(name,func);
+        subEvents.get(this.id).on(name,func);
     }
     Rete.Node.prototype.removeListener = function(name,func){
-        subEvents.get(this).removeListener(name,func);
+        subEvents.get(this.id).removeListener(name,func);
     }
     Rete.Node.prototype.getListener = function(name){
-        return subEvents.get(this)    
+        return subEvents.get(this.id)    
     }
 
+    editor.bind("nodework");
+    editor.bind("nodeworked");
+    ((oldMethod)=>{
+        Rete.Engine.prototype.processNode = async function(node){
+            editor.trigger("nodework",node);
+            await oldMethod.apply(this,node);
+            editor.trigger("nodeworked",node);
+        }
+    })(Rete.Engine.prototype.processNode)
+    
+
     editor.on('noderemoved',(node)=>{
-        subEvents.delete(node)
+        subEvents.delete(node.id)
     });
     editor.on('nodecreated',(node)=>{
-        subEvents.set(node,new EventEmitter());
+        subEvents.set(node.id,new EventEmitter());
     });
 
     for(let e of eventsNodeDirect){
         editor.on(e,(node,...param)=>{
-            subEvents.get(node).emit(e,node,...param);
+            subEvents.get(node.id).emit(e,node,...param);
         })
     }
     for(let e of eventsNodeIndirect){
         editor.on(e,(node,...param)=>{
-            subEvents.get(node.node).emit(e,node,...param);
+            subEvents.get(node.node.id).emit(e,node,...param);
         })
     }
 }

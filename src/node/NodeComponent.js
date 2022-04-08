@@ -93,8 +93,10 @@ class NodeComponent extends Rete.Component {
     }
 
     worker(node, inputs, outputs) {
+        console.log("work!")
         this.eventManager.emit("work",node, inputs, outputs);
         node.data.spector.trigger(inputs,outputs);
+        console.log("work end!")
         //TODO: worker.work, implement in the Node Listeners
 
     }

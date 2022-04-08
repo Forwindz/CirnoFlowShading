@@ -197,10 +197,14 @@ class ReteManager{
             console.log(map.get(i).getPosition(i.node));
 
         }
-        console.log("------======-=-=-=-=-=-=-=-=-=-=-=-=-=-=-##");
+        console.log("------======-=-=-=-=-=-=-=-=-=-=-=-=-=-=-##");*/
         n1.on("nodedraged",(node)=>{console.log("dragged!")});
-        n1.on("nodetranslate",(node,x,y)=>{console.log("translate "+x+" "+y)});*/
-
+        n1.on("nodetranslate",(node,x,y)=>{console.log("translate "+x+" "+y)});
+        n1.on("nodework",(node)=>{
+            console.log("node work");
+            console.log(node)
+        });
+        console.log(this.engine);
     }
 }
 
