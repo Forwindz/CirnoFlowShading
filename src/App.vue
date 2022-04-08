@@ -26,8 +26,6 @@ export default {
       let modelStore = new ModelStore();
       modelStore.load(path,()=>{
         console.log("Load complete");
-        console.log(this.modelStore)
-        console.log(modelStore)
         this.modelStore=modelStore;
         console.log(this.modelStore)
         });

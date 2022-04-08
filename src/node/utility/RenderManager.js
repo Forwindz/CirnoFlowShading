@@ -8,24 +8,25 @@ const defualtMaterial = new THREE.MeshStandardMaterial({
 })
 const defaultGeometry = new THREE.BoxGeometry(1, 1, 1)
 const defaultMesh = [new THREE.Mesh(defaultGeometry,defualtMaterial)];
+const camera = new THREE.PerspectiveCamera(
+    75,
+    1,
+    0.1,
+    1000
+);
+const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
+
+const axes = new THREE.AxesHelper(100)
 
 class RenderManager{
 
     constructor(mesh = defaultMesh){
         this._dom = null;
         const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(
-            75,
-            1,
-            0.1,
-            1000
-        )
-        console.log(camera);
+        
         const renderer = new THREE.WebGLRenderer({ antialias: true })
-        const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
         //TODO: write shader like this: https://github.com/mrdoob/three.js/blob/1ba0eb4f57f6a34b843c8e17d1756dcee99f2b08/examples/jsm/shaders/AfterimageShader.js
 
-        const axes = new THREE.AxesHelper(100)
         this.eles = {
             scene: scene,
             camera: camera,

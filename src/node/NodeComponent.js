@@ -95,6 +95,7 @@ class NodeComponent extends Rete.Component {
     worker(node, inputs, outputs) {
         this.eventManager.emit("work",node, inputs, outputs);
         node.data.spector.trigger(inputs,outputs);
+        //TODO: worker.work, implement in the Node Listeners
 
     }
 
@@ -103,10 +104,6 @@ class NodeComponent extends Rete.Component {
         return node;
     }
 
-    //TODO: remove
-    getPreviewCode(node, inputs, outputs){
-        return "0,0,0"
-    }
 /*
     createNode(data){
         let node = super.createNode(data);

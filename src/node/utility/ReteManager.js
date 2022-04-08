@@ -5,6 +5,9 @@ import VueRenderPlugin from "rete-vue-render-plugin";
 
 import ContextMenuPlugin from "rete-context-menu-plugin";
 import AreaPlugin from "rete-area-plugin";
+import NodeListener from "../NodeListener";
+
+import PreviewComponent from "../comp/PreviewComponent";
 
 import NumComponent from "../comp/NumComponent";
 import AddComponent from "../comp/AddComponent";
@@ -22,6 +25,8 @@ import {emptyDom} from "./utility"
 import MaterialBuilder from "./MaterialBuilder";
 import {extractMeshBufferType} from "./utility"
 
+import PreviewManager from "./PreviewManager";
+
 class ReteManager{
 
     constructor(container,modelStore_=null){
@@ -35,6 +40,7 @@ class ReteManager{
             modelStore : modelStore_
         }; 
         this.components=[];
+        this.previewManager=null;
         //this._buildComponents();
         //this._initEditor("shader");
     }
@@ -46,6 +52,8 @@ class ReteManager{
         editor.use(VueRenderPlugin);
         editor.use(ContextMenuPlugin);
         editor.use(AreaPlugin);
+        editor.use(PreviewComponent);
+        editor.use(NodeListener);
 
         let engine = new Rete.Engine(`${name}@0.1.0`);
         this.engine = engine;
@@ -71,6 +79,7 @@ class ReteManager{
         AreaPlugin.zoomAt(editor);
         editor.trigger("process");
 
+        this.previewManager = new PreviewManager(this.editor,this);
         console.log(this.editor);
     }
 
@@ -93,7 +102,7 @@ class ReteManager{
             new Floats2RGBComponent(),
             new Vec2Component(),
             new Vec3Component(),
-            new Vec4Component(),
+            new Vec4Component()
             // Add component here
         ];
   
@@ -164,9 +173,34 @@ class ReteManager{
         editor.addNode(n2);
         editor.addNode(add);
         editor.addNode(output);
-
         editor.connect(n1.outputs.get("num"), add.inputs.get("num"));
         editor.connect(n2.outputs.get("num"), add.inputs.get("num2"));
+/*
+        console.log("------======-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+        console.log(this.editor);
+        console.log(this.editor.view);
+        console.log(this.editor.view.nodes);
+        this.editor.nodes[0]
+        for(let i of this.editor.view.nodes){
+            console.log(i);
+        }
+        let n=this.editor.nodes[0];
+        console.log(n);
+        console.log(n1);
+        console.log(this.editor.view.nodes.get(n));
+        console.log(this.editor.view.nodes.get(n).sockets);
+        let map = this.editor.view.nodes.get(n).sockets;
+        for(let i of map.keys()){
+            console.log(i);
+            console.log(i.node);
+            console.log(map.get(i));
+            console.log(map.get(i).getPosition(i.node));
+
+        }
+        console.log("------======-=-=-=-=-=-=-=-=-=-=-=-=-=-=-##");
+        n1.on("nodedraged",(node)=>{console.log("dragged!")});
+        n1.on("nodetranslate",(node,x,y)=>{console.log("translate "+x+" "+y)});*/
+
     }
 }
 

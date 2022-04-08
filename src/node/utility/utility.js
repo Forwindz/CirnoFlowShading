@@ -75,4 +75,20 @@ function float2PointString(v){
     }
     return r;
 }
-export {string2Float, vecString2Float, extractMeshBufferType, emptyDom, bindFunction, float2PointString}
+
+// return linear interperation
+function lerp(a,b,t){
+    return (b-a)*t+a
+}
+
+function arrayLerp(a,b,t){
+    result = []
+    const l = a.length()
+    for(let i=0;i<l;i++){
+        result.push(lerp(a[i],b[i],t))
+    }
+    return result;
+}
+export {string2Float, vecString2Float, extractMeshBufferType, 
+    emptyDom, bindFunction, float2PointString, lerp, arrayLerp
+}

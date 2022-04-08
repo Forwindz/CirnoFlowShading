@@ -1,6 +1,8 @@
 import "@babel/polyfill";
 import Vec3Control from "../control/Vec3Control";
 import NodeComponent from "../NodeComponent";
+//TODO: 
+/*
 class BreakVec3Component extends NodeComponent {
 
     constructor() {
@@ -9,8 +11,10 @@ class BreakVec3Component extends NodeComponent {
 
     builder(node) {
         super.builder(node);
-        this._addNumSocketOutput(node,'num', "3D Vector","vec3");
         this._addNumSocketInput(node,"num","Vec3","vec3",Vec3Control);
+        this._addNumSocketOutput(node,'numx', "X","float");
+        this._addNumSocketOutput(node,'numy', "Y","float");
+        this._addNumSocketOutput(node,'numz', "Z","float");
         return node;
     }
 
@@ -22,3 +26,4 @@ class BreakVec3Component extends NodeComponent {
 }
 
 export default Vec3Component;
+*/
