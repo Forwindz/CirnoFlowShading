@@ -128,6 +128,9 @@ class MaterialBuilder{
 
     _generateFragShaderHeader(mesh){
         let s = this._generateUniformHeader();
+        console.log("gen mat");
+        console.log(mesh);
+        console.log(mesh.material);
         const texture = mesh.material.map;
         if(texture){
             s+= "uniform sampler2D texture;\n";

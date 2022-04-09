@@ -13,13 +13,15 @@ import Scene3D from "./Scene3D.vue"
 import {toRaw} from "vue"
 import { Variable } from "../node/compile/DataDefine";
 
-import ModelStore from '../node/utility/ModelStore'
+import ModelStore from '../node/utility/ModelStore';
+import MaterialBuilder from '../node/utility/MaterialBuilder';
 export default {
   name: 'PreviewBox',
   props:["modelStore","variable"],
   data:()=>{
     return {
-        displayText:""
+        displayText:"",
+        matBuilder:new MaterialBuilder()
     }
   },
   components: {
@@ -39,21 +41,22 @@ export default {
   watch:{
     modelStore:{
       handler:function(newv,oldv){
-        //this.modelStore = newv;
-        console.log("Update ModelStore!");
-        console.log(newv);
+        this.matBuilder.mesh = toRaw(newv).sampleMesh;
       },
       immediate: true,
       deep: false
     },
     variable:{
       handler:function(newv,oldv){
-        //this.modelStore = newv;
+        console.log("======================================")
         console.log("Update variable!");
         console.log(newv);
+        this.matBuilder.fragShader = toRaw(newv);
+        this.modelStore.applyMaterialToAll(toRaw(this.matBuilder.newMaterial))
+        console.log("======================================")
       },
       immediate: true,
-      deep: false
+      deep: true
     }
   }
 }

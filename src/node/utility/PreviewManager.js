@@ -84,11 +84,11 @@ class PreviewManager{
             console.log(params)
             if(socket instanceof Rete.Output){
                 preview.variable = params.outputData[socket.key];
-                console.log(preview.variable)
+                console.log(params.outputData[socket.key])
             }else{
                 let v = this.editor.components.get(node.name).extractInputKey(node,params.inputData,socket.key)
                 preview.variable = v;
-                console.log(preview.variable)
+                console.log(v)
             }
         }
         socket.node.on("translatenode",func);

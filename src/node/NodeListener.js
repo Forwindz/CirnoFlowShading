@@ -43,16 +43,7 @@ function install(editor){
     }
 
     editor.bind("nodework");
-    editor.bind("nodeworked");/*
-    ((oldMethod)=>{
-        Rete.Engine.prototype.processNode = async function(node){
-            editor.trigger("nodework",node);
-            let result = await oldMethod.apply(this,node);
-            console.log(result);
-            editor.trigger("nodeworked",node,result);
-            return result;
-        }
-    })(Rete.Engine.prototype.processNode)*/
+    editor.bind("nodeworked");
 
     Rete.Engine.prototype.processWorker = async function(node){
         const inputData = await this.extractInputData(node);
@@ -61,9 +52,6 @@ function install(editor){
         if (!component){
             return outputData;
         }
-        console.log("~-----~~~~~~")
-        console.log(component)
-        console.log(node)
         editor.trigger("nodework",{node,inputData});
         try {
             await component.worker(node, inputData, outputData, ...this.args);
@@ -71,8 +59,6 @@ function install(editor){
             this.abort();
             this.trigger('warn', e);
         }
-        console.log(inputData)
-        console.log(outputData)
         editor.trigger("nodeworked",{node,inputData,outputData});
         return outputData;
     }
@@ -88,13 +74,11 @@ function install(editor){
 
     for(let e of eventsNodeDirect){
         editor.on(e,(param)=>{
-            console.log(e,param);
             subEvents.get(param.id).emit(e,param);
         })
     }
     for(let e of eventsNodeIndirect){
         editor.on(e,(param)=>{
-            console.log(e,param);
             subEvents.get(param.node.id).emit(e,param);
         })
     }

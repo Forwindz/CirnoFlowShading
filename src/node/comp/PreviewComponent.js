@@ -1,7 +1,7 @@
 import "@babel/polyfill";
 import Rete from "rete";
 import PreviewBox from "./../../components/PreviewBox.vue";
-import { createApp,reactive,ref } from 'vue';
+import { createApp,reactive,ref, watch } from 'vue';
 import { Variable } from "../compile/DataDefine";
 // a class for preview box
 class PreviewBoxComponent extends Rete.Component {
@@ -29,18 +29,25 @@ class PreviewBoxNode extends Rete.Node{
         this.name = "PreviewBox"
         this.width = 100;
         this.height = 100;
-        this.variable = reactive(new Variable("float",0));
+        this._variable = reactive(new Variable("float",0));
+        watch(this._variable, () => {
+            console.log("Trigger!",this._variable);
+          })
     }
 
     createVueComp(el){
-        //this.dom = el;
-        //this.data.modelStore = reactive(this.data.modelStore)
         console.log("mount!")
         console.log(this.data)
-        let app= createApp(PreviewBox, {modelStore:this.data.modelStore,variable:this.variable});
+        let app= createApp(PreviewBox, {modelStore:this.data.modelStore,variable:this._variable});
         app.mount(el)
         console.log(app);
-        //this.vueContext =app;
+    }
+
+    set variable(v){
+        console.log("Assign variable",v)
+        console.log(this._variable)
+        Object.assign(this._variable,v);
+        console.log(this._variable)
     }
     
     setPosition(editor,pos){
