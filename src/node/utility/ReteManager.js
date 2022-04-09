@@ -198,13 +198,22 @@ class ReteManager{
 
         }
         console.log("------======-=-=-=-=-=-=-=-=-=-=-=-=-=-=-##");*/
-        n1.on("nodedraged",(node)=>{console.log("dragged!")});
-        n1.on("nodetranslate",(node,x,y)=>{console.log("translate "+x+" "+y)});
+        //n1.on("nodedraged",(node)=>{console.log("dragged!")});
+        //n1.on("nodetranslate",(node)=>{console.log("translate ");console.log(node)});
+        //n1.on("translatenode",(node)=>{console.log("translate node ");console.log(node)});
         n1.on("nodework",(node)=>{
             console.log("node work");
             console.log(node)
+            return true;
         });
         console.log(this.engine);
+        console.log(this.editor.view.nodes.get(n1).sockets);
+        //setInterval(()=>{
+            //n1.position[0]+=5;
+            //this.editor.view.nodes.get(n1).translate(n1.position[0]+=1,0);
+            //console.log(this.editor.view.nodes.get(n1));
+        //},50);
+        this.previewManager.addPreviewsSurroundNode(add);
     }
 }
 

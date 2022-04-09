@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="node">
-        <Scene3D ref="p1" style="width:100%;height:100%;float:left" v-bind:fshader="frag1c"></Scene3D>
+        <Scene3D ref="p1" style="width:100px;height:100px;float:left"></Scene3D>
         <div ref="text" style="float:left">{{displayText}}</div>
     </div>
   </div>

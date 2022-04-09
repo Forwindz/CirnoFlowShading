@@ -26,6 +26,7 @@ const eventsNodeDirect = [
 const eventsNodeIndirect = [
     "translatenode","nodetranslate","nodetranslated","selectnode"
 ]
+
     //TODO: compatitable with multiply editors
 function install(editor){
     editor.subEvents = new Map();
@@ -53,6 +54,7 @@ function install(editor){
     
 
     editor.on('noderemoved',(node)=>{
+        subEvents.get(node.id).emit('noderemoved',node);
         subEvents.delete(node.id)
     });
     editor.on('nodecreated',(node)=>{
@@ -68,18 +70,6 @@ function install(editor){
         editor.on(e,(node,...param)=>{
             subEvents.get(node.node.id).emit(e,node,...param);
         })
-    }
-}
-
-function installNode(){
-    Node.prototype.on = function(name,func){
-        subEvents.get(this).on(name,func);
-    }
-    Node.prototype.removeListener = function(name,func){
-        subEvents.get(this).removeListener(name,func);
-    }
-    Node.prototype.getListener = function(name){
-        return subEvents.get(this)    
     }
 }
 
