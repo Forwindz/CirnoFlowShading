@@ -68,20 +68,25 @@ class NodeComponent extends Rete.Component {
     _extractInput(node,inputs){
         let input2 = {}
         for(let i in inputs){
-            if(inputs[i].length){ // is array (input from other node)
-                input2[i]=inputs[i][0]
-            }else{ // no connection, but control input
-                input2[i] = node.data[i];
-                if(!input2[i]){ // no control input and connection, use default value
-                    input2[i] = this.defaultInput[i];
-                    if(!this.defaultInput[i]){
-                        console.warn("Unknown key in _extractInput: "+i);
-                        console.log(node);
-                    }
-                }
-            }
+            input2[i] = this.extractInputKey(node,inputs,i);
         }
         return input2;
+    }
+
+    extractInputKey(node,inputs,key){
+        if(inputs[key].length){ // is array (input from other node)
+            return inputs[key][0]
+        }else{ // no connection, but control input
+            let t =node.data[key];
+            if(!t){ // no control input and connection, use default value
+                t = this.defaultInput[key];
+                if(!this.defaultInput[key]){
+                    console.warn("Unknown key in _extractInput: "+key);
+                    console.log(node);
+                }
+            }
+            return t;
+        }
     }
 
     addWorkEvent(func){
@@ -93,10 +98,8 @@ class NodeComponent extends Rete.Component {
     }
 
     worker(node, inputs, outputs) {
-        console.log("work!")
         this.eventManager.emit("work",node, inputs, outputs);
         node.data.spector.trigger(inputs,outputs);
-        console.log("work end!")
         //TODO: worker.work, implement in the Node Listeners
 
     }

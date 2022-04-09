@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="node" style="width:100px;height:100px">
-        <Scene3D ref="p1" style="width:100px;height:100px;float:left" v-bind:modelStore="this.modelStores"></Scene3D>
+        <Scene3D ref="p1" style="width:100px;height:100px;float:left" v-bind:modelStore="this.modelStore"></Scene3D>
         <div ref="text" style="float:left">{{displayText}}</div>
     </div>
   </div>
@@ -16,7 +16,7 @@ import { Variable } from "../node/compile/DataDefine";
 import ModelStore from '../node/utility/ModelStore'
 export default {
   name: 'PreviewBox',
-  props:["modelStore"],
+  props:["modelStore","variable"],
   data:()=>{
     return {
         displayText:""
@@ -32,10 +32,6 @@ export default {
   updated:()=>{
   },
   computed:{
-    modelStores:function(){
-      console.log("ModelStores")
-      return this.modelStore;
-    }
   },
   renderTriggered:({ key, target, type })=>{
     console.log("Updated rerender!!!!!!!!!!!!!!!!!!!!"+{ key, target, type })
@@ -45,6 +41,15 @@ export default {
       handler:function(newv,oldv){
         //this.modelStore = newv;
         console.log("Update ModelStore!");
+        console.log(newv);
+      },
+      immediate: true,
+      deep: false
+    },
+    variable:{
+      handler:function(newv,oldv){
+        //this.modelStore = newv;
+        console.log("Update variable!");
         console.log(newv);
       },
       immediate: true,

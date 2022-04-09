@@ -20,11 +20,11 @@ import EventEmitter from 'events';
     "zoom","zoomed","click","mousemove","contextmenu","import","export","process","error","warn"] 
  */
 const eventsNodeDirect = [
-    "nodedraged","nodeselect","nodeselected","nodework","nodeworked"
+    "nodedraged","nodeselect","nodeselected"
 ]
 
 const eventsNodeIndirect = [
-    "translatenode","nodetranslate","nodetranslated","selectnode"
+    "translatenode","nodetranslate","nodetranslated","selectnode","nodework","nodeworked"
 ]
 
     //TODO: compatitable with multiply editors
@@ -43,14 +43,39 @@ function install(editor){
     }
 
     editor.bind("nodework");
-    editor.bind("nodeworked");
+    editor.bind("nodeworked");/*
     ((oldMethod)=>{
         Rete.Engine.prototype.processNode = async function(node){
             editor.trigger("nodework",node);
-            await oldMethod.apply(this,node);
-            editor.trigger("nodeworked",node);
+            let result = await oldMethod.apply(this,node);
+            console.log(result);
+            editor.trigger("nodeworked",node,result);
+            return result;
         }
-    })(Rete.Engine.prototype.processNode)
+    })(Rete.Engine.prototype.processNode)*/
+
+    Rete.Engine.prototype.processWorker = async function(node){
+        const inputData = await this.extractInputData(node);
+        const component = this.components.get(node.name);
+        const outputData = {};
+        if (!component){
+            return outputData;
+        }
+        console.log("~-----~~~~~~")
+        console.log(component)
+        console.log(node)
+        editor.trigger("nodework",{node,inputData});
+        try {
+            await component.worker(node, inputData, outputData, ...this.args);
+        } catch (e) {
+            this.abort();
+            this.trigger('warn', e);
+        }
+        console.log(inputData)
+        console.log(outputData)
+        editor.trigger("nodeworked",{node,inputData,outputData});
+        return outputData;
+    }
     
 
     editor.on('noderemoved',(node)=>{
@@ -62,13 +87,15 @@ function install(editor){
     });
 
     for(let e of eventsNodeDirect){
-        editor.on(e,(node,...param)=>{
-            subEvents.get(node.id).emit(e,node,...param);
+        editor.on(e,(param)=>{
+            console.log(e,param);
+            subEvents.get(param.id).emit(e,param);
         })
     }
     for(let e of eventsNodeIndirect){
-        editor.on(e,(node,...param)=>{
-            subEvents.get(node.node.id).emit(e,node,...param);
+        editor.on(e,(param)=>{
+            console.log(e,param);
+            subEvents.get(param.node.id).emit(e,param);
         })
     }
 }

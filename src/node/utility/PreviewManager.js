@@ -46,11 +46,9 @@ class PreviewManager{
             const inpos = connection.input.position;
             const outpos = connection.output.position;
             preview.setPosition(this.editor,arrayLerp(inpos,outpos,lerp));
-            return true;
         }
         let funcRemove = (node)=>{
             this.removePreview(preview);
-            return true;
         }
         if(lerp!=0){
             connection.input.on("translatenode",func);
@@ -76,14 +74,26 @@ class PreviewManager{
             }
             centerPos[1]+=padding[1]-preview.height/2;
             preview.setPosition(this.editor,centerPos);
-            return true;
         }
         let funcRemove = (node)=>{
             this.removePreview(preview);
-            return true;
+        }
+        let funcNodeUpdate = (params)=>{
+            const node = params.node;
+            console.log("Node update!")
+            console.log(params)
+            if(socket instanceof Rete.Output){
+                preview.variable = params.outputData[socket.key];
+                console.log(preview.variable)
+            }else{
+                let v = this.editor.components.get(node.name).extractInputKey(node,params.inputData,socket.key)
+                preview.variable = v;
+                console.log(preview.variable)
+            }
         }
         socket.node.on("translatenode",func);
         socket.node.on("noderemoved",funcRemove);
+        socket.node.on("nodeworked",funcNodeUpdate);
         console.log(preview)
         func();
         return preview;

@@ -2,6 +2,7 @@ import "@babel/polyfill";
 import Rete from "rete";
 import PreviewBox from "./../../components/PreviewBox.vue";
 import { createApp,reactive,ref } from 'vue';
+import { Variable } from "../compile/DataDefine";
 // a class for preview box
 class PreviewBoxComponent extends Rete.Component {
 
@@ -28,6 +29,7 @@ class PreviewBoxNode extends Rete.Node{
         this.name = "PreviewBox"
         this.width = 100;
         this.height = 100;
+        this.variable = reactive(new Variable("float",0));
     }
 
     createVueComp(el){
@@ -35,8 +37,10 @@ class PreviewBoxNode extends Rete.Node{
         //this.data.modelStore = reactive(this.data.modelStore)
         console.log("mount!")
         console.log(this.data)
-        let app= createApp(PreviewBox, {modelStore:this.data.modelStore});
+        let app= createApp(PreviewBox, {modelStore:this.data.modelStore,variable:this.variable});
         app.mount(el)
+        console.log(app);
+        //this.vueContext =app;
     }
     
     setPosition(editor,pos){
