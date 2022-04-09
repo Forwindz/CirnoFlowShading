@@ -34,17 +34,14 @@ class PreviewBoxNode extends Rete.Node{
         //this.dom = el;
         //this.data.modelStore = reactive(this.data.modelStore)
         console.log("mount!")
+        console.log(this.data)
         let app= createApp(PreviewBox, {modelStore:this.data.modelStore});
         app.mount(el)
     }
     
     setPosition(editor,pos){
-        console.log(pos);
-        console.log(pos[0]);
-        console.log(pos[1]);
         this.position=pos;
         editor.view.nodes.get(this).translate(pos[0],pos[1]);
-        console.log(editor.view.nodes.get(this));
     }
 
 }

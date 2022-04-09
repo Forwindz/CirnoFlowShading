@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { Color, MeshLambertMaterial } from "three";
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 //TODO:!!!
+/*
 THREE.Mesh.prototype.clone = function ( object ) {
 
     if ( object === undefined ) object = new THREE.Mesh( this.geometry, this.material );
@@ -10,7 +11,7 @@ THREE.Mesh.prototype.clone = function ( object ) {
 
     return object;
 
-};
+};*/
 
 class ModelStore{
 
@@ -23,12 +24,16 @@ class ModelStore{
     //return a new object with shallow copy
     roughClone(){
         let ms = new ModelStore();
-        ms.meshes = this.meshes;
+        //ms.meshes = this.meshes;
         ms.objects = [];
-        ms.textureMaterialMap = this.textureMaterialMap;
+        //ms.textureMaterialMap = this.textureMaterialMap;
         for(let obj of this.objects){
-            ms.objects.push(obj.clone());
+            ms.processGroup(obj.clone());
+            //ms.objects.push(obj.clone());
         }
+        console.log("clone!!!")
+        console.log(this)
+        console.log(ms);
         return ms;
     }
 /*

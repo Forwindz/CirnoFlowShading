@@ -19,7 +19,8 @@ class PreviewManager{
     }
 
     addPreview(pos){
-        let ms = this.manager.context.modelStore;
+        let ms = this.manager.context.modelStore.roughClone();
+        console.log(ms);
         let node = this._comp.createNode({"modelStore":ms});
         node.position = pos;
         this.editor.addNode(node);

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="node">
-        <Scene3D ref="p1" style="width:100px;height:100px;float:left"></Scene3D>
+    <div class="node" style="width:100px;height:100px">
+        <Scene3D ref="p1" style="width:100px;height:100px;float:left" v-bind:modelStore="this.modelStores"></Scene3D>
         <div ref="text" style="float:left">{{displayText}}</div>
     </div>
   </div>
@@ -10,15 +10,16 @@
 
 <script>
 import Scene3D from "./Scene3D.vue"
+import {toRaw} from "vue"
 import { Variable } from "../node/compile/DataDefine";
 
+import ModelStore from '../node/utility/ModelStore'
 export default {
   name: 'PreviewBox',
-  props:["v","width","height","modelStore"],
+  props:["modelStore"],
   data:()=>{
     return {
-        displayText:"",
-        variables:new Variable("float",0)
+        displayText:""
     }
   },
   components: {
@@ -31,24 +32,23 @@ export default {
   updated:()=>{
   },
   computed:{
+    modelStores:function(){
+      console.log("ModelStores")
+      return this.modelStore;
+    }
   },
   renderTriggered:({ key, target, type })=>{
     console.log("Updated rerender!!!!!!!!!!!!!!!!!!!!"+{ key, target, type })
   },
   watch:{
-    v:{
+    modelStore:{
       handler:function(newv,oldv){
-        console.log("Update!");
-        if(newv.isConstValue){
-            this.displayText = newv.toString();
-        }else{
-            this.displayText = "";
-        }
-        
-
+        //this.modelStore = newv;
+        console.log("Update ModelStore!");
+        console.log(newv);
       },
-      //immediate: true,
-      deep: true
+      immediate: true,
+      deep: false
     }
   }
 }

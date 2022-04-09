@@ -1,11 +1,13 @@
 <template>
-  <Scene3D style = "width:20%;height:20vh;position:fixed;padding:10px" ref="previewAll" v-bind:modelStore="this.modelStore"></Scene3D>
-  <Rete style = "width:100%;height:80vh" v-bind:modelStore="this.modelStore"></Rete>
+  <RenderVue></RenderVue>
+  <Scene3D style = "width:200px;height:200px;position:fixed;padding:10px" ref="previewAll" v-bind:modelStore="this.modelStore"></Scene3D>
+  <Rete style = "width:100%;height:100%" v-bind:modelStore="this.modelStore"></Rete>
 </template>
 
 <script>
 import Rete from './components/Rete.vue'
 import Scene3D from './components/Scene3D.vue'
+import RenderVue from './components/RenderVue.vue'
 import ModelStore from './node/utility/ModelStore'
 export default {
   name: 'App',
@@ -16,7 +18,8 @@ export default {
   },
   components: {
     Rete,
-    Scene3D
+    Scene3D,
+    RenderVue
   },
   mounted: function() {
     this.loadModel(require('./assets/model/Chocola.fbx'));

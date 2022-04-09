@@ -213,6 +213,7 @@ class ReteManager{
             //this.editor.view.nodes.get(n1).translate(n1.position[0]+=1,0);
             //console.log(this.editor.view.nodes.get(n1));
         //},50);
+        this.previewManager.addPreviewsSurroundNode(n1);
         this.previewManager.addPreviewsSurroundNode(add);
     }
 }
