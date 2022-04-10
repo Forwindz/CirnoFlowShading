@@ -30,6 +30,7 @@ class PreviewBoxNode extends Rete.Node{
         this.name = "PreviewBox"
         this.width = width;
         this.height = height;
+        this.templateData = null;
         this._variable = reactive(new Variable("float",0));
     }
 

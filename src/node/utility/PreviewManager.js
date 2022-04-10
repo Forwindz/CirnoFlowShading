@@ -1,8 +1,9 @@
 import "@babel/polyfill";
 import Rete from "rete";
 
-import {arrayLerp} from "./utility"
+import {arrayLerp, deepClone} from "./utility"
 import {PreviewBoxComponent,PreviewBoxNode} from "../comp/PreviewComponent"
+import NodeGraphTemplate from "./NodeGraphTemplate";
 
 
 function genAlongSocketID(socket){
@@ -128,6 +129,10 @@ class PreviewManager{
             socket.node.removeListener("translatenode",func)
             socket.node.removeListener("noderemoved",funcRemove);
             socket.node.removeListener("nodeworked",funcNodeUpdate);
+            preview.removeListener("nodedraged",funcDragPreview);
+            preview.templateData = new NodeGraphTemplate();
+            preview.templateData.saveSocket(socket);
+            console.log(preview.templateData);
             console.log(socket)
             console.log(preview)
             console.log(params)
@@ -184,6 +189,32 @@ function minPos(a,b){
 function maxPos(a,b){
     return [Math.max(a[0],b[0]),Math.max(a[1],b[1])]
 }
+/*
+function obtainPartOfEditor(fromSocket){
+    function saveNode(node){
+        let data = deepClone(node.data)
+        let inputs = new Map();
+        for(let k of node.inputs.keys()){
+            const inputSocket = node.inputs.get(k)
+            let inputSocketCopy;
+            for(let connection of inputSocket.connections){
+                connection.data;
+                connection.output
+            }
+        }
+        return {
+            id:node.id,
+            ref:node,
+            data:data,
+            
+        }
+    }
+    if(fromSocket instanceof Rete.Output){
+        fromSocket.node;
+    }else{
+
+    }
+}*/
 class NodePreviewLayoutInfo{
     constructor(manager,node){
         this.node=node;

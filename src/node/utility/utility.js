@@ -89,6 +89,31 @@ function arrayLerp(a,b,t){
     }
     return result;
 }
+
+function deepClone(obj, hash = new WeakMap()) {
+    if (Object(obj) !== obj) return obj; // primitives
+    if (hash.has(obj)) return hash.get(obj); // cyclic reference
+    let result =   obj instanceof Set ? new Set(obj) 
+                 : obj instanceof Map ? new Map(Array.from(obj, ([key, val]) => 
+                                        [key, deepClone(val, hash)])) 
+                 : obj instanceof Date ? new Date(obj)
+                 : obj instanceof RegExp ? new RegExp(obj.source, obj.flags):null;
+    if(!result){//left cases
+        if (typeof obj.clone=="function"){
+            result = obj.clone() // customized method
+            hash.set(obj, result);
+            return result;
+        }else if (obj.constructor){
+            result = new obj.constructor();
+        }else{
+            result = Object.create(null)
+        }
+    }
+    hash.set(obj, result);
+    return Object.assign(result, ...Object.keys(obj).map(
+        key => ({ [key]: deepClone(obj[key], hash) }) ));
+}
+
 export {string2Float, vecString2Float, extractMeshBufferType, 
-    emptyDom, bindFunction, float2PointString, lerp, arrayLerp
+    emptyDom, bindFunction, float2PointString, lerp, arrayLerp, deepClone
 }

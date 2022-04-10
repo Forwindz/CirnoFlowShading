@@ -5,10 +5,13 @@ import EventEmitter from 'events';
 import { Types, Variable } from "./compile/DataDefine";
 import { getSocket } from "./compile/Types";
 import { textWorker } from "./compile/Compile";
+/*
 class NodeSpector {
-    constructor(node){
-        node.data.spector = this;
-        this._node=node;
+    constructor(node=null){
+        if(node){
+            node.data.spector = this;
+            this._node=node;
+        }
         this.cacheInput = {}
         this.cacheOutput = {}
         this.eventManager = new EventEmitter();
@@ -27,7 +30,7 @@ class NodeSpector {
         this.cacheInput=inputs;
         this.cacheOutput=outputs;
     }
-}
+}*/
 // a utility class for faster coding
 class NodeComponent extends Rete.Component {
 
@@ -99,13 +102,13 @@ class NodeComponent extends Rete.Component {
 
     worker(node, inputs, outputs) {
         this.eventManager.emit("work",node, inputs, outputs);
-        node.data.spector.trigger(inputs,outputs);
+        //node.data.spector.trigger(inputs,outputs);
         //TODO: worker.work, implement in the Node Listeners
 
     }
 
     builder(node){
-        let spector = new NodeSpector(node);
+        //let spector = new NodeSpector(node);
         return node;
     }
 

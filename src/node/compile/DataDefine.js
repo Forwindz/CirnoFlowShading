@@ -1,3 +1,4 @@
+import { deepClone } from "../utility/utility";
 import { varWorker } from "./Compile";
 function convertToEnumType(name) {
     if (typeof name == "string") {
@@ -12,6 +13,8 @@ function convertToEnumType(name) {
     //debug code:
     if(!name){
         console.log("<Undefined Value> for type name");
+        let a=null;
+        a.b.c=1;
         return null;
     }
     return name;
@@ -34,6 +37,10 @@ class Variable {
 
     toString(){
         return this.type.turnVar2String(this);
+    }
+
+    clone(){
+        return new Variable(this.type,deepClone(this.value));
     }
 
     get value() {
