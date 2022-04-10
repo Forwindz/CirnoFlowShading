@@ -6,7 +6,7 @@ import {emptyDom} from "./utility"
 
 import MaterialBuilder from "./MaterialBuilder";
 import {extractMeshBufferType, arrayLerp} from "./utility"
-import {PreviewBoxComponent} from "../comp/PreviewComponent"
+import {PreviewBoxComponent,PreviewBoxNode} from "../comp/PreviewComponent"
 
 
 class PreviewManager{
@@ -15,40 +15,52 @@ class PreviewManager{
         this.manager = manager;//rete manager
         this._comp = new PreviewBoxComponent();
         this.editor.register(this._comp);
-        this.previews = new Set();
+        this.previews = new Map();
+
+        this.editor.on("nodecreated",(param)=>{
+            console.log(param);
+            if(! (param instanceof PreviewBoxNode)){
+                this.setupInteraction(param);
+            }
+            
+        })
     }
 
-    addPreview(pos){
+    addPreview(pos,id){
         let ms = this.manager.context.modelStore.roughClone();
-        console.log(ms);
+        console.log("add Preview",id);
         let node = this._comp.createNode({"modelStore":ms});
         node.position = pos;
         this.editor.addNode(node);
-        this.previews.add(node);
+        this.previews.set(id,node);
         return node;
     }
 
-    removePreview(preview){
-        this.previews.delete(preview);
+    removePreview(id){
+        console.log("remove Preview",id);
+        this.editor.removeNode(this.previews.get(id));
+        this.previews.delete(id);
     }
 
-    _getNodeView(node){
+    getNodeView(node){
         return this.editor.view.nodes.get(node);
     }
 
-    _getSocketView(socket){
+    getSocketView(socket){
         return this.editor.view.nodes.get(socket.node).sockets.get(socket);
     }
 
+    //TODO: add node translation
     addPreviewAlongConnection(connection,lerp=0.5){
         let preview; 
+        const id = `c_${connection.input.id}_${connection.output.id}_${lerp}`
         let func = (node)=>{
             const inpos = connection.input.position;
             const outpos = connection.output.position;
             preview.setPosition(this.editor,arrayLerp(inpos,outpos,lerp));
         }
         let funcRemove = (node)=>{
-            this.removePreview(preview);
+            this.removePreview(id);
         }
         if(lerp!=0){
             connection.input.on("translatenode",func);
@@ -58,14 +70,19 @@ class PreviewManager{
             connection.output.on("translatenode",(node)=>func(node));
             connection.output.on("noderemoved",funcRemove)
         }
-        preview = this.addPreview(func(null));
+        preview = this.addPreview(func(null),id);
         return preview;
     }
 
+    _genAlongSocketID(socket){
+        return `s_${socket.key}_${socket.node.id}_${socket instanceof Rete.Output?"out":"in"}`;
+    }
+
     addPreviewAlongSocket(socket,padding=[5,0]){
-        let preview = this.addPreview([100,0]);
+        const id = this._genAlongSocketID(socket);
+        let preview = this.addPreview([100,0],id);
         let func = (node)=>{
-            let socketView = this._getSocketView(socket);
+            let socketView = this.getSocketView(socket);
             let centerPos = socketView.getPosition(socketView.node);
             if(socket instanceof Rete.Output){
                 centerPos[0]+=padding[0];
@@ -76,19 +93,15 @@ class PreviewManager{
             preview.setPosition(this.editor,centerPos);
         }
         let funcRemove = (node)=>{
-            this.removePreview(preview);
+            this.removePreview(id);
         }
         let funcNodeUpdate = (params)=>{
             const node = params.node;
-            console.log("Node update!")
-            console.log(params)
             if(socket instanceof Rete.Output){
                 preview.variable = params.outputData[socket.key];
-                console.log(params.outputData[socket.key])
             }else{
                 let v = this.editor.components.get(node.name).extractInputKey(node,params.inputData,socket.key)
                 preview.variable = v;
-                console.log(v)
             }
         }
         socket.node.on("translatenode",func);
@@ -99,14 +112,136 @@ class PreviewManager{
         return preview;
     }
 
-    //TODO: better layout
-    addPreviewsSurroundNode(node){
-        let nv = this._getNodeView(node);
+    removePreviewAlongSocket(socket){
+        const id = this._genAlongSocketID(socket);
+        this.removePreview(id)
+    }
+
+    removePreviewsSurroundNode(node){
+        console.log("remove previews",node)
+        let nv = this.getNodeView(node);
         let sockets = nv.sockets;
         for(let socket of sockets.keys()){
-            this.addPreviewAlongSocket(socket);
+            this.removePreviewAlongSocket(socket);
         }
     }
+
+    //TODO: better layout
+    addPreviewsSurroundNode(node){
+        let nv = this.getNodeView(node);
+        let sockets = nv.sockets;
+        let previewArray = []
+        for(let socket of sockets.keys()){
+            const preview = this.addPreviewAlongSocket(socket);
+            previewArray.push(preview)
+        }
+        return previewArray
+    }
+
+    setupInteraction(node){
+        //https://developer.mozilla.org/zh-CN/docs/Web/API/Pointer_events
+        let nv = this.getNodeView(node);
+        const el = nv.el;
+        var v = new PreviewInteractionPointFloat(this,node,el);
+    }
+
+}
+
+class PreviewInteractionPointFloat{
+    constructor(manager,node,el,timeoutIn=200, timeoutOut=3000){
+        this.manager = manager;
+        this.el=el;
+        this.pres = [];
+        const STATE_OUT_DOM=0;
+        const STATE_IN_DOM=1;
+        const STATE_ALREADY_DONE=2;
+        const STATE_FADE_OUT=3;
+        this.state = STATE_OUT_DOM;
+        this.timerIn = null;
+        this.timerOut = null;
+
+        const executeInFunc = ()=>{
+            this.state=STATE_ALREADY_DONE;
+            this.pres = this.manager.addPreviewsSurroundNode(node);
+            console.log("Add function!")
+            console.log(this.pres)
+            for(let preview of this.pres){
+                const v = this.manager.getNodeView(preview);
+                const el = v.el;
+                el.addEventListener("pointerenter",pointerenterFuncPreview);
+                el.addEventListener("pointerleave",pointerleaveFuncPreview);
+            }
+        }
+
+        const executeOutFunc = ()=>{
+            this.state=STATE_OUT_DOM;
+            this.manager.removePreviewsSurroundNode(node);
+            this.pres = [];
+        }
+
+        // for previews:
+        const pointerenterFuncPreview = (e)=>{
+            switch(this.state){
+                case STATE_FADE_OUT:
+                    this.state = STATE_ALREADY_DONE;
+                    clearTimeout(this.timerOut);
+                    break;
+            }
+        }
+
+        const pointerleaveFuncPreview = (e)=>{
+            switch(this.state){
+                case STATE_ALREADY_DONE:
+                    this.state = STATE_FADE_OUT;
+                    this.timerOut = setTimeout(executeOutFunc,timeoutOut);
+                    break;
+            }
+        }
+
+        // for nodes ==========================
+
+        const pointerenterFunc = (e)=>{
+            switch(this.state){
+                case STATE_OUT_DOM:
+                    this.state = STATE_IN_DOM;
+                    this.timerIn = setTimeout(executeInFunc,timeoutIn);
+                    break;
+                case STATE_FADE_OUT:
+                    this.state = STATE_ALREADY_DONE;
+                    clearTimeout(this.timerOut);
+                    break;
+            }
+        }
+        
+        //const pointermoveFunc = function(e){
+            //TODO: prolong the delay when user move across the node fast
+            /*switch(this.state){
+                case STATE_IN_DOM:
+                    break;
+            }*/
+        //}
+        const pointerleaveFunc = (e)=>{
+            switch(this.state){
+                case STATE_ALREADY_DONE:
+                    this.state = STATE_FADE_OUT;
+                    this.timerOut = setTimeout(executeOutFunc,timeoutOut);
+                    break;
+                case STATE_IN_DOM:
+                    this.state = STATE_OUT_DOM;
+                    clearTimeout(this.timerIn);
+                    break;
+            }
+        }
+        el.addEventListener("pointerenter",pointerenterFunc);
+        el.addEventListener("pointerleave",pointerleaveFunc);
+        //el.addEventListener("pointermove",pointermoveFunc);
+    }
+
+    installPreviewInteraction(preview){
+        
+        
+    }
+
 }
 
 export default PreviewManager;

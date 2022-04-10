@@ -44,10 +44,7 @@ class PreviewBoxNode extends Rete.Node{
     }
 
     set variable(v){
-        console.log("Assign variable",v)
-        console.log(this._variable)
         Object.assign(this._variable,v);
-        console.log(this._variable)
     }
     
     setPosition(editor,pos){
@@ -76,5 +73,5 @@ export default {
 };
 
 export {
-    PreviewBoxComponent
+    PreviewBoxComponent,PreviewBoxNode
 }

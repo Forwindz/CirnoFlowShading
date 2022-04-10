@@ -69,7 +69,16 @@ function install(editor){
         subEvents.delete(node.id)
     });
     editor.on('nodecreated',(node)=>{
-        subEvents.set(node.id,new EventEmitter());
+        if(!subEvents.has(node.id)){
+            subEvents.set(node.id,new EventEmitter());
+        }
+    });
+    editor.on('rendernode',(param)=>{
+        const node = param.node;
+        if(!subEvents.has(node.id)){
+            subEvents.set(node.id,new EventEmitter());
+        }
+        subEvents.get(node.id).emit('rendernode',param);
     });
 
     for(let e of eventsNodeDirect){

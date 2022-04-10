@@ -175,55 +175,7 @@ class ReteManager{
         editor.addNode(output);
         editor.connect(n1.outputs.get("num"), add.inputs.get("num"));
         editor.connect(n2.outputs.get("num"), add.inputs.get("num2"));
-/*
-        console.log("------======-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
-        console.log(this.editor);
-        console.log(this.editor.view);
-        console.log(this.editor.view.nodes);
-        this.editor.nodes[0]
-        for(let i of this.editor.view.nodes){
-            console.log(i);
-        }
-        let n=this.editor.nodes[0];
-        console.log(n);
-        console.log(n1);
-        console.log(this.editor.view.nodes.get(n));
-        console.log(this.editor.view.nodes.get(n).sockets);
-        let map = this.editor.view.nodes.get(n).sockets;
-        for(let i of map.keys()){
-            console.log(i);
-            console.log(i.node);
-            console.log(map.get(i));
-            console.log(map.get(i).getPosition(i.node));
 
-        }
-        console.log("------======-=-=-=-=-=-=-=-=-=-=-=-=-=-=-##");*/
-        //n1.on("nodedraged",(node)=>{console.log("dragged!")});
-        //n1.on("nodetranslate",(node)=>{console.log("translate ");console.log(node)});
-        //n1.on("translatenode",(node)=>{console.log("translate node ");console.log(node)});
-        /*
-        n1.on("nodework",(node)=>{
-            console.log("node work - ");
-            console.log(node)
-        });
-        add.on("nodework",(node)=>{
-            console.log("node work");
-            console.log(node)
-        });
-        add.on("nodeworked",(node,result)=>{
-            console.log("node worked");
-            console.log(node)
-            console.log(result)
-        });*/
-        console.log(this.engine);
-        console.log(this.editor.view.nodes.get(n1).sockets);
-        //setInterval(()=>{
-            //n1.position[0]+=5;
-            //this.editor.view.nodes.get(n1).translate(n1.position[0]+=1,0);
-            //console.log(this.editor.view.nodes.get(n1));
-        //},50);
-        this.previewManager.addPreviewsSurroundNode(n1);
-        this.previewManager.addPreviewsSurroundNode(add);
     }
 }
 

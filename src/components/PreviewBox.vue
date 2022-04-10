@@ -71,7 +71,6 @@ export default {
   border-radius: 10px;
   cursor: pointer;
   min-width: 10px;
-  height: auto;
   padding-bottom: 6px;
   box-sizing: content-box;
   position: relative;
@@ -113,5 +112,6 @@ export default {
   .control {
     padding: $socket-margin $socket-size/2 + $socket-margin;
   }
+  
 }
 </style>
