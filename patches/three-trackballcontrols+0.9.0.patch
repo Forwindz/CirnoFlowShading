@@ -1,0 +1,15 @@
+diff --git a/node_modules/three-trackballcontrols/index.js b/node_modules/three-trackballcontrols/index.js
+index 4154e78..1942ba8 100644
+--- a/node_modules/three-trackballcontrols/index.js
++++ b/node_modules/three-trackballcontrols/index.js
+@@ -649,8 +649,8 @@ const TrackballControls = function (object, domElement) {
+   this.domElement.addEventListener('touchend', touchend, false);
+   this.domElement.addEventListener('touchmove', touchmove, false);
+ 
+-  this.domElement.ownerDocument.addEventListener( 'pointermove', onPointerMove, false );
+-	this.domElement.ownerDocument.addEventListener( 'pointerup', onPointerUp, false );
++  //this.domElement.ownerDocument.addEventListener( 'pointermove', onPointerMove, false );
++	//this.domElement.ownerDocument.addEventListener( 'pointerup', onPointerUp, false );
+ 
+   window.addEventListener('keydown', keydown, false);
+   window.addEventListener('keyup', keyup, false);
