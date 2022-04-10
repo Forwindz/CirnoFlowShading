@@ -9,6 +9,10 @@ import {extractMeshBufferType, arrayLerp} from "./utility"
 import {PreviewBoxComponent,PreviewBoxNode} from "../comp/PreviewComponent"
 
 
+function genAlongSocketID(socket){
+    return `s_${socket.key}_${socket.node.id}_${socket instanceof Rete.Output?"out":"in"}`;
+}
+
 class PreviewManager{
     constructor(editor,manager){
         this.editor = editor;
@@ -74,22 +78,20 @@ class PreviewManager{
         return preview;
     }
 
-    _genAlongSocketID(socket){
-        return `s_${socket.key}_${socket.node.id}_${socket instanceof Rete.Output?"out":"in"}`;
-    }
 
-    async addPreviewAlongSocket(socket,padding=[5,0]){
-        const id = this._genAlongSocketID(socket);
+    async addPreviewAlongSocket(socket,getPadding=function(socket){return [0,5]}){
+        const id = genAlongSocketID(socket);
         let preview = await this.addPreview([100,0],id);
         let func = (node)=>{
             let socketView = this.getSocketView(socket);
             let centerPos = socketView.getPosition(socketView.node);
+            let previewView = preview.el //TODO: cannot obtain view from rete editor, strange
             if(socket instanceof Rete.Output){
-                centerPos[0]+=padding[0];
+                centerPos[0]+=getPadding(socket)[0];
             }else{
-                centerPos[0]-=padding[0]+preview.width;
+                centerPos[0]-=getPadding(socket)[0]+previewView.clientWidth;
             }
-            centerPos[1]+=padding[1]-preview.height/2;
+            centerPos[1]+=getPadding(socket)[1]-previewView.clientHeight/2;
             preview.setPosition(this.editor,centerPos);
         }
         let funcRemove = (node)=>{
@@ -112,7 +114,7 @@ class PreviewManager{
     }
 
     removePreviewAlongSocket(socket){
-        const id = this._genAlongSocketID(socket);
+        const id = genAlongSocketID(socket);
         this.removePreview(id)
     }
 
@@ -130,10 +132,12 @@ class PreviewManager{
         let nv = this.getNodeView(node);
         let sockets = nv.sockets;
         let previewArray = []
+        let layouter = new NodePreviewLayoutInfo(this,node);
         for(let socket of sockets.keys()){
-            const preview = await this.addPreviewAlongSocket(socket);
+            const preview = await this.addPreviewAlongSocket(socket,(socket)=>{return layouter.offsets.get(socket)});
             previewArray.push(preview)
         }
+        layouter.relayoutAll();
         return previewArray
     }
 
@@ -142,14 +146,119 @@ class PreviewManager{
         let nv = this.getNodeView(node);
         const el = nv.el;
         var v = new PreviewInteractionPointFloat(this,node,el);
-        el.addEventListener("focusin",(e)=>{
-            console.log("focusin",e)
-        })
-        el.addEventListener("focusout",(e)=>{
-            console.log("focusout",e)
-        })
     }
 
+}
+
+function minPos(a,b){
+    return [Math.min(a[0],b[0]),Math.min(a[1],b[1])]
+}
+
+function maxPos(a,b){
+    return [Math.max(a[0],b[0]),Math.max(a[1],b[1])]
+}
+class NodePreviewLayoutInfo{
+    constructor(manager,node){
+        this.node=node;
+        this.manager = manager;
+        let nv = manager.getNodeView(node);
+        let sockets = nv.sockets;
+        let ins = []
+        let outs = []
+        let inSocketPosMin = null
+        let inSocketPosMax = null
+        let outSocketPosMin = null
+        let outSocketPosMax = null
+        let inSocketPos =[0,0]
+        let outSocketPos =[0,0];
+        this.offsets = new Map();
+        for(let socket of sockets.keys()){
+            const pos = this.manager.getSocketView(socket).getPosition(socket.node);
+            if(socket instanceof Rete.Output){
+                outs.push(socket)
+                outSocketPos[0]+=pos[0];
+                outSocketPos[1]+=pos[1];
+                outSocketPosMax = outSocketPosMax?maxPos(outSocketPosMax,pos):pos
+                outSocketPosMin = outSocketPosMin?minPos(outSocketPosMin,pos):pos
+            }else{
+                ins.push(socket)
+                inSocketPos[0]+=pos[0];
+                inSocketPos[1]+=pos[1];
+                inSocketPosMax = inSocketPosMin?maxPos(inSocketPosMax,pos):pos
+                inSocketPosMin = inSocketPosMin?minPos(inSocketPosMin,pos):pos
+            }
+        }
+        if(ins.length>0){
+            inSocketPos[0]=inSocketPosMax[0]-inSocketPosMin[0];
+            inSocketPos[1]=inSocketPosMax[1]-inSocketPosMin[1];
+        }
+
+        if(outs.length>0){
+            outSocketPos[0]=outSocketPosMax[0]-outSocketPosMin[0];
+            outSocketPos[1]=outSocketPosMax[1]-outSocketPosMin[1];
+        }
+        this.inSocketAvgPos = inSocketPos;
+        this.outSocketAvgPos = outSocketPos;
+        this.ins=ins;
+        this.outs=outs;
+        this.relayoutAll();
+    }
+
+    relayoutAll(){
+        this.relayout(this.ins,this.inSocketAvgPos)
+        this.relayout(this.outs,this.outSocketAvgPos)
+    }
+
+    relayout(sockets,avgPos){
+        let offsetY = []
+        let curOffset = 0;
+        let blankSpace = 0;
+        let lastSocketPosY=null;
+        for(let i=0;i<sockets.length;i++){
+            const socket = sockets[i]
+            const id = genAlongSocketID(socket);
+            let preview = this.manager.previews.get(id);
+            let previewview = this.manager.getNodeView(preview)
+            let previewHeight = PreviewBoxNode.defaultHeight
+            if(previewview){
+                previewview = previewview.el;
+                previewHeight = previewview.clientHeight
+            }
+            const socketView = this.manager.getSocketView(socket);
+            const socketPos = socketView.getPosition(socket.node);
+            let socketHeight = 10;
+            if(socketView.el){
+                socketHeight = socketView.el.clientHeight;
+            }
+            if(i==0){
+                offsetY.push([curOffset+previewHeight/2,0]);
+                lastSocketPosY = socketPos[1]
+                blankSpace = socketHeight;
+            }else{
+                const blank = socketPos[1]-lastSocketPosY
+                blankSpace+=blank;
+                offsetY.push([curOffset+previewHeight/2,blank]);
+                lastSocketPosY = socketPos[1]
+            }
+            curOffset+=previewHeight+2;//tiny padding 2px
+            
+        }
+        const nv = this.manager.getNodeView(this.node);
+        const nodeHeight = nv.el.clientHeight;
+        const totalPreviewHeight = curOffset+blankSpace;
+        const decayFactor = -Math.max(0.2,Math.pow(Math.min(1,nodeHeight/totalPreviewHeight),2));
+        const totalDecayedPreviewHeight = curOffset+blankSpace*decayFactor;
+        //curOffset/2 <--> avgPos[1]/2
+        const worldOffsetY = -totalDecayedPreviewHeight/2;
+        let socketPos = -avgPos[1]/2;
+        for(let i=0;i<sockets.length;i++){
+            const socket = sockets[i]
+            const id = genAlongSocketID(socket);
+            socketPos+=offsetY[i][1];
+            const y = offsetY[i][0]+worldOffsetY-socketPos+(blankSpace/2-socketPos)*(decayFactor);//worldOffsetY+offsetY[i][0]+socketPos*(1-decayFactor);
+            this.offsets.set(socket,[20,y]);
+        }
+    }
 }
 
 class PreviewInteractionPointFloat{
@@ -168,8 +277,6 @@ class PreviewInteractionPointFloat{
         const executeInFunc = async ()=>{
             this.state=STATE_ALREADY_DONE;
             this.pres = await this.manager.addPreviewsSurroundNode(node);
-            console.log("Add function!")
-            console.log(this.pres)
             for(let preview of this.pres){
                 const v = this.manager.getNodeView(preview);
                 const el = v.el;
@@ -240,11 +347,6 @@ class PreviewInteractionPointFloat{
         el.addEventListener("pointerenter",pointerenterFunc);
         el.addEventListener("pointerleave",pointerleaveFunc);
         //el.addEventListener("pointermove",pointermoveFunc);
-    }
-
-    installPreviewInteraction(preview){
-        
-        
     }
 
 }

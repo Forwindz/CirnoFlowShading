@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="node" style="width:100px;height:100px">
+        <div style="width:100px;height:10px;background:rgba(127,127,127,0.3)"></div>
         <Scene3D ref="p1" style="width:100px;height:100px" v-bind:modelStore="this.modelStore"></Scene3D>
-        <div ref="text" style="float:left">{{displayText}}</div>
     </div>
   </div>
   

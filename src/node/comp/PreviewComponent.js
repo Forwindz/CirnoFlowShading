@@ -24,16 +24,13 @@ class PreviewBoxComponent extends Rete.Component {
 }
 class PreviewBoxNode extends Rete.Node{
 
-    constructor(){
+    constructor(width = PreviewBoxNode.defaultWidth,height = PreviewBoxNode.defaultHeight){
         super();
         this.vueContext = null;
         this.name = "PreviewBox"
-        this.width = 100;
-        this.height = 100;
+        this.width = width;
+        this.height = height;
         this._variable = reactive(new Variable("float",0));
-        watch(this._variable, () => {
-            console.log("Trigger!",this._variable);
-          })
     }
 
     createVueComp(el){
@@ -44,7 +41,7 @@ class PreviewBoxNode extends Rete.Node{
         }
         let app= createApp(PreviewBox, {modelStore:this.data.modelStore,variable:this._variable});
         app.mount(el)
-        console.log(app);
+        this.el=el;
     }
 
     set variable(v){
@@ -61,6 +58,8 @@ class PreviewBoxNode extends Rete.Node{
     }
 
 }
+PreviewBoxNode.defaultWidth=100;
+PreviewBoxNode.defaultHeight=100;
 
 function install(editor) {
     editor.on(
