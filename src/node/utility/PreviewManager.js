@@ -26,10 +26,10 @@ class PreviewManager{
         })
     }
 
-    addPreview(pos,id){
+    async addPreview(pos,id){
         let ms = this.manager.context.modelStore.roughClone();
         console.log("add Preview",id);
-        let node = this._comp.createNode({"modelStore":ms});
+        let node = await this._comp.createNode({"modelStore":ms});
         node.position = pos;
         this.editor.addNode(node);
         this.previews.set(id,node);
@@ -78,9 +78,9 @@ class PreviewManager{
         return `s_${socket.key}_${socket.node.id}_${socket instanceof Rete.Output?"out":"in"}`;
     }
 
-    addPreviewAlongSocket(socket,padding=[5,0]){
+    async addPreviewAlongSocket(socket,padding=[5,0]){
         const id = this._genAlongSocketID(socket);
-        let preview = this.addPreview([100,0],id);
+        let preview = await this.addPreview([100,0],id);
         let func = (node)=>{
             let socketView = this.getSocketView(socket);
             let centerPos = socketView.getPosition(socketView.node);
@@ -107,7 +107,6 @@ class PreviewManager{
         socket.node.on("translatenode",func);
         socket.node.on("noderemoved",funcRemove);
         socket.node.on("nodeworked",funcNodeUpdate);
-        console.log(preview)
         func();
         return preview;
     }
@@ -127,12 +126,12 @@ class PreviewManager{
     }
 
     //TODO: better layout
-    addPreviewsSurroundNode(node){
+    async addPreviewsSurroundNode(node){
         let nv = this.getNodeView(node);
         let sockets = nv.sockets;
         let previewArray = []
         for(let socket of sockets.keys()){
-            const preview = this.addPreviewAlongSocket(socket);
+            const preview = await this.addPreviewAlongSocket(socket);
             previewArray.push(preview)
         }
         return previewArray
@@ -143,6 +142,12 @@ class PreviewManager{
         let nv = this.getNodeView(node);
         const el = nv.el;
         var v = new PreviewInteractionPointFloat(this,node,el);
+        el.addEventListener("focusin",(e)=>{
+            console.log("focusin",e)
+        })
+        el.addEventListener("focusout",(e)=>{
+            console.log("focusout",e)
+        })
     }
 
 }
@@ -160,9 +165,9 @@ class PreviewInteractionPointFloat{
         this.timerIn = null;
         this.timerOut = null;
 
-        const executeInFunc = ()=>{
+        const executeInFunc = async ()=>{
             this.state=STATE_ALREADY_DONE;
-            this.pres = this.manager.addPreviewsSurroundNode(node);
+            this.pres = await this.manager.addPreviewsSurroundNode(node);
             console.log("Add function!")
             console.log(this.pres)
             for(let preview of this.pres){

@@ -3,6 +3,7 @@ import Rete from "rete";
 import PreviewBox from "./../../components/PreviewBox.vue";
 import { createApp,reactive,ref, watch } from 'vue';
 import { Variable } from "../compile/DataDefine";
+import ModelStore from "../utility/ModelStore";
 // a class for preview box
 class PreviewBoxComponent extends Rete.Component {
 
@@ -38,6 +39,9 @@ class PreviewBoxNode extends Rete.Node{
     createVueComp(el){
         console.log("mount!")
         console.log(this.data)
+        if(!this.data.modelStore){
+            this.data.modelStore = new ModelStore();
+        }
         let app= createApp(PreviewBox, {modelStore:this.data.modelStore,variable:this._variable});
         app.mount(el)
         console.log(app);
@@ -49,7 +53,11 @@ class PreviewBoxNode extends Rete.Node{
     
     setPosition(editor,pos){
         this.position=pos;
-        editor.view.nodes.get(this).translate(pos[0],pos[1]);
+        const v = editor.view.nodes.get(this);
+        if(v){
+            v.translate(pos[0],pos[1]);
+
+        }
     }
 
 }

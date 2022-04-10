@@ -134,7 +134,6 @@ class RenderManager {
         this.eles.camera.aspect = width / height;
         this.eles.camera.width = width;
         this.eles.camera.height = height;
-        //this.eles.renderer.setSize(width, height);
     }
 
     animate() {
@@ -142,7 +141,6 @@ class RenderManager {
             return;
         }
         requestAnimationFrame(() => { this.animate() })
-        //this.eles.renderer.render(this.eles.scene, this.eles.camera)
         
         this.eles.mesh[0].rotation.y += this.eles.speed
         this.eles.controls.update()
@@ -151,7 +149,6 @@ class RenderManager {
     mountView(ele) {
         this.dom = ele;
         this.setSize(ele.clientWidth, ele.clientHeight)
-        //ele.appendChild(this.eles.renderer.domElement)
         this._setControl();
         console.log("Add to renderList")
         console.log(renderList)
@@ -159,26 +156,19 @@ class RenderManager {
     }
 
     set mesh(m) {
-        console.log("set mesh anyway")
         if (m.length == 0) {
             console.log("ignore empty mesh")
-            console.log(m);
             return;
         }
-        console.log("set mesh")
-        console.log(m);
 
         for (const i of this.eles.mesh) {
             this.eles.scene.remove(i)
         }
 
         for (const i of m) {
-            console.log("  add mesh");
-            console.log(i);
             this.eles.scene.add(i);
         }
         this.eles.mesh = m;
-        console.log(this.eles.scene)
     }
 }
 

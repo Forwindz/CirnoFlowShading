@@ -175,7 +175,7 @@ class ReteManager{
         editor.addNode(output);
         editor.connect(n1.outputs.get("num"), add.inputs.get("num"));
         editor.connect(n2.outputs.get("num"), add.inputs.get("num2"));
-
+        
     }
 }
 

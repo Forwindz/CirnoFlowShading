@@ -1,6 +1,6 @@
 <template>
 
-    <div ref="canvas" v-on:click="greet"></div>
+    <div ref="canvas"></div>
     
 </template>
 
@@ -25,28 +25,23 @@ export default {
     },
     mounted: function() {
         // delay, so that we will get correct clientWidth
+        
         let renderManager = new RenderManager();
         this.$nextTick(function () {
             globalData.set(this.$refs.canvas,renderManager)
             renderManager.mountView(this.$refs.canvas)
             renderManager.animate();
         })
-        setTimeout(()=>{
-            
-        }, 400)
     },
     beforeUnmount: function(){
         globalData.delete(this.$refs.canvas);
     },
     methods: {
-        greet:function(e){
-            console.log(this);
-            console.log(this.renderManager);
-        }
     },
     watch:{
         modelStore:{
             handler(newv,oldv){
+                
                 const _this=this;
                 const f = function(){
                     console.log("update scene3D modelStore")
@@ -58,6 +53,7 @@ export default {
                     }
                 }
                 f();
+                
             },
             immediate: true
         }
