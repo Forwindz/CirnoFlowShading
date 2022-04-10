@@ -1,16 +1,16 @@
 import "@babel/polyfill";
 import Rete from "rete";
-import { Variable } from "../compile/DataDefine";
 
-import {emptyDom} from "./utility"
-
-import MaterialBuilder from "./MaterialBuilder";
-import {extractMeshBufferType, arrayLerp} from "./utility"
+import {arrayLerp} from "./utility"
 import {PreviewBoxComponent,PreviewBoxNode} from "../comp/PreviewComponent"
 
 
 function genAlongSocketID(socket){
-    return `s_${socket.key}_${socket.node.id}_${socket instanceof Rete.Output?"out":"in"}`;
+    return `socket_${socket.key}_${socket.node.id}_${socket instanceof Rete.Output?"out":"in"}`;
+}
+
+function genSingleID(oldID){
+    return 'single_'+Math.random().toString(36).slice(-6)+"_"+oldID;
 }
 
 class PreviewManager{
@@ -40,7 +40,23 @@ class PreviewManager{
         return node;
     }
 
+    renamePreview(oldID,newID){
+        if(this.previews.has(oldID)){
+            if(this.previews.has(newID)){
+                console.warn("Duplicated preview id");
+            }
+            this.previews.set(newID,this.previews.get(oldID));
+            this.previews.delete(oldID);
+        }else{
+            console.log("Unknown preview",oldID)
+        }
+    }
+
     removePreview(id){
+        if(!this.previews.has(id)){
+            console.log("remove Preview (failed)",id);
+            return;
+        }
         console.log("remove Preview",id);
         this.editor.removeNode(this.previews.get(id));
         this.previews.delete(id);
@@ -106,9 +122,20 @@ class PreviewManager{
                 preview.variable = v;
             }
         }
+        let funcDragPreview = (params)=>{
+            const newID = genSingleID(id);
+            this.renamePreview(id,newID);
+            socket.node.removeListener("translatenode",func)
+            socket.node.removeListener("noderemoved",funcRemove);
+            socket.node.removeListener("nodeworked",funcNodeUpdate);
+            console.log(socket)
+            console.log(preview)
+            console.log(params)
+        }
         socket.node.on("translatenode",func);
         socket.node.on("noderemoved",funcRemove);
         socket.node.on("nodeworked",funcNodeUpdate);
+        preview.on("nodedraged",funcDragPreview);
         func();
         return preview;
     }
