@@ -8,11 +8,32 @@ import { textWorker } from "./compile/Compile";
 import CustomNode from "./../components/CustomNode"
 import {ref} from "vue"
 
-function makeStyleData(classInfo_="",styleInfo_=""){
-    return {
-        classInfo:ref(classInfo_),
-        styleInfo:ref(styleInfo_)
+class StyleManager{
+    constructor(classInfo_="",styleInfo_=""){
+        this.classInfo=ref(classInfo_),
+        this.styleInfo=ref(styleInfo_)
     }
+
+    addClass(v){
+        this.classInfo.value += ` ${v}`
+    }
+
+    removeClass(v){
+        this.classInfo.value.replace(` ${v}`,'');
+    }
+
+    addStyle(v){
+        this.styleInfo.value += `;${v}`
+    }
+
+    removeStyle(v){
+        this.styleInfo.value.replace(`;${v}`,'');
+    }
+
+
+}
+function makeStyleData(classInfo_="",styleInfo_=""){
+    return new StyleManager();
 }
 
 class NodeStyleData{

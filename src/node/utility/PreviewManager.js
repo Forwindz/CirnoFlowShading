@@ -21,6 +21,7 @@ class PreviewManager{
         this._comp = new PreviewBoxComponent();
         this.editor.register(this._comp);
         this.previews = new Map();
+        this.independentPreviewInteraction = new IndependentPreviewInteraction(this);
 
         this.editor.on("nodecreated",(param)=>{
             console.log(param);
@@ -95,7 +96,7 @@ class PreviewManager{
         return preview;
     }
 
-
+    //TODO: sort this code into a single class
     async addPreviewAlongSocket(socket,getPadding=function(socket){return [0,5]}){
         const id = genAlongSocketID(socket);
         let preview = await this.addPreview([100,0],id);
@@ -140,7 +141,10 @@ class PreviewManager{
             console.log(socket)
             console.log(preview)
             console.log(params)
+            this.independentPreviewInteraction.installPreview(preview);
         }
+
+        
         socket.node.on("translatenode",func);
         socket.node.on("noderemoved",funcRemove);
         socket.node.on("nodeworked",funcNodeUpdate);
@@ -186,6 +190,39 @@ class PreviewManager{
 
 }
 
+class IndependentPreviewInteraction{
+    constructor(manager){
+        this.manager = manager;
+        this.editor = this.manager.editor;
+    }
+
+    installPreview(preview){
+        
+        let funcIndependOnEnter = (e)=>{
+            console.log("pointerEnter",e)
+            const viewNodes = this.editor.view.nodes
+            for(let nodeTemplate of preview.templateData.nodes.values()){
+                if(viewNodes.has(nodeTemplate.ref)){
+                    nodeTemplate.ref.nodeStyle ="border-style:solid;border-width:5px;border-color:yellow;"
+                }
+            }
+        }
+        let funcIndependOnLeave = (e)=>{
+            console.log("pointerLeave",e)
+            const viewNodes = this.editor.view.nodes
+            for(let nodeTemplate of preview.templateData.nodes.values()){
+                if(viewNodes.has(nodeTemplate.ref)){
+                    nodeTemplate.ref.nodeStyle = ""
+                }
+            }
+        }
+        preview.el.addEventListener("pointerenter",funcIndependOnEnter);
+        preview.el.addEventListener("pointerleave",funcIndependOnLeave);
+
+    }
+
+}
+
 function minPos(a,b){
     return [Math.min(a[0],b[0]),Math.min(a[1],b[1])]
 }
@@ -193,32 +230,7 @@ function minPos(a,b){
 function maxPos(a,b){
     return [Math.max(a[0],b[0]),Math.max(a[1],b[1])]
 }
-/*
-function obtainPartOfEditor(fromSocket){
-    function saveNode(node){
-        let data = deepClone(node.data)
-        let inputs = new Map();
-        for(let k of node.inputs.keys()){
-            const inputSocket = node.inputs.get(k)
-            let inputSocketCopy;
-            for(let connection of inputSocket.connections){
-                connection.data;
-                connection.output
-            }
-        }
-        return {
-            id:node.id,
-            ref:node,
-            data:data,
-            
-        }
-    }
-    if(fromSocket instanceof Rete.Output){
-        fromSocket.node;
-    }else{
 
-    }
-}*/
 class NodePreviewLayoutInfo{
     constructor(manager,node){
         this.node=node;
