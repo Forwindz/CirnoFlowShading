@@ -1,10 +1,11 @@
 <template>
-  <div v-bind:class="this.nodeClass">
+  <div v-bind:class="this.nodeClass" v-bind:style="this.node.styleInfo.nodeStyle.styleInfo.value">
   <div class="title">{{node.name}}</div>
   <div class="content">
     <div class="col" v-if="node.controls.size&gt;0 || node.inputs.size&gt;0">
       <div class="input" v-for="input in inputs()" :key="input.key" style="text-align: left">
-        <Socket v-socket:input="input" type="input" :socket="input.socket" :used="() => input.connections.length"></Socket>
+        <Socket v-socket:input="input" type="input" :socket="input.socket" :used="() => input.connections.length" 
+          :socket-style-info="this.node.styleInfo.socketsStyle.get(input)"></Socket>
         <div class="input-title" v-show="!input.showControl()">{{input.name}}</div>
         <div class="input-control" v-show="input.showControl()" v-control="input.control"></div>
      </div>
@@ -13,7 +14,8 @@
     <div class="col">
       <div class="output" v-for="output in outputs()" :key="output.key" style="text-align: right">
         <div class="output-title">{{output.name}}</div>
-        <Socket v-socket:output="output" type="output" :socket="output.socket" :used="() => output.connections.length"></Socket>
+        <Socket v-socket:output="output" type="output" :socket="output.socket" :used="() => output.connections.length"
+          :socket-style-info="this.node.styleInfo.socketsStyle.get(output)"></Socket>
       </div>
     </div>
   </div> 
@@ -35,9 +37,9 @@ export default{
     },
     computed:{
         nodeClass(){
-            console.log(`node ${this.selected()} ${kebabize(this.node.name)}`)
-            return `node ${this.selected()} ${kebabize(this.node.name)}`;
-        }
+            console.log(`node ${this.selected()} ${kebabize(this.node.name)} `+this.node.styleInfo.nodeStyle.classInfo.value)
+            return `node ${this.selected()} ${kebabize(this.node.name)} ${this.node.styleInfo.nodeStyle.classInfo.value}`;
+        },
     },
     components: {
       Socket: CustomSocket //VueRenderPlugin.Socket 

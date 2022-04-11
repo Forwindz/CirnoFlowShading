@@ -19,11 +19,11 @@ class NodeStyleData{
     constructor(){
         this.nodeStyle = makeStyleData();
         this.socketsStyle = new Map();
-        this.nodeRef = null;
+        //this.nodeRef = null;
     }
 
     applyNode(node){
-        this.noderef = node;
+        //this.noderef = node;
         for(const s of node.inputs.values()){
             this.addSocket(s)
         }
@@ -132,6 +132,7 @@ class NodeComponent extends Rete.Component {
         let result = new NodeCustomize(this.name);
         result.data=data;
         await this.build(result);
+        result.styleInfo.applyNode(result);
         return result
     }
 }
