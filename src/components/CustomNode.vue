@@ -1,0 +1,49 @@
+<template>
+  <div v-bind:class="this.nodeClass">
+  <div class="title">{{node.name}}</div>
+  <div class="content">
+    <div class="col" v-if="node.controls.size&gt;0 || node.inputs.size&gt;0">
+      <div class="input" v-for="input in inputs()" :key="input.key" style="text-align: left">
+        <Socket v-socket:input="input" type="input" :socket="input.socket" :used="() => input.connections.length"></Socket>
+        <div class="input-title" v-show="!input.showControl()">{{input.name}}</div>
+        <div class="input-control" v-show="input.showControl()" v-control="input.control"></div>
+     </div>
+     <div class="control" v-for="control in controls()" v-control="control" :key="control"></div>
+    </div>
+    <div class="col">
+      <div class="output" v-for="output in outputs()" :key="output.key">
+        <div class="output-title">{{output.name}}</div>
+        <Socket v-socket:output="output" type="output" :socket="output.socket" :used="() => output.connections.length"></Socket>
+      </div>
+    </div>
+  </div> 
+</div>
+</template>
+<script>
+import {kebabize} from './../node/utility/utility'
+import CustomSocket from './CustomSocket.vue'
+import VueRenderPlugin from "rete-vue-render-plugin";
+console.log(VueRenderPlugin.mixin);
+export default{
+    name:"CustomNode",
+    mixins: [VueRenderPlugin.Node],
+    
+    methods:{
+      used(io){
+        return io.connections.length;
+      }
+    },
+    computed:{
+        nodeClass(){
+            console.log(`node ${this.selected()} ${kebabize(this.node.name)}`)
+            return `node ${this.selected()} ${kebabize(this.node.name)}`;
+        }
+    },
+    components: {
+      Socket: CustomSocket //VueRenderPlugin.Socket 
+    }
+}
+</script>
+<style lang="sass" >
+@import "@/assets/css/nodeEditor.sass"
+</style>

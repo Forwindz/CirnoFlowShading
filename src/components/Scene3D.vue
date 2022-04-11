@@ -1,6 +1,6 @@
 <template>
 
-    <div ref="canvas"></div>
+    <div ref="canvas" class="three-js-render-area"></div>
     
 </template>
 
@@ -41,7 +41,9 @@ export default {
     watch:{
         modelStore:{
             handler(newv,oldv){
-                
+                if(!newv){
+                    return;
+                }
                 const _this=this;
                 const f = function(){
                     console.log("update scene3D modelStore")
@@ -63,8 +65,10 @@ export default {
 }
 </script>
 <style scoped>
-#canvas{
+.three-js-render-area{
     width:100%;
     height:100%;
+    z-index: 0;
+    background:black;
 }
 </style>

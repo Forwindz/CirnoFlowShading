@@ -103,6 +103,9 @@ class PreviewManager{
             let socketView = this.getSocketView(socket);
             let centerPos = socketView.getPosition(socketView.node);
             let previewView = preview.el //TODO: cannot obtain view from rete editor, strange
+            if(!previewView){
+                previewView = {clientWidth:100,clientHeight:100}
+            }
             if(socket instanceof Rete.Output){
                 centerPos[0]+=getPadding(socket)[0];
             }else{
@@ -123,6 +126,7 @@ class PreviewManager{
                 preview.variable = v;
             }
         }
+        // change the preview to an independent one
         let funcDragPreview = (params)=>{
             const newID = genSingleID(id);
             this.renamePreview(id,newID);

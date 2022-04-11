@@ -5,32 +5,7 @@ import EventEmitter from 'events';
 import { Types, Variable } from "./compile/DataDefine";
 import { getSocket } from "./compile/Types";
 import { textWorker } from "./compile/Compile";
-/*
-class NodeSpector {
-    constructor(node=null){
-        if(node){
-            node.data.spector = this;
-            this._node=node;
-        }
-        this.cacheInput = {}
-        this.cacheOutput = {}
-        this.eventManager = new EventEmitter();
-    }
-
-    addWorkEvent(func){
-        this.eventManager.on("work",func);
-    }
-
-    removeWorkEvent(func){
-        this.eventManager.removeListener("work",func);
-    }
-
-    trigger(inputs,outputs){
-        this.eventManager.emit("work",this._node,inputs,outputs)
-        this.cacheInput=inputs;
-        this.cacheOutput=outputs;
-    }
-}*/
+import CustomNode from "./../components/CustomNode"
 // a utility class for faster coding
 class NodeComponent extends Rete.Component {
 
@@ -38,6 +13,7 @@ class NodeComponent extends Rete.Component {
         super(name);
         this.eventManager = new EventEmitter();
         this.defaultInput = {};
+        this.data.component = CustomNode
     }
 
     _getSocket(name){
@@ -102,7 +78,7 @@ class NodeComponent extends Rete.Component {
 
     worker(node, inputs, outputs) {
         this.eventManager.emit("work",node, inputs, outputs);
-        //node.data.spector.trigger(inputs,outputs);
+        
         //TODO: worker.work, implement in the Node Listeners
 
     }
@@ -111,43 +87,52 @@ class NodeComponent extends Rete.Component {
         //let spector = new NodeSpector(node);
         return node;
     }
-
 /*
     createNode(data){
-        let node = super.createNode(data);
-        node.eventManager = new EventEmitter();
-        node.addWorkEvent = (func)=>{node.eventManager.on("work",func)}
-        node.removeWorkEvent = (func)=>{node.eventManager.removeListener("work",func)}
-        console.log(node)
-        return new Node2(data,this);//replace, since it use proxy
+        let result = new NodeCustom(this.editor);
+        result.data=data;
+        return result
     }*/
+
     
 
 }
 /*
-class Node2 extends Rete.Node{
-
-    constructor(data,comp){
-        super()
-        this.eventManager = new EventEmitter();
-        this.cacheInput= {};
-        this.cacheOutput={};
-        this.comp=comp;
-        this.data=data;
+class NodeCustom extends Rete.Node{
+    constructor(){
+        super();
     }
 
-    addWorkEvent(func){
-        this.eventManager.on("work",func);
+    createVueComp(el){
+        this.el=el;
+        let app = createApp(null,{})
+        app.mount(el);
     }
 
-    removeWorkEvent(func){
-        this.eventManager.removeListener("work",func);
+    setPosition(editor,pos){
+        this.position=pos;
+        const v = editor.view.nodes.get(this);
+        if(v){
+            v.translate(pos[0],pos[1]);
+        }
     }
+}
 
-    getPreviewCode(node){
-        return this.comp(this,this.cacheInput,this.cacheOutput)
-    }
-
-
+function install(editor) {
+    editor.on(
+        'rendernode',
+        ({ el, node, component, bindSocket, bindControl }) => {
+            if (component.render && component.render !== 'vue') return;
+            console.log({ el, node, component, bindSocket, bindControl })
+            if (node instanceof NodeCustom){
+                node.createVueComp(el); // replaced the view
+            }
+        }
+    );
 }*/
+/*
+export default {
+    name: 'highlight-node',
+    install
+};*/
 export default NodeComponent;

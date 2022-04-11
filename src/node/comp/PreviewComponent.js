@@ -1,5 +1,5 @@
 import "@babel/polyfill";
-import Rete from "rete";
+import Rete, { Socket } from "rete";
 import PreviewBox from "./../../components/PreviewBox.vue";
 import { createApp,reactive,ref, watch } from 'vue';
 import { Variable } from "../compile/DataDefine";
@@ -9,11 +9,17 @@ class PreviewBoxComponent extends Rete.Component {
 
     constructor(){
         super("PreviewBox")
+        //this.data.component = PreviewBox
     }
 
     worker(node, inputs, outputs) {
     }
 
+    builder(node){
+        let p = new Rete.Input('a','test',new Socket('test'));
+        node.addInput(p);
+        return node;
+    }
 
     createNode(data){
         let result = new PreviewBoxNode(this.editor);
@@ -34,6 +40,7 @@ class PreviewBoxNode extends Rete.Node{
         this._variable = reactive(new Variable("float",0));
     }
 
+    // we use this method to create a node
     createVueComp(el){
         console.log("mount!")
         console.log(this.data)

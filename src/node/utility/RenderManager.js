@@ -20,7 +20,8 @@ const renderList = new Set();
 let renderer;// = new THREE.WebGLRenderer({ antialias: true, canvas:document.getElementById("threejscanvas") })
 
 function initThree(dom){
-    renderer = new THREE.WebGLRenderer({ antialias: true, canvas:dom });
+    renderer = new THREE.WebGLRenderer({ antialias: true, canvas:dom, alpha: true });
+    renderer.setClearColor(0x000000, 0);
     requestAnimationFrame(render);
 }
 
@@ -50,6 +51,8 @@ function renderSceneInfo(scene, camera, elem) {
     const positiveYUpBottom = renderer.domElement.clientHeight - bottom;
     renderer.setScissor(left, positiveYUpBottom, width, height);
     renderer.setViewport(left, positiveYUpBottom, width, height);
+
+    scene.background = null;
 
     renderer.render(scene, camera);
 }

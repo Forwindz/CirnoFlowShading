@@ -114,6 +114,8 @@ function deepClone(obj, hash = new WeakMap()) {
         key => ({ [key]: deepClone(obj[key], hash) }) ));
 }
 
+const kebabize = (str) => str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? "-" : "") + $.toLowerCase())
+
 export {string2Float, vecString2Float, extractMeshBufferType, 
-    emptyDom, bindFunction, float2PointString, lerp, arrayLerp, deepClone
+    emptyDom, bindFunction, float2PointString, lerp, arrayLerp, deepClone, kebabize
 }

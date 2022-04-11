@@ -1,5 +1,5 @@
 <template>
-  <div id="rete" ref="rete"></div>
+  <div id="rete" ref="rete" class="node-editor"></div>
 </template>
 <script>
 import ReteManager from "./../node/utility/ReteManager";
@@ -27,10 +27,9 @@ export default {
 };
 </script>
 
-<style>
-#rete {
-  background: "#eeeeee";
-  width: 100%;
-  height: 100%;
-}
+<style scoped lang="sass">
+@import "@/assets/css/nodeEditor.sass"
+#rete
+  height: 100%
+  width: 100%
 </style>
