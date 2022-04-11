@@ -6,6 +6,46 @@ import { Types, Variable } from "./compile/DataDefine";
 import { getSocket } from "./compile/Types";
 import { textWorker } from "./compile/Compile";
 import CustomNode from "./../components/CustomNode"
+import {ref} from "vue"
+
+function makeStyleData(classInfo_="",styleInfo_=""){
+    return {
+        classInfo:ref(classInfo_),
+        styleInfo:ref(styleInfo_)
+    }
+}
+
+class NodeStyleData{
+    constructor(){
+        this.nodeStyle = makeStyleData();
+        this.socketsStyle = new Map();
+        this.nodeRef = null;
+    }
+
+    applyNode(node){
+        this.noderef = node;
+        for(const s of node.inputs.values()){
+            this.addSocket(s)
+        }
+        for(const s of node.outputs.values()){
+            this.addSocket(s)
+        }
+    }
+
+    addSocket(socket){
+        this.socketsStyle.set(socket,makeStyleData())
+    }
+
+    clone(){
+        let n = new NodeStyleData();
+        //TODO: clone operations
+        return n;
+    }
+
+}
+
+//set up Node function
+
 // a utility class for faster coding
 class NodeComponent extends Rete.Component {
 
@@ -83,56 +123,42 @@ class NodeComponent extends Rete.Component {
 
     }
 
-    builder(node){
-        //let spector = new NodeSpector(node);
+    async builder(node){
         return node;
     }
-/*
-    createNode(data){
-        let result = new NodeCustom(this.editor);
+
+    //completely cover the parent method
+    async createNode(data={}){
+        let result = new NodeCustomize(this.name);
         result.data=data;
+        await this.build(result);
         return result
-    }*/
-
-    
-
-}
-/*
-class NodeCustom extends Rete.Node{
-    constructor(){
-        super();
-    }
-
-    createVueComp(el){
-        this.el=el;
-        let app = createApp(null,{})
-        app.mount(el);
-    }
-
-    setPosition(editor,pos){
-        this.position=pos;
-        const v = editor.view.nodes.get(this);
-        if(v){
-            v.translate(pos[0],pos[1]);
-        }
     }
 }
 
-function install(editor) {
-    editor.on(
-        'rendernode',
-        ({ el, node, component, bindSocket, bindControl }) => {
-            if (component.render && component.render !== 'vue') return;
-            console.log({ el, node, component, bindSocket, bindControl })
-            if (node instanceof NodeCustom){
-                node.createVueComp(el); // replaced the view
-            }
-        }
-    );
-}*/
-/*
-export default {
-    name: 'highlight-node',
-    install
-};*/
+class NodeCustomize extends Rete.Node{
+
+    constructor(name){
+        super(name);
+        this.styleInfo = new NodeStyleData();
+    }
+
+    set nodeStyle(s){
+        this.styleInfo.nodeStyle.styleInfo.value = s
+    }
+
+    set nodeClass(s){
+        this.styleInfo.nodeStyle.classInfo.value = s
+    }
+
+    setSocketStyle(socket,s){
+        this.styleInfo.socketsStyle.get(socket).styleInfo.value = s;
+    }
+
+    setSocketClass(socket,s){
+        this.styleInfo.socketsStyle.get(socket).styleClass.value = s;
+    }
+
+}
+
 export default NodeComponent;

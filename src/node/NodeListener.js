@@ -27,11 +27,11 @@ const eventsNodeIndirect = [
     "translatenode","nodetranslate","nodetranslated","selectnode","nodework","nodeworked"
 ]
 
-    //TODO: compatitable with multiply editors
+//TODO: support multiple editor
 function install(editor){
-    editor.subEvents = new Map();
-    var subEvents = editor.subEvents;
-    
+    var subEvents = new Map()
+
+    // note, we cannot access NodeView, so we install method on the node
     Rete.Node.prototype.on = function(name,func){
         subEvents.get(this.id).on(name,func);
     }

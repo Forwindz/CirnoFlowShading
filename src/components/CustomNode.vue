@@ -11,7 +11,7 @@
      <div class="control" v-for="control in controls()" v-control="control" :key="control"></div>
     </div>
     <div class="col">
-      <div class="output" v-for="output in outputs()" :key="output.key">
+      <div class="output" v-for="output in outputs()" :key="output.key" style="text-align: right">
         <div class="output-title">{{output.name}}</div>
         <Socket v-socket:output="output" type="output" :socket="output.socket" :used="() => output.connections.length"></Socket>
       </div>
@@ -27,7 +27,7 @@ console.log(VueRenderPlugin.mixin);
 export default{
     name:"CustomNode",
     mixins: [VueRenderPlugin.Node],
-    
+    //props:[styleInfo,classInfo], //control the style of node and sockets
     methods:{
       used(io){
         return io.connections.length;
