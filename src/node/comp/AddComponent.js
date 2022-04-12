@@ -13,22 +13,24 @@ class AddComponent extends NodeComponent {
     builder(node) {
         
         super.builder(node);
-        this._addNumSocketInput(node,'num', "Number1","float")
-        this._addNumSocketInput(node,'num2', "Number2","float")
-        this._addNumSocketOutput(node,'num', "Result","float")
+        this._addNumSocketInput(node,'num', "Number1","any")
+        this._addNumSocketInput(node,'num2', "Number2","any")
+        this._addNumSocketOutput(node,'num', "Result","any")
         node.addControl(new NumControl(this.editor, 'preview', true))
         return node;
     }
 
     worker(node, inputs, outputs) {
+        let realNode = this.editor.nodes.find(n => n.id == node.id);
         let methodList = methods["add"];
         console.log(inputs)
         console.log(outputs)
         let input2 = this._extractInput(node,inputs);
         let method = Method.matchMethod(methodList,"add",input2);
+        console.log(method,"method finded");
         let result = method.execute(input2);
 
-        this.editor.nodes.find(n => n.id == node.id).controls.get('preview').setValue(result.value);
+        realNode.controls.get('preview').setValue(result.value);
         outputs['num'] = result;
         super.worker(node,inputs,outputs)
         console.log(node);

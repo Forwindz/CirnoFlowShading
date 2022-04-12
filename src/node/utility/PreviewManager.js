@@ -249,7 +249,6 @@ class PreviewManager{
     }
 
     set enablePreview(v){
-        console.log(v)
         if(this._enablePreview==v){
             return;
         }

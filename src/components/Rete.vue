@@ -61,10 +61,17 @@ export default {
       console.log("Update Mesh in Scene3D");
       this.$options.rawData.rete.modelStore = toRaw(newv);
     },
-    enablePreview: function (newv,oldv){
-      console.log("Enable preview!!!!!!!!!!!!",newv);
-      this.$options.rawData.rete.previewManager.enablePreview = newv;
-    }
+    enablePreview: {
+      handler(newv,oldv){
+        console.log("Enable preview!!!!!!!!!!!!",newv,this.$options.rawData.rete);
+        if(!this.$options.rawData.rete){
+          return;
+        }
+        this.$options.rawData.rete.previewManager.enablePreview = newv;
+      },
+      immediate:false
+
+      }
   },
 };
 </script>

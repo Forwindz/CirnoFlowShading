@@ -59,6 +59,7 @@ class NodeGraphTemplate{
         this.outputSocket = null;
         this.outputSocketTemplate = null
         this.relativePosition = [0,0] //original position 
+        this.retainConnection=false;
     }
 
     saveSocket(fromSocket){
@@ -73,6 +74,15 @@ class NodeGraphTemplate{
                 key:fromSocket.key
             }
         }else{
+            if(!fromSocket.connections.length){
+                console.log(fromSocket);
+                console.log(fromSocket.node.inputs.get(fromSocket.key));
+                console.log(fromSocket.key)
+                this._saveNode(fromSocket.node,false);
+                this.outputSocket = fromSocket;
+                this.retainConnection=true;
+                return;
+            }
             this.outputSocket=fromSocket.connections[0].output
             this._saveNode(fromSocket.connections[0].output.node);
             this.outputSocketTemplate = {
@@ -82,14 +92,17 @@ class NodeGraphTemplate{
         }
     }
 
-    _saveNode(node){
-        for(let k of node.inputs.keys()){
-            const inputSocket = node.inputs.get(k)
-            for(let connection of inputSocket.connections){
-                this._saveConnection(connection)
-                this._saveNode(connection.output.node);
+    _saveNode(node,rec= true){
+        if(rec){
+            for(let k of node.inputs.keys()){
+                const inputSocket = node.inputs.get(k)
+                for(let connection of inputSocket.connections){
+                    this._saveConnection(connection)
+                    this._saveNode(connection.output.node);
+                }
             }
         }
+        
         const tn = new TemplateNode().fromNode(node);
         this.nodes.set(tn.genKey(),tn);
     }
@@ -173,19 +186,22 @@ class NodeGraphTemplate{
         }
 
         //remove connections
-        for(let nodeTemplate of this.nodes.values()){
-            console.log(nodeTemplate.ref.inputs)
-            for(let input of nodeTemplate.ref.inputs.values()){
-                const connection = input.connections[0]
-                if(connection){
-                    const k = new TemplateConnection().fromConnection(connection).genKey();
-                    if(!this.connections.has(k)){
-                        console.log("remove connection ",connection);
-                        editor.removeConnection(connection);
+        if(!this.retainConnection){
+            for(let nodeTemplate of this.nodes.values()){
+                console.log(nodeTemplate.ref.inputs)
+                for(let input of nodeTemplate.ref.inputs.values()){
+                    const connection = input.connections[0]
+                    if(connection){
+                        const k = new TemplateConnection().fromConnection(connection).genKey();
+                        if(!this.connections.has(k)){
+                            console.log("remove connection ",connection);
+                            editor.removeConnection(connection);
+                        }
                     }
                 }
             }
         }
+        
 
         for(let c of this.connections.values()){
             let inputNode = this.nodes.get(c.inputID).ref;
