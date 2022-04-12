@@ -90,6 +90,10 @@ class Types {
             new Method("$"+name+">"+this.name,{"input":name},this,func,grammar);
     }
 
+    toString(){
+        return this.name;
+    }
+
     tryTransform(v) {
         let it = this.implicitTransform[v.type];
         if (it) {

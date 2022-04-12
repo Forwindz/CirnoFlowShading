@@ -24,6 +24,15 @@
       </div>
     </div>
   </div> 
+
+  <p 
+  class="error-info" 
+  style="display:inline-block;width:200px;"
+  v-if="this.node.errorInfo_.value!=''"
+  >
+    {{this.node.errorInfo_.value}}
+    </p>
+
 </div>
 </template>
 <script>

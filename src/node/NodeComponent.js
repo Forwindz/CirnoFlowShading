@@ -181,6 +181,14 @@ class NodeComponent extends Rete.Component {
         result.styleInfo.applyNode(result);
         return result
     }
+
+    setErrorInfo(node,info){
+        this.editor.nodes.find(n => n.id == node.id).errorInfo = info;
+    }
+    
+    clearErrorInfo(node){
+        this.setErrorInfo(node,"")
+    }
 }
 
 class NodeCustomize extends Rete.Node{
@@ -188,6 +196,11 @@ class NodeCustomize extends Rete.Node{
     constructor(name){
         super(name);
         this.styleInfo = new NodeStyleData();
+        this.errorInfo_ = ref('')
+    }
+
+    set errorInfo(x){
+        this.errorInfo_.value=x
     }
 
     set nodeStyle(s){
