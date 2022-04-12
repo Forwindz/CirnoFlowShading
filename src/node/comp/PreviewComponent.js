@@ -39,6 +39,7 @@ class PreviewBoxNode extends NodeCustomize{
         this.templateData = null;
         this._variable = reactive(new Variable("float",0));
         this._state = ref("unlock")
+        this._applyFunc = reactive({func:()=>{},func2:()=>{}});
     }
 
     // we use this method to create a node
@@ -49,9 +50,21 @@ class PreviewBoxNode extends NodeCustomize{
             this.data.modelStore = new ModelStore();
         }
         let app= createApp(PreviewBox, {modelStore:this.data.modelStore,
-            variable:this._variable,nodeStyle:this.styleInfo,state:this._state,setState:(v)=>{this.state=v}});
+            variable:this._variable,nodeStyle:this.styleInfo,
+            state:this._state,
+            setState:(v)=>{this.state=v},
+            apply:this._applyFunc
+        });
         app.mount(el)
         this.el=el;
+    }
+
+    set applyFunc(f){
+        this._applyFunc.func=f;
+    }
+
+    set applyFunc2(f){
+        this._applyFunc.func2=f;
     }
 
     set variable(v){

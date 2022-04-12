@@ -23,14 +23,18 @@ class PreviewManager{
         this._comp = new PreviewBoxComponent();
         this.editor.register(this._comp);
         this.previews = new Map();
+        this.pointFloat = new Map();
         this.independentPreviewInteraction = new IndependentPreviewInteraction(this);
-
+        this._enablePreview=false;
         this.editor.on("nodecreated",(param)=>{
             console.log(param);
             if(! (param instanceof PreviewBoxNode)){
                 this.setupInteraction(param);
             }
             
+        })
+        this.editor.on('noderemoved',(node)=>{
+            this.pointFloat.delete(node.id);
         })
     }
 
@@ -177,7 +181,6 @@ class PreviewManager{
                 preview.templateData.saveSocket(socket);
                 console.log(preview.templateData);
                 preview.addNodeClass('preview-independ')
-                preview.state.value = "independent"
                 this.independentPreviewInteraction.installPreview(preview);
             }else{
                 translationAnimationTimer = setInterval(
@@ -241,9 +244,26 @@ class PreviewManager{
         //https://developer.mozilla.org/zh-CN/docs/Web/API/Pointer_events
         let nv = this.getNodeView(node);
         const el = nv.el;
-        var v = new PreviewInteractionPointFloat(this,node,el);
+        let v = new PreviewInteractionPointFloat(this,node,el,this._enablePreviewTime);
+        this.pointFloat.set(node.id,v);
     }
 
+    set enablePreview(v){
+        console.log(v)
+        if(this._enablePreview==v){
+            return;
+        }
+        this._enablePreview = v
+        const time = this._enablePreviewTime
+        console.log(this.pointFloat)
+        for(let pf of this.pointFloat.values()){
+            pf.timeoutIn = time;
+        }
+    }
+
+    get _enablePreviewTime(){
+        return this._enablePreview?200:-1
+    }
 }
 
 class IndependentPreviewInteraction{
@@ -257,29 +277,48 @@ class IndependentPreviewInteraction{
 
     installPreview(preview){
         preview.operations = []
+        preview.state='apply'
+        const funcCheckCompleteNew = ()=>{
+            let tdata = preview.templateData;
+            let nv = this.manager.getNodeView(tdata.fromSocket.node);
+            let createCompleteNew=false;
+
+            nv = this.manager.getNodeView(tdata.outputSocket.node);
+            console.log(nv)
+            if(nv){
+                nv = nv.sockets.get(tdata.outputSocket);
+                console.log(nv)
+            }else{
+                nv=null
+            }
+            if(nv){
+                this.tempTemplate.saveSocket(tdata.outputSocket);
+            }else{
+                this.tempTemplate = null;
+                createCompleteNew=true;
+            }
+            return createCompleteNew;
+        }
+        preview.applyFunc2 = async ()=>{
+            let refPosition = [...preview.position];
+            refPosition[0] -= preview.el.clientWidth
+            refPosition[1] -= preview.el.clientHeight
+            await preview.templateData.applyToEditor(this.editor,funcCheckCompleteNew(),refPosition)
+        };
+        preview.applyFunc = async ()=>{
+            let refPosition = [...preview.position];
+            refPosition[0] -= preview.el.clientWidth
+            refPosition[1] -= preview.el.clientHeight
+            await preview.templateData.applyToEditor(this.editor,true,refPosition)
+        };
         const funcIndependOnEnter = async (e)=>{
             console.log("pointerEnter",e)
             const viewNodes = this.editor.view.nodes
             this.tempTemplate = new NodeGraphTemplate();
             let tdata = preview.templateData;
             let nv = this.manager.getNodeView(tdata.fromSocket.node);
-            let createCompleteNew=false;
-           {
-                nv = this.manager.getNodeView(tdata.outputSocket.node);
-                console.log(nv)
-                if(nv){
-                    nv = nv.sockets.get(tdata.outputSocket);
-                    console.log(nv)
-                }else{
-                    nv=null
-                }
-                if(nv){
-                    this.tempTemplate.saveSocket(tdata.outputSocket);
-                }else{
-                    this.tempTemplate = null;
-                    createCompleteNew=true;
-                }
-            }
+            let createCompleteNew=funcCheckCompleteNew();
+
             //this.tempTemplate.saveSocket(preview.templateData.fromSocket);
             for(let nodeTemplate of preview.templateData.nodes.values()){
                 let node = nodeTemplate.ref;
@@ -465,7 +504,7 @@ class NodePreviewLayoutInfo{
 }
 
 class PreviewInteractionPointFloat{
-    constructor(manager,node,el,timeoutIn=200, timeoutOut=3000){
+    constructor(manager,node,el,timeoutIn=200, timeoutOut=2000){
         this.manager = manager;
         this.el=el;
         this.pres = [];
@@ -477,6 +516,8 @@ class PreviewInteractionPointFloat{
         this.partState = false;
         this.timerIn = null;
         this.timerOut = null;
+        this.timeoutIn = timeoutIn
+        this.timeoutOut = timeoutOut
 
         const executeInFunc = async ()=>{
             this.state=STATE_ALREADY_DONE;
@@ -526,11 +567,11 @@ class PreviewInteractionPointFloat{
                     if(this.partState){
                         clearTimeout(this.timerIn);
                     }
-                    this.timerOut = setTimeout(executeOutFunc,timeoutOut);
+                    this.timerOut = setTimeout(executeOutFunc,this.timeoutOut);
                     break;
                 case STATE_OUT_DOM:
                     if(this.partState){
-                        this.timerOut = setTimeout(executeOutFunc,timeoutOut);
+                        this.timerOut = setTimeout(executeOutFunc,this.timeoutOut);
                     }
             }
         }
@@ -541,7 +582,7 @@ class PreviewInteractionPointFloat{
             switch(this.state){
                 case STATE_OUT_DOM:
                     this.state = STATE_IN_DOM;
-                    this.timerIn = setTimeout(executeInFunc,timeoutIn);
+                    this.timerIn = this.timeoutIn<0?null:setTimeout(executeInFunc,this.timeoutIn);
                     clearTimeout(this.timerOut);
                     break;
                 case STATE_FADE_OUT:
@@ -562,7 +603,7 @@ class PreviewInteractionPointFloat{
             switch(this.state){
                 case STATE_ALREADY_DONE:
                     this.state = STATE_FADE_OUT;
-                    this.timerOut = setTimeout(executeOutFunc,timeoutOut);
+                    this.timerOut = setTimeout(executeOutFunc,this.timeoutOut);
                     break;
                 case STATE_IN_DOM:
                     this.state = STATE_OUT_DOM;
