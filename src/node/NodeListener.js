@@ -65,18 +65,25 @@ function install(editor){
     
 
     editor.on('noderemoved',(node)=>{
+        console.log(subEvents,node,"remove");
+        console.log(editor)
+        //if(!subEvents.get(node.id)){
+        //    return;
+        //}
         subEvents.get(node.id).emit('noderemoved',node);
         subEvents.delete(node.id)
     });
     editor.on('nodecreated',(node)=>{
         if(!subEvents.has(node.id)){
             subEvents.set(node.id,new EventEmitter());
+            console.log(subEvents,node,"add");
         }
     });
     editor.on('rendernode',(param)=>{
         const node = param.node;
         if(!subEvents.has(node.id)){
             subEvents.set(node.id,new EventEmitter());
+            console.log(subEvents,node,"addr");
         }
         subEvents.get(node.id).emit('rendernode',param);
     });

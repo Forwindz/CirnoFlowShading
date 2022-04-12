@@ -21,6 +21,7 @@ $context-menu-round: 7px
   overflow: hidden
   *
     box-sizing: border-box
+  
   .node
     background: $node-color
     box-shadow: 1px solid black
@@ -33,6 +34,10 @@ $context-menu-round: 7px
     box-sizing: content-box
     box-shadow: 4px 5px 9px rgba(0,0,0,0.5)
     min-width: 160px
+    &.node-highlight
+      border: 1px solid 
+      border-color: rgba(253,255,80,0.9)
+      box-shadow: 4px 5px 9px rgba(150,150,48,0.5)
     &:hover
       background: $node-color
     &.active

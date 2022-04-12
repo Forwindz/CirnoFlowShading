@@ -10,6 +10,7 @@ class NumControl extends Rete.Control {
   }
 
   setValue(val) {
+    console.log("set val",val)
     this.vueContext.value = val;
   }
 }

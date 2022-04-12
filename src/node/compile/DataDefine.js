@@ -36,6 +36,7 @@ class Variable {
     }
 
     toString(){
+        console.log("toString", this)
         return this.type.turnVar2String(this);
     }
 
@@ -52,6 +53,10 @@ class Variable {
             this._value = v;
             this.isConstValue= typeof value != "string";
         }
+    }
+
+    isEquals(v){
+        return v instanceof Variable && v.value==this.value && this.type == v.type
     }
 
 }

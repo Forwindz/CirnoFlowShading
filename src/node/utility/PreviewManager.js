@@ -4,6 +4,8 @@ import Rete from "rete";
 import {arrayLerp, deepClone} from "./utility"
 import {PreviewBoxComponent,PreviewBoxNode} from "../comp/PreviewComponent"
 import NodeGraphTemplate from "./NodeGraphTemplate";
+import InverseSet from "./InversableAssign";
+import { Variable } from "../compile/DataDefine";
 
 
 function genAlongSocketID(socket){
@@ -138,9 +140,6 @@ class PreviewManager{
             preview.templateData = new NodeGraphTemplate();
             preview.templateData.saveSocket(socket);
             console.log(preview.templateData);
-            console.log(socket)
-            console.log(preview)
-            console.log(params)
             this.independentPreviewInteraction.installPreview(preview);
         }
 
@@ -161,6 +160,9 @@ class PreviewManager{
     removePreviewsSurroundNode(node){
         console.log("remove previews",node)
         let nv = this.getNodeView(node);
+        if(!nv){
+            return; //already deleted
+        }
         let sockets = nv.sockets;
         for(let socket of sockets.keys()){
             this.removePreviewAlongSocket(socket);
@@ -194,26 +196,73 @@ class IndependentPreviewInteraction{
     constructor(manager){
         this.manager = manager;
         this.editor = this.manager.editor;
+        this.tempTemplate = null;
     }
 
+
+
     installPreview(preview){
-        
-        let funcIndependOnEnter = (e)=>{
+        preview.operations = []
+        let funcIndependOnEnter = async (e)=>{
             console.log("pointerEnter",e)
             const viewNodes = this.editor.view.nodes
+            this.tempTemplate = new NodeGraphTemplate();
+            this.tempTemplate.saveSocket(preview.templateData.fromSocket);
             for(let nodeTemplate of preview.templateData.nodes.values()){
-                if(viewNodes.has(nodeTemplate.ref)){
-                    nodeTemplate.ref.nodeStyle ="border-style:solid;border-width:5px;border-color:yellow;"
+                let node = nodeTemplate.ref;
+                if(viewNodes.has(node)){
+                    node.addNodeClass('node-highlight')
+                    preview.operations.push(
+                        ()=>{node.removeNodeClass('node-highlight')}
+                    )
+                    for(let key in nodeTemplate.data){
+                        const templateData = nodeTemplate.data[key]
+                        if(typeof templateData == "undefined"){
+                            continue;
+                        }
+                        
+                        const curData = node.data[key]
+                        if(typeof curData == "undefined"){
+                            continue;
+                        }
+                        let isEqual = templateData==curData;
+                        if(!isEqual && 
+                            templateData instanceof Variable &&
+                            curData instanceof Variable){
+                                isEqual = templateData.isEquals(curData);
+                            }
+                        if(!isEqual){
+                            let control = node.getControl(key)
+                            if(control){
+                                console.log(control);
+                                node.addControlStyle(control,'border: solid 1px red;')
+                                preview.operations.push(
+                                    ()=>{node.removeControlStyle(control,'border: solid 1px red;')}
+                                )
+                            }
+                        }
+                    }
                 }
-            }
+
+            }//end for
+            let nodes = await preview.templateData.applyToEditor(this.editor)
+            preview.operations.push(
+                ()=>{
+                    console.log("remove nodes",nodes)
+                    for(let node of nodes.values()){
+                        this.editor.removeNode(node);
+                    }
+                }
+            )
         }
-        let funcIndependOnLeave = (e)=>{
+        let funcIndependOnLeave = async (e)=>{
             console.log("pointerLeave",e)
-            const viewNodes = this.editor.view.nodes
-            for(let nodeTemplate of preview.templateData.nodes.values()){
-                if(viewNodes.has(nodeTemplate.ref)){
-                    nodeTemplate.ref.nodeStyle = ""
-                }
+            for(const f of preview.operations){
+                f();
+            }
+            preview.operations=[]
+            if(this.tempTemplate){
+                await this.tempTemplate.applyToEditor(this.editor)
             }
         }
         preview.el.addEventListener("pointerenter",funcIndependOnEnter);

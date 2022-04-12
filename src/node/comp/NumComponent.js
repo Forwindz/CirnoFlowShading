@@ -14,12 +14,15 @@ class NumComponent extends NodeComponent {
     builder(node) {
         super.builder(node);
         this._addNumSocketOutput(node,'num', "Number")
-        node.addControl(new NumControl(this.editor, 'num'));
+        const control = new NumControl(this.editor, 'num');
+        node.addControl(control);
         return node;
     }
 
     worker(node, inputs, outputs) {
         outputs['num'] = node.data.num;
+        console.log("Output num")
+        console.log(node.data.num)
         super.worker(node,inputs,outputs);
     }
 }

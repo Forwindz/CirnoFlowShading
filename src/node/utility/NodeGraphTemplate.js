@@ -32,6 +32,7 @@ class TemplateNode{
         this.data = {};
         this.position = [0,0];
         this.connections = [];
+        this.name = ""
     }
 
     genKey(){
@@ -43,6 +44,7 @@ class TemplateNode{
         this.data = deepClone(node.data);
         this.id = node.id;
         this.position = [...node.position]
+        this.name = node.name;
         return this;
     }
 }
@@ -83,6 +85,101 @@ class NodeGraphTemplate{
     _saveConnection(connection){
         const tc = new TemplateConnection().fromConnection(connection);
         this.connections.set(tc.genKey(),tc);
+    }
+
+    async applyToEditor(editor){
+        console.log(this)
+        const viewNodes = editor.view.nodes
+        let tempMapNodes = new Map(); // old id -> existing node
+        let newNodes = new Map();// old id -> new node
+        for(let nodeTemplate of this.nodes.values()){
+            if(viewNodes.has(nodeTemplate.ref)){
+                for(let key in nodeTemplate.data){
+                    nodeTemplate.ref.setData(key,nodeTemplate.data[key])
+                }
+                tempMapNodes.set(nodeTemplate.id,nodeTemplate.ref);
+            }else{
+                const component = editor.components.get(nodeTemplate.name)
+                const data = deepClone(nodeTemplate.data);
+                let node = await component.createNode(data);
+                console.log("new node!!",node)
+                node.position = [...nodeTemplate.position];
+                editor.addNode(node);
+                for(let key in nodeTemplate.data){
+                    node.setData(key,nodeTemplate.data[key])
+                }
+                tempMapNodes.set(nodeTemplate.id,node);
+                newNodes.set(nodeTemplate.id,node);
+            }
+        }
+        //restore connection
+        console.log(this.connections)
+        let newConnections = []
+        for(let c of this.connections.values()){
+            let inputNode = tempMapNodes.get(c.inputID);
+            let outputNode = tempMapNodes.get(c.outputID);
+            //let inputSocket = inputNode.inputs.get(c.inputKey);
+            //let outputSocket = outputNode.outputs.get(c.outputKey);
+            //editor.connect(outputSocket,inputSocket,deepClone(c.data));
+            let flag=false;
+            const oldKey = c.genKey();
+            if(newNodes.has(c.inputID)){
+                c.inputID=inputNode.id;
+                flag=true;
+            }
+            if(newNodes.has(c.outputID)){
+                c.outputID=outputNode.id;
+                flag=true;
+            }
+            if(flag){
+                newConnections.push([c,oldKey]);
+            }
+        }
+        
+        //restore information for new data
+        for(const oldID of newNodes.keys()){
+            let node = newNodes.get(oldID);
+            const newID = node.id;
+            let templateNode = this.nodes.get(oldID);
+            templateNode.id=newID;
+            templateNode.ref = node;
+            this.nodes.set(newID,templateNode)
+            this.nodes.delete(oldID);
+            console.log("update node id",oldID,newID,node,templateNode)
+        }
+
+        for(const ck of newConnections){
+            const c = ck[0]
+            const oldKey = ck[1];
+            this.connections.delete(oldKey)
+            this.connections.set(c.genKey(),c);
+            console.log("update connection", oldKey, c.genKey(),c)
+        }
+
+        //remove connections
+        for(let nodeTemplate of this.nodes.values()){
+            console.log(nodeTemplate.ref.inputs)
+            for(let input of nodeTemplate.ref.inputs.values()){
+                const connection = input.connections[0]
+                if(connection){
+                    const k = new TemplateConnection().fromConnection(connection).genKey();
+                    if(!this.connections.has(k)){
+                        console.log("remove connection ",connection);
+                        editor.removeConnection(connection);
+                    }
+                }
+            }
+        }
+
+        for(let c of this.connections.values()){
+            let inputNode = this.nodes.get(c.inputID).ref;
+            let outputNode = this.nodes.get(c.outputID).ref;
+            let inputSocket = inputNode.inputs.get(c.inputKey);
+            let outputSocket = outputNode.outputs.get(c.outputKey);
+            editor.connect(outputSocket,inputSocket,deepClone(c.data));
+        }
+        console.log(this)
+        return newNodes;
     }
 }
 

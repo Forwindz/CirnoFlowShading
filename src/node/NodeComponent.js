@@ -19,7 +19,7 @@ class StyleManager{
     }
 
     removeClass(v){
-        this.classInfo.value.replace(` ${v}`,'');
+        this.classInfo.value = this.classInfo.value.replace(` ${v}`,'');
     }
 
     addStyle(v){
@@ -27,7 +27,7 @@ class StyleManager{
     }
 
     removeStyle(v){
-        this.styleInfo.value.replace(`;${v}`,'');
+        this.styleInfo.value = this.styleInfo.value.replace(`;${v}`,'');
     }
 
 
@@ -40,6 +40,7 @@ class NodeStyleData{
     constructor(){
         this.nodeStyle = makeStyleData();
         this.socketsStyle = new Map();
+        this.controlsStyle = new Map(); // control changes frequently, so we use string as key
         //this.nodeRef = null;
     }
 
@@ -47,10 +48,32 @@ class NodeStyleData{
         //this.noderef = node;
         for(const s of node.inputs.values()){
             this.addSocket(s)
+            this.addControl(s.control)
         }
         for(const s of node.outputs.values()){
             this.addSocket(s)
+            this.addControl(s.control)
         }
+
+        for(const c of node.controls.values()){
+            this.addControl(c)
+        }
+    }
+
+    genControlID(control){
+        return `${control.parent.id}_${control.key}`
+    }
+
+    addControl(control){
+        if(!control){
+            return;
+        }
+        const id = this.genControlID(control);
+        this.controlsStyle.set(id,makeStyleData())
+    }
+
+    getControl(control){
+        return this.controlsStyle.get(this.genControlID(control));
     }
 
     addSocket(socket){
@@ -179,6 +202,86 @@ class NodeCustomize extends Rete.Node{
 
     setSocketClass(socket,s){
         this.styleInfo.socketsStyle.get(socket).styleClass.value = s;
+    }
+
+    addNodeStyle(s){
+        this.styleInfo.nodeStyle.addStyle(s);
+    }
+
+    removeNodeStyle(s){
+        this.styleInfo.nodeStyle.removeStyle(s);
+    }
+
+    addNodeClass(s){
+        this.styleInfo.nodeStyle.addClass(s);
+    }
+
+    removeNodeClass(s){
+        this.styleInfo.nodeStyle.removeClass(s);
+    }
+
+
+    addSocketClass(socket,s){
+        this.styleInfo.socketsStyle.get(socket).addClass(s);
+    }
+
+    removeSocketClass(socket,s){
+        this.styleInfo.socketsStyle.get(socket).removeClass(s);
+    }
+
+    addSocketStyle(socket,s){
+        this.styleInfo.socketsStyle.get(socket).addStyle(s);
+    }
+
+    removeSocketStyle(socket,s){
+        this.styleInfo.socketsStyle.get(socket).removeStyle(s);
+    }
+
+
+    addControlClass(control,s){
+        this.styleInfo.getControl(control).addClass(s);
+    }
+
+    removeControlClass(control,s){
+        this.styleInfo.getControl(control).removeClass(s);
+    }
+
+    addControlStyle(control,s){
+        this.styleInfo.getControl(control).addStyle(s);
+    }
+
+    removeControlStyle(control,s){
+        this.styleInfo.getControl(control).removeStyle(s);
+    }
+    /*
+    addSocketsClass(s){
+        for(let socket of this.styleInfo.socketsStyle.values()){
+            socket.addClass(s)
+        }
+    }*/
+
+    // set data and reflect it on the control
+    // key: string, v: Variable
+    setData(key,v){
+        this.data[key] = v;
+        let control = this.getControl(key);
+        if(control){
+            const vv = v instanceof Variable?v.value:v;
+            control.setValue(vv);
+        }
+    }
+
+    getControl(key){
+        if(this.controls.has(key)){
+            return this.controls.get(key)
+        }else if(this.inputs.has(key)){
+            return this.inputs.get(key).control
+        }
+        return null
+    }
+
+    getData(key){
+        return this.data[key];
     }
 
 }
