@@ -56,6 +56,8 @@ class NodeGraphTemplate{
         this.connections = new Map();
         this.fromSocket = null;
         this.fromNode = null;
+        this.outputSocket = null;
+        this.outputSocketTemplate = null
         this.relativePosition = [0,0] //original position 
     }
 
@@ -64,9 +66,19 @@ class NodeGraphTemplate{
         this.fromSocket = fromSocket;
         this.relativePosition = [...fromSocket.node.position]
         if(fromSocket instanceof Rete.Output){
+            this.outputSocket=fromSocket
             this._saveNode(fromSocket.node);
+            this.outputSocketTemplate = {
+                id:fromSocket.node.id,
+                key:fromSocket.key
+            }
         }else{
-            this._saveNode(fromSocket.connections[0].output.node)
+            this.outputSocket=fromSocket.connections[0].output
+            this._saveNode(fromSocket.connections[0].output.node);
+            this.outputSocketTemplate = {
+                id:this.outputSocket.node.id,
+                key:this.outputSocket.key
+            }
         }
     }
 
@@ -87,13 +99,12 @@ class NodeGraphTemplate{
         this.connections.set(tc.genKey(),tc);
     }
 
-    async applyToEditor(editor){
-        console.log(this)
+    async applyToEditor(editor,alwaysCreateNew = false,referencePos=[0,0]){
         const viewNodes = editor.view.nodes
         let tempMapNodes = new Map(); // old id -> existing node
         let newNodes = new Map();// old id -> new node
         for(let nodeTemplate of this.nodes.values()){
-            if(viewNodes.has(nodeTemplate.ref)){
+            if(!alwaysCreateNew && viewNodes.has(nodeTemplate.ref)){
                 for(let key in nodeTemplate.data){
                     nodeTemplate.ref.setData(key,nodeTemplate.data[key])
                 }
@@ -104,6 +115,11 @@ class NodeGraphTemplate{
                 let node = await component.createNode(data);
                 console.log("new node!!",node)
                 node.position = [...nodeTemplate.position];
+                console.log("alwaysCreateNew",alwaysCreateNew);
+                if(alwaysCreateNew){
+                    node.position[0]+=referencePos[0]-this.relativePosition[0]
+                    node.position[1]+=referencePos[1]-this.relativePosition[1]
+                }
                 editor.addNode(node);
                 for(let key in nodeTemplate.data){
                     node.setData(key,nodeTemplate.data[key])

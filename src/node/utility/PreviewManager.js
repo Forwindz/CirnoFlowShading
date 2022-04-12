@@ -1,7 +1,7 @@
 import "@babel/polyfill";
 import Rete from "rete";
 
-import {arrayLerp, deepClone} from "./utility"
+import {arrayLerp, deepClone, pointDistance} from "./utility"
 import {PreviewBoxComponent,PreviewBoxNode} from "../comp/PreviewComponent"
 import NodeGraphTemplate from "./NodeGraphTemplate";
 import InverseSet from "./InversableAssign";
@@ -35,6 +35,12 @@ class PreviewManager{
     }
 
     async addPreview(pos,id){
+        if(this.previews.has(id)){
+            console.log("Already existing preview",id);
+            let preview = this.previews.get(id);
+            preview.setPosition(this.editor,pos);
+            return preview;
+        }
         let ms = this.manager.context.modelStore.roughClone();
         console.log("add Preview",id);
         let node = await this._comp.createNode({"modelStore":ms});
@@ -56,13 +62,20 @@ class PreviewManager{
         }
     }
 
-    removePreview(id){
+    //remove preview, unless it has lock state
+    //you can still remove it with force==true
+    removePreview(id,force=false){
         if(!this.previews.has(id)){
             console.log("remove Preview (failed)",id);
             return;
         }
+        let preview = this.previews.get(id)
+        if(preview.state=="lock" && !force){
+            console.log("preview locked",id);
+            return;
+        }
         console.log("remove Preview",id);
-        this.editor.removeNode(this.previews.get(id));
+        this.editor.removeNode(preview);
         this.previews.delete(id);
     }
 
@@ -102,6 +115,9 @@ class PreviewManager{
     async addPreviewAlongSocket(socket,getPadding=function(socket){return [0,5]}){
         const id = genAlongSocketID(socket);
         let preview = await this.addPreview([100,0],id);
+        let idlePosition = [0,0]
+        let translationAnimationTimer = null;
+        const RANGE=160;
         let func = (node)=>{
             let socketView = this.getSocketView(socket);
             let centerPos = socketView.getPosition(socketView.node);
@@ -116,6 +132,7 @@ class PreviewManager{
             }
             centerPos[1]+=getPadding(socket)[1]-previewView.clientHeight/2;
             preview.setPosition(this.editor,centerPos);
+            idlePosition = [...centerPos]
         }
         let funcRemove = (node)=>{
             this.removePreview(id);
@@ -129,26 +146,63 @@ class PreviewManager{
                 preview.variable = v;
             }
         }
+        let funcPreviewTranslated = (node)=>{
+            if(pointDistance(preview.position,idlePosition)>RANGE){
+                preview.addNodeClass('preview-independ-try')
+            }else{
+                preview.removeNodeClass('preview-independ-try')
+            }
+        }
+        let funcPreviewSelect = (node)=>{
+            if(translationAnimationTimer){
+                clearInterval(translationAnimationTimer);
+            }
+            translationAnimationTimer=null;
+        }
         // change the preview to an independent one
         let funcDragPreview = (params)=>{
-            const newID = genSingleID(id);
-            this.renamePreview(id,newID);
-            socket.node.removeListener("translatenode",func)
-            socket.node.removeListener("noderemoved",funcRemove);
-            socket.node.removeListener("nodeworked",funcNodeUpdate);
-            preview.removeListener("nodedraged",funcDragPreview);
-            preview.templateData = new NodeGraphTemplate();
-            preview.templateData.saveSocket(socket);
-            console.log(preview.templateData);
-            this.independentPreviewInteraction.installPreview(preview);
+            console.log("drag end",params);
+            //independent preview created!
+            if(pointDistance(preview.position,idlePosition)>RANGE){
+                preview.removeNodeClass('preview-independ-try')
+                const newID = genSingleID(id);
+                this.renamePreview(id,newID);
+                socket.node.removeListener("translatenode",func)
+                socket.node.removeListener("noderemoved",funcRemove);
+                socket.node.removeListener("nodeworked",funcNodeUpdate);
+                preview.removeListener("nodedraged",funcDragPreview);
+                preview.removeListener("translatenode",funcPreviewTranslated);
+                preview.removeListener("selectnode",funcPreviewSelect);
+                preview.templateData = new NodeGraphTemplate();
+                preview.templateData.saveSocket(socket);
+                console.log(preview.templateData);
+                preview.addNodeClass('preview-independ')
+                preview.state.value = "independent"
+                this.independentPreviewInteraction.installPreview(preview);
+            }else{
+                translationAnimationTimer = setInterval(
+                    ()=>{
+                        let moved = [preview.position[0]-idlePosition[0],
+                            preview.position[1]-idlePosition[1]];
+                        let finalPos = [preview.position[0]-moved[0]*0.07,
+                            preview.position[1]-moved[1]*0.07]
+                        preview.setPosition(this.editor,finalPos);
+                        funcPreviewTranslated();
+                    },30
+                )
+            }
+            
         }
 
         
         socket.node.on("translatenode",func);
         socket.node.on("noderemoved",funcRemove);
         socket.node.on("nodeworked",funcNodeUpdate);
+        preview.on("translatenode",funcPreviewTranslated);
         preview.on("nodedraged",funcDragPreview);
+        preview.on("selectnode",funcPreviewSelect);
         func();
+        idlePosition = [...preview.position]
         return preview;
     }
 
@@ -203,11 +257,30 @@ class IndependentPreviewInteraction{
 
     installPreview(preview){
         preview.operations = []
-        let funcIndependOnEnter = async (e)=>{
+        const funcIndependOnEnter = async (e)=>{
             console.log("pointerEnter",e)
             const viewNodes = this.editor.view.nodes
             this.tempTemplate = new NodeGraphTemplate();
-            this.tempTemplate.saveSocket(preview.templateData.fromSocket);
+            let tdata = preview.templateData;
+            let nv = this.manager.getNodeView(tdata.fromSocket.node);
+            let createCompleteNew=false;
+           {
+                nv = this.manager.getNodeView(tdata.outputSocket.node);
+                console.log(nv)
+                if(nv){
+                    nv = nv.sockets.get(tdata.outputSocket);
+                    console.log(nv)
+                }else{
+                    nv=null
+                }
+                if(nv){
+                    this.tempTemplate.saveSocket(tdata.outputSocket);
+                }else{
+                    this.tempTemplate = null;
+                    createCompleteNew=true;
+                }
+            }
+            //this.tempTemplate.saveSocket(preview.templateData.fromSocket);
             for(let nodeTemplate of preview.templateData.nodes.values()){
                 let node = nodeTemplate.ref;
                 if(viewNodes.has(node)){
@@ -245,17 +318,24 @@ class IndependentPreviewInteraction{
                 }
 
             }//end for
-            let nodes = await preview.templateData.applyToEditor(this.editor)
+            let refPosition = [...preview.position];
+            refPosition[0] -= preview.el.clientWidth
+            refPosition[1] -= preview.el.clientHeight
+            let nodes = await preview.templateData.applyToEditor(this.editor,createCompleteNew,refPosition)
+            for(let node of nodes.values()){
+                node.addNodeClass('node-highlight-fake')
+            }
             preview.operations.push(
                 ()=>{
                     console.log("remove nodes",nodes)
                     for(let node of nodes.values()){
+                        node.removeNodeClass('node-highlight-fake')
                         this.editor.removeNode(node);
                     }
                 }
             )
         }
-        let funcIndependOnLeave = async (e)=>{
+        const funcIndependOnLeave = async (e)=>{
             console.log("pointerLeave",e)
             for(const f of preview.operations){
                 f();
@@ -394,6 +474,7 @@ class PreviewInteractionPointFloat{
         const STATE_ALREADY_DONE=2;
         const STATE_FADE_OUT=3;
         this.state = STATE_OUT_DOM;
+        this.partState = false;
         this.timerIn = null;
         this.timerOut = null;
 
@@ -406,12 +487,26 @@ class PreviewInteractionPointFloat{
                 el.addEventListener("pointerenter",pointerenterFuncPreview);
                 el.addEventListener("pointerleave",pointerleaveFuncPreview);
             }
+            this.partState=false;
         }
 
         const executeOutFunc = ()=>{
             this.state=STATE_OUT_DOM;
             this.manager.removePreviewsSurroundNode(node);
-            this.pres = [];
+            let newpres = []
+            //add not removed previews
+            for(let preview of this.pres){
+                if(preview.state=='lock'){
+                    newpres.push(preview)
+                }
+            }
+            this.pres = newpres;
+            if(this.pres.length){
+                this.partState=true;
+                //this.state=STATE_ALREADY_DONE;
+            }else{
+                this.partState=false;
+            }
         }
 
         // for previews:
@@ -428,8 +523,15 @@ class PreviewInteractionPointFloat{
             switch(this.state){
                 case STATE_ALREADY_DONE:
                     this.state = STATE_FADE_OUT;
+                    if(this.partState){
+                        clearTimeout(this.timerIn);
+                    }
                     this.timerOut = setTimeout(executeOutFunc,timeoutOut);
                     break;
+                case STATE_OUT_DOM:
+                    if(this.partState){
+                        this.timerOut = setTimeout(executeOutFunc,timeoutOut);
+                    }
             }
         }
 
@@ -440,6 +542,7 @@ class PreviewInteractionPointFloat{
                 case STATE_OUT_DOM:
                     this.state = STATE_IN_DOM;
                     this.timerIn = setTimeout(executeInFunc,timeoutIn);
+                    clearTimeout(this.timerOut);
                     break;
                 case STATE_FADE_OUT:
                     this.state = STATE_ALREADY_DONE;

@@ -22,7 +22,7 @@ export default {
   methods: {
     change(e) {
       this.value = e.target.value;
-      this.update();
+      //this.update();
     },
     update() {
       let n = parseFloat(this.value);
@@ -42,6 +42,14 @@ export default {
       this.putData(this.ikey, new Variable('float',this.value));
     }
   },
+  watch:{
+    value:{
+      handler(newv,oldv){
+        this.update();
+      },
+      immediate:true
+    }
+  }
 };
 </script>
 

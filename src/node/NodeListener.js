@@ -24,7 +24,9 @@ const eventsNodeDirect = [
 ]
 
 const eventsNodeIndirect = [
-    "translatenode","nodetranslate","nodetranslated","selectnode","nodework","nodeworked"
+    "translatenode","nodetranslate",
+    "nodetranslated","selectnode","nodework",
+    "nodeworked"
 ]
 
 //TODO: support multiple editor
@@ -65,11 +67,6 @@ function install(editor){
     
 
     editor.on('noderemoved',(node)=>{
-        console.log(subEvents,node,"remove");
-        console.log(editor)
-        //if(!subEvents.get(node.id)){
-        //    return;
-        //}
         subEvents.get(node.id).emit('noderemoved',node);
         subEvents.delete(node.id)
     });

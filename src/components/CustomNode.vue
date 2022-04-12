@@ -34,7 +34,6 @@ console.log(VueRenderPlugin.mixin);
 export default{
     name:"CustomNode",
     mixins: [VueRenderPlugin.Node],
-    //props:[styleInfo,classInfo], //control the style of node and sockets
     methods:{
       used(io){
         return io.connections.length;

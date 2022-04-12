@@ -15,7 +15,9 @@ class StyleManager{
     }
 
     addClass(v){
-        this.classInfo.value += ` ${v}`
+        if(this.classInfo.value.indexOf(v)==-1){
+            this.classInfo.value += ` ${v}`
+        }
     }
 
     removeClass(v){
@@ -287,3 +289,9 @@ class NodeCustomize extends Rete.Node{
 }
 
 export default NodeComponent;
+
+export{
+    NodeCustomize,
+    NodeStyleData,
+    StyleManager
+}

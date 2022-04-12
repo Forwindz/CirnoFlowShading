@@ -116,6 +116,12 @@ function deepClone(obj, hash = new WeakMap()) {
 
 const kebabize = (str) => str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? "-" : "") + $.toLowerCase())
 
+function pointDistance(a,b){
+    const dx = a[0]-b[0];
+    const dy = a[1]-b[1];
+    return Math.pow(dx*dx+dy*dy,0.5)
+}
 export {string2Float, vecString2Float, extractMeshBufferType, 
-    emptyDom, bindFunction, float2PointString, lerp, arrayLerp, deepClone, kebabize
+    emptyDom, bindFunction, float2PointString, lerp, arrayLerp, deepClone, kebabize,
+    pointDistance
 }

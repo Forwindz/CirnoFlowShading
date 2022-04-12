@@ -4,16 +4,34 @@
 $grid-size: 20px
 $grid-color: #363636
 $node-color: rgba(35,35,35,0.7)
+$hover-color: rgba(100,100,100,0.7)
+$hover-color-shadow: rgba(20,20,20,0.5)
 $color-active: darken($node-color,5%)
 $title-light: rgba(0, 255, 0,0.5)
 $title-light-transparent: rgba(0, 255, 0,0.0)
+$highlight-color-high: rgba(253,255,80,0.9)
+$highlight-color-high-shadow: #9c9e30e6
+$highlight-color-low: #9c9e30e6
+$highlight-color-low-shadow: #63632180
 $group-color: rgba(15,80,255,0.2)
 $group-handler-size: 40px
 $group-handler-offset: -10px
 $socket-size: 16px
 $socket-margin: 10px
 $context-menu-round: 7px
-
+$text-color: rgba(222,222,222,1)
+$preview-independ-color: rgba(20, 127, 20,0.5)
+$preview-independ-color-highlight: rgba(20, 127, 20,0.9)
+.button
+  background: rgba(70,70,70,0.7)
+  border: 1px solid black
+  text-decoration-color: $text-color
+  &:hover
+    background: rgba(100,100,100,0.7)
+    border: 1px solid rgba(20,20,20,0.7)
+  &:active
+    background: rgba(50,50,50,0.7)
+    border: 1px solid rgba(10,10,10,0.7)
 .node-editor
   background-size: $grid-size $grid-size
   background-image: linear-gradient(to right, $grid-color 1px, transparent 1px), linear-gradient(to bottom, $grid-color 1px, transparent 1px)
@@ -34,13 +52,30 @@ $context-menu-round: 7px
     box-sizing: content-box
     box-shadow: 4px 5px 9px rgba(0,0,0,0.5)
     min-width: 160px
+    &.preview
+      min-width: 130px
+    &.preview-independ-try
+      border-color: $preview-independ-color-highlight
+    &.preview-independ
+      border-right-color: $preview-independ-color
+      border-right-width: 3px
     &.node-highlight
       border: 1px solid 
-      border-color: rgba(253,255,80,0.9)
-      box-shadow: 4px 5px 9px rgba(150,150,48,0.5)
+      border-color: $highlight-color-high
+      box-shadow: 4px 5px 9px $highlight-color-high-shadow
+    &.node-highlight-fake
+      border: 1px solid 
+      border-color: $highlight-color-low
+      box-shadow: 4px 5px 9px $highlight-color-low-shadow
+      opacity: 0.6
+      .title
+        background: linear-gradient(to top, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0.19) 100%), radial-gradient(70% 40px at center, $highlight-color-high-shadow 0%, $title-light-transparent 60%)
     &:hover
+      box-shadow: 4px 5px 9px $hover-color-shadow
       background: $node-color
-    &.active
+      .title
+        background: linear-gradient(to top, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 40%, rgba(255, 255, 255, 0.29) 100%), radial-gradient(70% 40px at center, $title-light 0%, $title-light-transparent 60%)
+    &:active
       background: $color-active
       border: 1px solid #ffd252
     .title

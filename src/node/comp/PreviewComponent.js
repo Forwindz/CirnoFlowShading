@@ -4,6 +4,7 @@ import PreviewBox from "./../../components/PreviewBox.vue";
 import { createApp,reactive,ref, watch } from 'vue';
 import { Variable } from "../compile/DataDefine";
 import ModelStore from "../utility/ModelStore";
+import {NodeCustomize} from "../NodeComponent"
 // a class for preview box
 class PreviewBoxComponent extends Rete.Component {
 
@@ -28,16 +29,16 @@ class PreviewBoxComponent extends Rete.Component {
     }
 
 }
-class PreviewBoxNode extends Rete.Node{
+class PreviewBoxNode extends NodeCustomize{
 
     constructor(width = PreviewBoxNode.defaultWidth,height = PreviewBoxNode.defaultHeight){
-        super();
+        super("PreviewBox");
         this.vueContext = null;
-        this.name = "PreviewBox"
         this.width = width;
         this.height = height;
         this.templateData = null;
         this._variable = reactive(new Variable("float",0));
+        this._state = ref("unlock")
     }
 
     // we use this method to create a node
@@ -47,13 +48,22 @@ class PreviewBoxNode extends Rete.Node{
         if(!this.data.modelStore){
             this.data.modelStore = new ModelStore();
         }
-        let app= createApp(PreviewBox, {modelStore:this.data.modelStore,variable:this._variable});
+        let app= createApp(PreviewBox, {modelStore:this.data.modelStore,
+            variable:this._variable,nodeStyle:this.styleInfo,state:this._state,setState:(v)=>{this.state=v}});
         app.mount(el)
         this.el=el;
     }
 
     set variable(v){
         Object.assign(this._variable,v);
+    }
+
+    set state(v){
+        this._state.value = v;
+    }
+
+    get state(){
+        return this._state.value;
     }
     
     setPosition(editor,pos){
