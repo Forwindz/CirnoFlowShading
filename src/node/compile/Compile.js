@@ -25,8 +25,11 @@ function textWorker(inputs,grammar,presufix="#"){
  */
 function varWorker(inputs,grammar,presufix="#"){
     let t = grammar;
+    console.log(inputs)
     for(let k in inputs){
         t = t.replace(presufix+k+presufix,inputs[k].toString())
+        console.log(inputs[k].toString())
+        console.log(t)
         //TODO: a better generator, current is tooooooo bruteforce and inflexible!
         //Although we do not do the code analysis, but at least make it not too long for glsl compiler.
     }

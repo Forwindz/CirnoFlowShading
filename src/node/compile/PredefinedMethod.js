@@ -111,10 +111,13 @@ function generateBreakDownMethod(namePrefix,fetchIndex){
         {"v":"#IT#"},
         "#OT#",
         (v)=>{
-            result = [];
-            for (i of fetchIndex)
+            let result = [];
+            for (let i of fetchIndex)
             {
-                result.push(v[fetchIndex]);
+                result.push(v[i]);
+            }
+            if(result.length==1){
+                return result[0];
             }
             return result;
         },
@@ -160,9 +163,9 @@ function defineBreakDownMethods(methods_){
     let fetchIndexes = []
     const basicIndexes=[[0],[1],[2],[3]]
     fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,-1));
-    fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,0));
-    fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,1));
-    fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,2));
+    //fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,0));
+    //fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,1));
+    //fetchIndexes = moveArray(fetchIndexes,genFetchIndexes(basicIndexes,2));
     let methods = [];
     for(let i of fetchIndexes){
         methods = moveArray(methods,generateBreakDownMethod("extract",i));
@@ -170,9 +173,53 @@ function defineBreakDownMethods(methods_){
     methods_["extract"] = methods;
 }
 
+function defineVariesFunction(methods_){
+    let methods = []
+    
+    methods.push(new Method('numberToVec2',
+    {  
+        "r":"float",
+        "g":"float"
+    },"vec2",
+    (r,g)=>{return [r,g]},
+    "vec2(#r#,#g#)"
+    ))
+    methods.push(new Method('numberToVec3',
+    {  
+        "r":"float",
+        "g":"float",
+        "b":"float"
+    },"vec3",
+    (r,g,b)=>{return [r,g,b]},
+    "vec3(#r#,#g#,#b#)"
+    ))
+
+    methods.push(new Method('numberToVec4',
+    {  
+        "r":"float",
+        "g":"float",
+        "b":"float",
+        "a":"float"
+    },"vec4",
+    (r,g,b,a)=>{return [r,g,b,a]},
+    "vec4(#r#,#g#,#b#,#a#)"
+    ))
+/*
+    methods.push(new Method('fetchX',
+    {  
+        "v":"vec2"
+    },"float",
+    (v)=>{return v[0]},
+    "(#v#.r)"
+    ))
+*/
+    methods_["varying"] = methods;
+}
 var methods= {}
 defineOpMethods(methods)
 defineBreakDownMethods(methods);
-console.log(methods);
+defineVariesFunction(methods);
+
+console.log("FullMethods",methods);
 
 export {methods}

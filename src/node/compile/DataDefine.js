@@ -184,6 +184,7 @@ Method.matchMethod = function(methods,name,inputs){
             }
         }
     }
+    return null;
 }
 
 Method.matchMethods = function(methods,name,inputs){

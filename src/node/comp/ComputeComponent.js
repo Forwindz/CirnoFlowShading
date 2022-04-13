@@ -58,9 +58,11 @@ var addComponent = new MethodTemplateComponent('Add',
     new MethodsList(methods['div'],'Result',{'num':'Number','num2':'/Number'},['num','num2']));
     var multiComponent = new MethodTemplateComponent('Multiply',
     new MethodsList(methods['mult'],'Result',{'num':'Number','num2':'*Number'},['num','num2']));
-    var minusComponent = new MethodTemplateComponent('Minus',
+var minusComponent = new MethodTemplateComponent('Minus',
     new MethodsList(methods['minus'],'Result',{'num':'Number','num2':'-Number'},['num','num2']));
-export default ComputeComponent;
+
+
+    export default ComputeComponent;
 export{
     addComponent,minusComponent,divComponent,multiComponent
 }
