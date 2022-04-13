@@ -25,6 +25,7 @@ import {
     RGB2FloatsComponent,
     RGBA2FloatsComponent
 }from "../comp/BreakVec3Component";
+import { dotComponent } from "../comp/DotComponent";
 import Vec2Component from "../comp/Vec2Component";
 import Vec3Component from "../comp/Vec3Component";
 import Vec4Component from "../comp/Vec4Component";
@@ -109,7 +110,7 @@ class ReteManager{
         this.outputComponent = new OutputComponent();
         this.components =[
             new NumComponent(),
-            addComponent,minusComponent,divComponent,multiComponent,
+            addComponent,minusComponent,divComponent,multiComponent,dotComponent,
             new Vec2Component(),
             new Vec3Component(),
             new Vec4Component(),

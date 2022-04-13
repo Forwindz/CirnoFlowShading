@@ -72,10 +72,13 @@ class Types {
 
     turnVar2String(v){
         const vv = v.value;
+        console.log("toString",v);
         if(typeof vv =="string"){
+            console.log("toStringvv",v);
             return vv;
         }
         if(this.toStringFunc){
+            console.log("toStringf",v);
             return this.toStringFunc(vv);
         }else{
             return `${vv}`;

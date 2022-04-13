@@ -76,10 +76,10 @@ class MaterialBuilder{
                     finalString = `vec4(${code.value},1.0f)`
                     break;
                 case "vec2":
-                    finalString = `vec4(${code.value},1.0f,1.0f)`
+                    finalString = `vec4(${code.value},0.0f,1.0f)`
                     break;
                 case "float":{ //make ESLint happy
-                    const s = float2PointString(code.value);
+                    const s = code.isConstValue?float2PointString(code.value):code.value;
                     finalString = `vec4(${s},${s},${s},1.0f)`
                     break;
                 }
@@ -94,6 +94,7 @@ class MaterialBuilder{
             finalString = `vec4(vec3(${float2PointString(code)}),1.0f)`;
         }else{
             console.log("Unhandled final result")
+            finalString = `vec4(0.0f,0.0f,0.0f,0.0f)`;
             console.log(code);
         }
         this.fragShaderText = this._genFragShader(finalString);

@@ -261,6 +261,9 @@ class MethodTemplateComponent extends NodeComponent {
             let inputSets = generateInputSets(nullMatchMethods,this._getInputKeys());
 
             for(const key of inputSets.keys()){
+                if(inputs[key].length==0){
+                    continue;
+                }
                 const inKey = `${key}`
                 let inputSocket = realNode.inputs.get(inKey);
                 const inputSet = inputSets.get(key)

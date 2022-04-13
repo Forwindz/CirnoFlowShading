@@ -112,7 +112,7 @@ class NodeComponent extends Rete.Component {
         return p;
     }
 
-    _addNumSocketInput(node,key,text,socketType="float", controlType=NumControl,possibleSocket=null, defaultInput = new Variable("float",0)){
+    _addNumSocketInput(node,key,text,socketType="float", controlType=NumControl,possibleSocket=null, defaultInput = null){
         let p =new DynamicInput(key,text,getSocket(socketType));
         p.addControl(new controlType(this.editor, key))
         this.defaultInput[key]=defaultInput;
@@ -158,6 +158,7 @@ class NodeComponent extends Rete.Component {
                 if(!this.defaultInput[key]){
                     console.warn("Unknown key in _extractInput: "+key);
                     console.log(node);
+                    return null
                 }
             }
             return t;

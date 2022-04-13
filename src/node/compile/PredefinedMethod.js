@@ -215,10 +215,60 @@ function defineVariesFunction(methods_){
 */
     methods_["varying"] = methods;
 }
+
+function dot(a,b){
+    let v = 0
+    for(let i=0;i<a.length;i++){
+        v+=a[i]*b[i]
+    }
+    return v;
+}
+
+function defineDot(methods_){
+    let methods = []
+    
+    methods.push(new Method('dot',
+    {  
+        "a":"float",
+        "b":"float"
+    },"float",
+    (a,b)=>{return a*b},
+    "#a#*#b#"
+    ));
+
+    methods.push(new Method('dot',
+    {  
+        "a":"vec2",
+        "b":"vec2"
+    },"float",
+    (a,b)=>{return dot(a,b)},
+    "dot(#a#,#b#)"
+    ));
+
+    methods.push(new Method('dot',
+    {  
+        "a":"vec3",
+        "b":"vec3"
+    },"float",
+    (a,b)=>{return dot(a,b)},
+    "dot(#a#,#b#)"
+    ));
+
+    methods.push(new Method('dot',
+    {  
+        "a":"vec4",
+        "b":"vec4"
+    },"float",
+    (a,b)=>{return dot(a,b)},
+    "dot(#a#,#b#)"
+    ));
+    methods_["dot"] = methods
+}
 var methods= {}
 defineOpMethods(methods)
 defineBreakDownMethods(methods);
 defineVariesFunction(methods);
+defineDot(methods)
 
 console.log("FullMethods",methods);
 
