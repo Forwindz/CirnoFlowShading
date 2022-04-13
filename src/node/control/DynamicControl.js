@@ -6,7 +6,7 @@ class DynamicControl extends Rete.Control {
 
   constructor(emitter, key, readonly) {
     super(key);
-    this.component = VueVec4Control;
+    this.component = VueDynamicControl;
     this._types = reactive(new Set())
     this.props = { emitter, ikey: key, readonly, type:this._type };
   }

@@ -19,7 +19,7 @@ class InputComponent extends NodeComponent{
 
     builder(node) {
         super.builder(node);
-        this._addNumSocketOutput(node,'num', this.socketName)
+        this._addNumSocketOutput(node,'num', this.socketName,this.variable.type.name)
         return node;
     }
 

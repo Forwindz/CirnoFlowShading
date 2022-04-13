@@ -4,6 +4,7 @@ import NumControl from "../control/NumControl"
 import NodeComponent from '../NodeComponent';
 import { methods } from "../compile/PredefinedMethod";
 import { Method } from "../compile/DataDefine";
+import {MethodTemplateComponent, MethodsList} from "./MethodTemplateComponent"
 // dynamic node by: http://jsfiddle.net/vmxdcLbq/27/
 class ComputeComponent extends NodeComponent {
     constructor(name,methodTag,displayOp="") {
@@ -47,11 +48,18 @@ class ComputeComponent extends NodeComponent {
     }
 }
 
-var addComponent = new ComputeComponent("Add","add");
-var minusComponent = new ComputeComponent("Minus","minus");
-var divComponent = new ComputeComponent("Division","div");
-var multiComponent = new ComputeComponent("Multiply","mult");
-
+//var addComponent = new ComputeComponent("Add","add");
+//var minusComponent = new ComputeComponent("Minus","minus");
+//var divComponent = new ComputeComponent("Division","div");
+//var multiComponent = new ComputeComponent("Multiply","mult");
+var addComponent = new MethodTemplateComponent('Add',
+    new MethodsList(methods['add'],'Result',{'num':'Number','num2':'+Number'},['num','num2']));
+    var divComponent = new MethodTemplateComponent('Division',
+    new MethodsList(methods['div'],'Result',{'num':'Number','num2':'/Number'},['num','num2']));
+    var multiComponent = new MethodTemplateComponent('Multiply',
+    new MethodsList(methods['mult'],'Result',{'num':'Number','num2':'*Number'},['num','num2']));
+    var minusComponent = new MethodTemplateComponent('Minus',
+    new MethodsList(methods['minus'],'Result',{'num':'Number','num2':'-Number'},['num','num2']));
 export default ComputeComponent;
 export{
     addComponent,minusComponent,divComponent,multiComponent

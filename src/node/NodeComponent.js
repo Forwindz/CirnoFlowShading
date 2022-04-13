@@ -108,7 +108,8 @@ class NodeComponent extends Rete.Component {
 
     _addInput(node,key,text,socketType = "any"){
         let p = new DynamicInput(key,text,getSocket(socketType));
-        return node.addInput(p);
+        node.addInput(p);
+        return p;
     }
 
     _addNumSocketInput(node,key,text,socketType="float", controlType=NumControl,possibleSocket=null, defaultInput = new Variable("float",0)){
@@ -118,7 +119,8 @@ class NodeComponent extends Rete.Component {
         if(possibleSocket){
             p.possibleSocket = possibleSocket;
         }
-        return node.addInput(p);
+        node.addInput(p);
+        return p;
     }
 
     _addNumSocketOutput(node,key,text,socketType="float",possibleSocket=null){
@@ -126,7 +128,8 @@ class NodeComponent extends Rete.Component {
         if(possibleSocket){
             p.possibleSocket=possibleSocket;
         }
-        return node.addOutput(p);
+        node.addOutput(p);
+        return p
     }
 
 
@@ -215,12 +218,18 @@ class DynamicInput extends Rete.Input{
     constructor(key, title, socket, multiConns = false) {
         super(key, title, socket, multiConns);
         this.hide = false;
+        this.alwaysShowName = false;
         this.possibleSocket = new Set(); // a list of possible socket type
     }
 
     setSocket(socket){
         if(this.socket==socket){
             return;
+        }
+        if(typeof socket=="string"){
+            socket = getSocket(socket);
+        }else if(socket==null){
+            socket = getSocket('null')
         }
         this.socket = socket;
     }
@@ -230,7 +239,7 @@ class DynamicInput extends Rete.Input{
     }
 
     showControl(){
-        return super.showControl() && !this.hide
+        return (super.showControl() && !this.hide) && !this.alwaysShowName
     }
 }
 
@@ -238,6 +247,7 @@ class DynamicOutput extends Rete.Output{
     constructor(key, title, socket, multiConns = true) {
         super(key, title, socket, multiConns);
         this.hide = false;
+        this.alwaysShowName = false;
         this.possibleSocket = new Set(); // a list of possible socket type, 
     }
 
@@ -245,11 +255,17 @@ class DynamicOutput extends Rete.Output{
         if(this.socket==socket){
             return;
         }
+        if(typeof socket=="string"){
+            socket = getSocket(socket);
+        }else if(socket==null){
+            socket = getSocket('null')
+        }
         this.socket = socket;
     }
 
 
     connectTo(input) {
+        console.log("Try connection",input,this)
         if (!input.multipleConnections && input.hasConnection())
             throw new Error('Input already has one connection');
         if (!this.multipleConnections && this.hasConnection())
@@ -267,7 +283,23 @@ class DynamicOutput extends Rete.Output{
                 break;
             }
         }
-
+        if(!flag){
+            for(let inputSocket of input.possibleSocket.values()){
+                if(this.socket.compatibleWith(inputSocket)){
+                    flag=true;
+                    break;
+                }
+            }
+        }
+        if(!flag){
+            
+            for(let thisSocket of this.possibleSocket.values()){
+                if(thisSocket.compatibleWith(input.socket)){
+                    flag=true;
+                    break;
+                }
+            }
+        }
         if (!flag && !this.socket.compatibleWith(input.socket)){
             console.log(this);
             console.log(input);
@@ -281,12 +313,15 @@ class DynamicOutput extends Rete.Output{
     }
 
     checkConnection(connection){
-        if (!input.multipleConnections && input.hasConnection())
-            return false;
-        if (!this.multipleConnections && this.hasConnection())
-        return false;
+        console.log(connection,"check connection")
+        const input = connection.input
+        const _this = connection.output
+        //if (!input.multipleConnections && input.hasConnection())
+        //    return false;
+        //if (!this.multipleConnections && this.hasConnection())
+        //return false;
         
-        for(let thisSocket of this.possibleSocket.values()){
+        for(let thisSocket of _this.possibleSocket.values()){
             for(let inputSocket of input.possibleSocket.values()){
                 if(thisSocket.compatibleWith(inputSocket)){
                     return true;
@@ -294,14 +329,28 @@ class DynamicOutput extends Rete.Output{
             }
         }
 
-        if (!this.socket.compatibleWith(input.socket)){
+        
+        for(let inputSocket of input.possibleSocket.values()){
+            console.log("inputSocket",inputSocket)
+            if(_this.socket.compatibleWith(inputSocket)){
+                return true;
+            }
+        }
+        for(let thisSocket of _this.possibleSocket.values()){
+            console.log("thisSocket",thisSocket)
+            if(thisSocket.compatibleWith(input.socket)){
+                return true;
+            }
+        }
+        console.log("final compare",_this.socket,input.socket)
+        if (!_this.socket.compatibleWith(input.socket)){
             return false;
         }
         return true;
     }
 
     showControl(){
-        return super.showControl() && !this.hide
+        return (super.showControl() && !this.hide) && !this.alwaysShowName
     }
 }
 /*

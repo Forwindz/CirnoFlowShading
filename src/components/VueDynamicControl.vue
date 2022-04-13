@@ -1,5 +1,6 @@
 <template>
-
+    <div></div>
+<!--
   <input
     v-if="type.value!='any'"
     ref="x"
@@ -48,6 +49,7 @@
     @pointerdown.stop=""
     @pointermove.stop=""
   />
+  -->
 </template>
 <script>
 import {Variable} from "../node/compile/DataDefine.js"
@@ -96,9 +98,9 @@ export default {
     this.value = this.getData(this.ikey);
     if(!this.value){
       this.value = 0;
-      this.putData(this.ikey, new Variable('any','(0.0f)'));
+      //this.putData(this.ikey, new Variable('null','(0.0f)'));
     }else{
-      this.putData(this.ikey, new Variable(toRaw(this.type),toRaw(this.value)));
+      //this.putData(this.ikey, new Variable(toRaw(this.type),toRaw(this.value)));
     }
   },
 };

@@ -216,11 +216,16 @@ Method.matchMethods = function(methods,name,inputs){
 Method.matchPartMethods = function(methods,name,inputs){
     let resultFullMatch = []
     let resultNullMatch = []
+    console.log(methods,name,inputs,"matchPartMethods")
     for(const m of methods){
         if(m.name==name || name == null){ // if name is null, then match all methods
             let flagMatch=true;
             let flagNull=false;
             for(const i in m.inputs){ //extra inputs will be ignored!
+                if(!inputs[i]){ //input not exists
+                    flagNull=true;
+                    continue;
+                }
                 const a = convertToEnumType(inputs[i].type);
                 const b = convertToEnumType(m.inputs[i]);
                 if(typeof a == undefined || typeof b == undefined){
@@ -248,11 +253,14 @@ Method.matchPartMethods = function(methods,name,inputs){
     };
 }
 
+//gather types of the specific input keys
+//input '' to gather output types
 Method.gatherMethodsTypeSet = function(methods,parameterPosition){
     let result = new Set();
     let tp;
+    console.log("gatherMethodsTypeSet",methods);
     for(const m of methods){
-        if(parameterPosition==-1){
+        if(parameterPosition==''){
            tp = m.outputType
         }else{
             tp = m.inputs[parameterPosition]
@@ -261,6 +269,7 @@ Method.gatherMethodsTypeSet = function(methods,parameterPosition){
             result.add(tp.name)
         }
     }
+    console.log(result)
     return result;
 }
 

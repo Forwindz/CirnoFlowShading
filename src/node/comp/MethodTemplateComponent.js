@@ -44,44 +44,49 @@ function largestTypeInSet(s){
 }
 
 class MethodsList{
-    constructor(methods=[],outputName="Output",inputNames=[]){
+    constructor(methods=[],outputName="Output",inputNames=[],inputKeys=[]){
         this.methods = methods;
-        this.outputSet = Method.gatherMethodsTypeSet(methods,-1);
-        this.inputSets = generateInputSets(methods)
+        this.outputSet = Method.gatherMethodsTypeSet(methods,'');
+        this.inputSets = generateInputSets(methods,inputKeys)
+        this.inputKeys = inputKeys
 
         this.outputName = outputName;
         this.inputNames = inputNames;
     }
 }
-function generateInputSets(methods,maxTypeCount=-1){
-    inputSets = []
-    for(let i=0;maxTypeCount<0 || i<maxTypeCount;i++){
-        let result = Method.gatherMethodsTypeSet(methods,i);
-        if(result.size>0){
-            inputSets.push(result)
-        }else{
-            break;
-        }
+function generateInputSets(methods_,inputKeys = ['']){
+    let inputSets = new Map()
+    for(const key of inputKeys){
+        let result = Method.gatherMethodsTypeSet(methods_,key);
+        inputSets.set(key,result)
     }
+    console.log(inputSets)
     return inputSets;
 }
-class ComputeComponent extends NodeComponent {
+class MethodTemplateComponent extends NodeComponent {
     constructor(name,methodsLists) {
         super(name);
+        if(!methodsLists.length){
+            methodsLists = [methodsLists]
+        }
+        console.log(methodsLists)
+        console.log(name,"Create component methodTemplate")
         this.methodsLists = methodsLists;
-        this.inputSets = []
+        this.inputSets = new Map();
         for(let ml of this.methodsLists){
-            while(ml.inputSets.length>this.inputSets.length){
-                this.inputSets.push(new Set())
-            }
-            for(let i=0;i<ml.inputSets.length;i++){
-                const mli = ml.inputSets[i]
-                let selfi = this.inputSets[i]
-                for(let v of mli.values()){
+            for(const key of ml.inputSets.keys()){
+                const inputSet = ml.inputSets.get(key)
+                let selfi = new Set();
+                this.inputSets.set(key,selfi);
+                for(let v of inputSet.values()){
                     selfi.add(v)
                 }
             }
         }
+        console.log(this)
+        this.lastConnection = null;
+        this.installed = false
+        
     }
 
     getSocketType(set){
@@ -102,19 +107,33 @@ class ComputeComponent extends NodeComponent {
         if(output.name=='null'){
             return;
         }
-        this._addNumSocketOutput(node,key,name,output,set);
+        let p = this._addNumSocketOutput(node,key,name,output);
+        console.log(p);
+        p.possibleSocket = this._wrapSocketType(set)
+        console.log(p);
+        p.alwaysShowName=true;
+        console.log(p)
     }
 
     _createInputSocket(node,set,key,name){
-        const inputSocket = this.getSocketType(set)
+        const inputSocket = this.getSocketType(this._wrapSocketType(set))
         if(inputSocket.name=='null'){
             return;
         }
-        this._addNumSocketInput(node,key,name,inputSocket,DynamicControl,set)
+        let p =this._addNumSocketInput(node,key,name,inputSocket,DynamicControl)
+        console.log(p);
+        p.possibleSocket=this._wrapSocketType(set);
+        console.log(p);
+        p.alwaysShowName=true;
+        console.log(p);
     }
 
     _getInputName(index){
         return this.methodsLists[0].inputNames[index];
+    }
+
+    _getInputKeys(){
+        return this.methodsLists[0].inputKeys;
     }
 
 
@@ -125,32 +144,76 @@ class ComputeComponent extends NodeComponent {
             this._createOutputSocket(node,ml.outputSet,`out_${ind}`,ml.outputName)
             ind++
         }
-        for(let i=0;i<this.inputSets.size();i++){
-            this._createInputSocket(node,this.inputSets[i],`in_${ind}`,this._getInputName(i))
+        for(const key of this.inputSets.keys()){
+            console.log("Display Name",this._getInputName(key),this.inputSets.get(key))
+            this._createInputSocket(node,this.inputSets.get(key),`${key}`,this._getInputName(key))
+        }
+        if(!this.installed && this.editor){
+            this.installed=true;
+            this.editor.on('connectionpath', data => {
+                const {
+                    points, // array of numbers, e.g. [x1, y1, x2, y2]
+                    connection, // Rete.Connection instance
+                    d // string, d attribute of <path>
+                } = data;
+                this.lastConnection = connection;
+                //data.d = `M ${x1} ${y1} ${x2} ${y2}`; // you can override the path curve
+            });
         }
         return node;
     }
 
     removeConnections(cs){
+        let cs2=[]
         for(const c of cs){
+            cs2.push(c)
+        }
+        for(const c of cs2){
             this.editor.removeConnection(c)
         }
     }
 
     updateSocketConnections(socket){
         const cs = socket.connections
+        let cs2=[]
         for(const c of cs){
+            cs2.push(c)
+        }
+        for(const c of cs2){
             let accept = c.input.checkConnection(c) && c.output.checkConnection(c)
             if(!accept){
+                console.log("remove connection",c)
                 this.editor.removeConnection(c)
             }
         }
     }
 
+    _wrapSocketType(s){
+        console.log(s,"wrap socket type")
+        let r = new Set();
+        for(const v of s.values()){
+            r.add(this._getSocket(v))
+        }
+        console.log(r)
+        return r;
+    }
+
+    resetInputSocketsType(realNode){
+        console.log("reset node!")
+        for(const key of this.inputSets.keys()){
+            const inKey = `${key}`
+            let inputSocket = realNode.inputs.get(inKey);
+            const inputSet = this.inputSets.get(key)
+            inputSocket.setSocket(this._getSocket('null'))
+            inputSocket.possibleSocket = this._wrapSocketType(inputSet);
+        }
+    }
     worker(node, inputs, outputs) {
         this.clearErrorInfo(node);
         let realNode = this.getRealNode(node);
-        const inputs2 = this._extractInput(inputs);
+        console.log(inputs)
+        const inputs2 = this._extractInput(node,inputs);
+        console.log(inputs2,"translated input")
         //try to match for each output
         let nullMatchMethods = []
         for(let indml=0;indml<this.methodsLists.length;indml++){
@@ -158,9 +221,14 @@ class ComputeComponent extends NodeComponent {
             const outKey = `out_${indml}`
             const result = Method.matchPartMethods(ml.methods,null,inputs2)
             let outSocket = realNode.outputs.get(outKey);
+            console.log("Match result",result)
             if(result.fullMatch.length>0){
+                for(const m of result.fullMatch){
+                    nullMatchMethods.push(m)
+                }
                 const m = result.fullMatch[0];
                 outputs[outKey] = m.execute(inputs2)
+                console.log("output socket type ",outputs[outKey].type.name)
                 outSocket.setSocket(this._getSocket(outputs[outKey].type.name))
                 outSocket.possibleSocket = new Set();
                 outSocket.hide = false;
@@ -170,37 +238,55 @@ class ComputeComponent extends NodeComponent {
                     nullMatchMethods.push(m)
                 }
                 outSocket.setSocket(this._getSocket('null'))
-                outSocket.possibleSocket = Method.gatherMethodsTypeSet(result.nullMatch,-1);
+                outSocket.possibleSocket =  this._wrapSocketType(Method.gatherMethodsTypeSet(result.nullMatch,''));
                 outSocket.hide = false;
                 this.updateSocketConnections(outSocket)
             }else{
                 outSocket.setSocket(this._getSocket('null'))
                 outSocket.possibleSocket = new Set();
                 outSocket.hide = true;
-                this.removeConnections(outSocket.connections);
+                this.updateSocketConnections(outSocket)
+                //this.removeConnections(outSocket.connections);
             }
             
         }
-        
-        let inputSets = generateInputSets(nullMatchMethods,this.inputSets.length);
-        for(let ind=0;ind<inputSets.length;ind++){
-            const inKey = `in_${indml}`
-            let inputSocket = realNode.inputs.get(inKey);
-            const inputSet = inputSets[ind]
-            if(inputSet.size>1){
-                inputSocket.setSocket(this._getSocket('null'))
-                inputSocket.possibleSocket = inputSet;
-                this.updateSocketConnections(inputSocket)
-            }else if (inputSet.size==1){
-                inputSocket.setSocket(this._getSocket(inputSet.values()[0]))
-                this.updateSocketConnections(inputSocket)
-            }else {
-                inputSocket.setSocket(this._getSocket('null'))
-                this.removeConnections(inSocket.connections);
+
+        if(nullMatchMethods.length==0){
+            this.editor.removeConnection(this.lastConnection);
+            this.lastConnection=null;
+            this.resetInputSocketsType(realNode);
+            this.setErrorInfo(node,"Cannot match");
+            throw Error("Cannot match!")
+        }else{
+            let inputSets = generateInputSets(nullMatchMethods,this._getInputKeys());
+
+            for(const key of inputSets.keys()){
+                const inKey = `${key}`
+                let inputSocket = realNode.inputs.get(inKey);
+                const inputSet = inputSets.get(key)
+                console.log(inKey)
+                console.log(inputSocket)
+                if(inputSet.size>1){
+                    inputSocket.setSocket(this._getSocket('null'))
+                    inputSocket.possibleSocket = this._wrapSocketType(inputSet);
+                    this.updateSocketConnections(inputSocket)
+                }else if (inputSet.size==1){
+                    inputSocket.setSocket(this._getSocket([...inputSet.values()][0]));
+                    inputSocket.possibleSocket = this._wrapSocketType(inputSet);
+                    this.updateSocketConnections(inputSocket)
+                }else {
+                    //inputSocket.setSocket(this._getSocket('null'))
+                    //inputSocket.possibleSocket = new Set();
+                    //this.removeConnections(inputSocket.connections);
+                    inputSocket.possibleSocket = new Set();
+                    this.updateSocketConnections(inputSocket)
+                }
             }
+            this.resetInputSocketsType(realNode);
         }
 
         super.worker(node,inputs,outputs)
     }
 }
 
+export {MethodTemplateComponent, MethodsList}

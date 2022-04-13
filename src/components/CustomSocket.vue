@@ -15,6 +15,8 @@ export default{
     },
     computed:{
         socketClass(){
+            console.log(this.socket)
+            console.log(this.socket.name)
             return `socket ${kebabize(this.type)} ${kebabize(this.socket.name)} ${this.used()?'used':''} ${this.socketStyleInfo.classInfo.value}`
         }
     }

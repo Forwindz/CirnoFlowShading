@@ -43,6 +43,22 @@ function generateOperationMethod(name,singleOp,singleOpText){
                 }
                 return r;
             }
+            if(!a.length){
+                if(!b.length){
+                    return singleOp(a,b)
+                }
+                let r =[]
+                for(let i in b){
+                    r[i]=singleOp(a,b[i])
+                }
+                return r
+            }else if (!b.length){
+                let r =[]
+                for(let i in a){
+                    r[i]=singleOp(a[i],b)
+                }
+                return r
+            }
             return singleOp(a,b);
         },
         grammar
