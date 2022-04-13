@@ -76,7 +76,7 @@ class MaterialBuilder{
                     finalString = `vec4(${code.value},1.0f)`
                     break;
                 case "vec2":
-                    finalString = `vec4(${code.value},1.0f)`
+                    finalString = `vec4(${code.value},1.0f,1.0f)`
                     break;
                 case "float":{ //make ESLint happy
                     const s = float2PointString(code.value);
@@ -143,3 +143,4 @@ class MaterialBuilder{
 }
 
 export default MaterialBuilder;
+export {SUFFIX}

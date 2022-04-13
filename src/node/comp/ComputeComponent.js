@@ -18,7 +18,7 @@ class ComputeComponent extends NodeComponent {
         this._addNumSocketInput(node,'num', "Number1","any")
         this._addNumSocketInput(node,'num2', this.displayOp+"Number2","any")
         this._addNumSocketOutput(node,'num', "Result","any")
-        node.addControl(new NumControl(this.editor, 'preview', true))
+        //node.addControl(new NumControl(this.editor, 'preview', true))
         return node;
     }
 
@@ -40,7 +40,7 @@ class ComputeComponent extends NodeComponent {
 
         //this.setErrorInfo(realNode,"asdhaskjdh aslkdj ddddddddddddddddddddddddddddd"+method)
         
-        realNode.controls.get('preview').setValue(result.value);
+        //realNode.controls.get('preview').setValue(result.value);
         outputs['num'] = result;
         super.worker(node,inputs,outputs)
         console.log(node);

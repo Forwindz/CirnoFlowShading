@@ -5,9 +5,9 @@ function defineTypes(){
     Types.define("any")
     Types.define("float",(v)=>{return float2PointString(v)});
     Types.define("int")
-    Types.define("vec2",(v)=>{return `vec2(${v[0]},${v[1]})`})
-    Types.define("vec3",(v)=>{return `vec3(${v[0]},${v[1]},${v[2]})`})
-    Types.define("vec4",(v)=>{return `vec4(${v[0]},${v[1]},${v[2]},${v[3]})`})
+    Types.define("vec2",(v)=>{return `vec2(${float2PointString(v[0])},${float2PointString(v[1])})`})
+    Types.define("vec3",(v)=>{return `vec3(${float2PointString(v[0])},${float2PointString(v[1])},${float2PointString(v[2])})`})
+    Types.define("vec4",(v)=>{return `vec4(${float2PointString(v[0])},${float2PointString(v[1])},${float2PointString(v[2])},${float2PointString(v[3])})`})
     //TODO: resolve #input#
     Types.defineImplicit("float","int",(v)=>{return v.toFixed(0)},"int(#input#)");
     Types.defineImplicit("int","float",(v)=>{return v+0.0},"float(#input#)");

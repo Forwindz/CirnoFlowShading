@@ -26,9 +26,9 @@ class MethodTemplate{
 
 function generateOperationMethod(name,singleOp,singleOpText){
     const acceptType=[
-        "float","int","vec2","vec3","vec4"
+        "float","vec2","vec3","vec4"
     ]
-    const grammar = "#num#"+singleOpText+"#num2#";
+    const grammar = "#UPTYPE1#(#num#)"+singleOpText+"#UPTYPE2#(#num2#)";
     let template = new MethodTemplate(
         name,
         {"num":"#IT1#","num2":"#IT2#"},
@@ -50,18 +50,18 @@ function generateOperationMethod(name,singleOp,singleOpText){
 
     let methodLists=[]
     for(const tp of acceptType){
-        methodLists.push(template.specialize({"IT1":tp,"IT2":tp,"IT3":tp}))
+        methodLists.push(template.specialize({"IT1":tp,"IT2":tp,"IT3":tp,"UPTYPE1":'',"UPTYPE2":''}))
     }
 
     const acceptTypeComplex=[
         "vec2","vec3","vec4"
     ]
     for(const tp of acceptTypeComplex){
-        methodLists.push(template.specialize({"IT1":tp,"IT2":"float","IT3":tp}));
-        methodLists.push(template.specialize({"IT1":tp,"IT2":"int","IT3":tp}));
+        methodLists.push(template.specialize({"IT1":tp,"IT2":"float","IT3":tp,"UPTYPE1":'',"UPTYPE2":tp}));
+        //methodLists.push(template.specialize({"IT1":tp,"IT2":"int","IT3":tp}));
         if(singleOpText!='/'){
-            methodLists.push(template.specialize({"IT1":"float","IT2":tp,"IT3":tp}));
-            methodLists.push(template.specialize({"IT1":"int","IT2":tp,"IT3":tp}));
+            methodLists.push(template.specialize({"IT1":"float","IT2":tp,"IT3":tp,"UPTYPE1":tp,"UPTYPE2":''}));
+            //methodLists.push(template.specialize({"IT1":"int","IT2":tp,"IT3":tp}));
         }
     }
     return methodLists;

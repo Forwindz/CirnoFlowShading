@@ -224,7 +224,7 @@ class DynamicInput extends Rete.Input{
 }
 
 class DynamicOutput extends Rete.Output{
-    constructor(key, title, socket, multiConns = false) {
+    constructor(key, title, socket, multiConns = true) {
         super(key, title, socket, multiConns);
         this.hide = false;
         this.possibleSocket = new Set(); // a list of possible socket type, 

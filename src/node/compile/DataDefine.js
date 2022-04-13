@@ -36,7 +36,6 @@ class Variable {
     }
 
     toString(){
-        console.log("toString", this)
         return this.type.turnVar2String(this);
     }
 
@@ -81,6 +80,7 @@ class Types {
         }else{
             return `${vv}`;
         }
+       
     }
 
     // transform from the type
@@ -167,8 +167,6 @@ Method.matchMethod = function(methods,name,inputs){
     for(const m of methods){
         if(m.name==name){
             let flag=true;
-            console.log(m);
-            console.log(inputs);
             for(const i in inputs){
                 const a = convertToEnumType(inputs[i].type);
                 const b = convertToEnumType(m.inputs[i]);
@@ -186,6 +184,47 @@ Method.matchMethod = function(methods,name,inputs){
             }
         }
     }
+}
+
+Method.matchMethods = function(methods,name,inputs){
+    let result = []
+    for(const m of methods){
+        if(m.name==name){
+            let flag=true;
+            for(const i in inputs){
+                const a = convertToEnumType(inputs[i].type);
+                const b = convertToEnumType(m.inputs[i]);
+                if(typeof a == undefined || typeof b == undefined){
+                    flag=false;
+                    break;
+                }
+                if(a!=b){
+                    flag=false;
+                    break;
+                }
+            }
+            if(flag){
+                result.push(m);
+            }
+        }
+    }
+    return result;
+}
+
+Method.gatherMethodsTypeSet = function(methods,parameterPosition){
+    let result = new Set();
+    let tp;
+    for(const m of methods){
+        if(parameterPosition==-1){
+           tp = m.outputType
+        }else{
+            tp = m.inputs[parameterPosition]
+        }
+        if(tp){
+            result.add(tp.name)
+        }
+    }
+    return result;
 }
 
 function tryCompute(vars, lambda, resultType, grammar) {

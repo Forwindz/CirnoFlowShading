@@ -24,7 +24,7 @@ import { Variable } from "../compile/DataDefine";
 
 import {emptyDom} from "./utility"
 
-import MaterialBuilder from "./MaterialBuilder";
+import MaterialBuilder, { SUFFIX } from "./MaterialBuilder";
 import {extractMeshBufferType} from "./utility"
 
 import PreviewManager from "./PreviewManager";
@@ -117,7 +117,7 @@ class ReteManager{
                 const v = attrs[k];
                 const typeName = extractMeshBufferType(v);
                 if(typeName){
-                    let comp = new InputComponent(`${k} (${typeName})`,typeName,new Variable(typeName,k));
+                    let comp = new InputComponent(`${k} (${typeName})`,typeName,new Variable(typeName,`${k}${SUFFIX}`));
                     console.log(`Add component: ${k} (${typeName})`)
                     this.components.push(comp);
                 }

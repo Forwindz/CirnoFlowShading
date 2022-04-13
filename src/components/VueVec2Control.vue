@@ -25,7 +25,7 @@
 <script>
 import {Variable} from "../node/compile/DataDefine.js"
 import {vecString2Float} from "./../node/utility/utility"
-
+import {toRaw} from "vue"
 export default {
   name: "VueNumControl",
   props: ["readonly", "emitter", "ikey", "getData", "putData"],
@@ -43,7 +43,7 @@ export default {
       this.update();
     },
     update() {
-      if (this.ikey) this.putData(this.ikey, new Variable('vec2',this.value));
+      if (this.ikey) this.putData(this.ikey, new Variable('vec2',toRaw(this.value)));
       this.emitter.trigger("process");
     },
   },
@@ -53,7 +53,7 @@ export default {
       this.value = [0,0];
       this.putData(this.ikey, new Variable('vec2',[0,0]));
     }else{
-      this.putData(this.ikey, new Variable('vec2',this.value));
+      this.putData(this.ikey, new Variable('vec2',toRaw(this.value)));
     }
   },
 };
