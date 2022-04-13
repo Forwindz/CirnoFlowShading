@@ -111,15 +111,22 @@ class NodeComponent extends Rete.Component {
         return node.addInput(p);
     }
 
-    _addNumSocketInput(node,key,text,socketType="float", controlType=NumControl, defaultInput = new Variable("float",0)){
+    _addNumSocketInput(node,key,text,socketType="float", controlType=NumControl,possibleSocket=null, defaultInput = new Variable("float",0)){
         let p =new DynamicInput(key,text,getSocket(socketType));
         p.addControl(new controlType(this.editor, key))
         this.defaultInput[key]=defaultInput;
+        if(possibleSocket){
+            p.possibleSocket = possibleSocket;
+        }
         return node.addInput(p);
     }
 
-    _addNumSocketOutput(node,key,text,socketType="float"){
-        return node.addOutput(new DynamicOutput(key,text,getSocket(socketType)));
+    _addNumSocketOutput(node,key,text,socketType="float",possibleSocket=null){
+        let p = new DynamicOutput(key,text,getSocket(socketType));
+        if(possibleSocket){
+            p.possibleSocket=possibleSocket;
+        }
+        return node.addOutput(p);
     }
 
 
@@ -189,6 +196,10 @@ class NodeComponent extends Rete.Component {
     clearErrorInfo(node){
         this.setErrorInfo(node,"")
     }
+
+    getRealNode(node){
+        return this.editor.nodes.find(n => n.id == node.id)
+    }
 }
 /*
 Rete.IO.prototype.setSocket = function(socket){
@@ -236,6 +247,7 @@ class DynamicOutput extends Rete.Output{
         }
         this.socket = socket;
     }
+
 
     connectTo(input) {
         if (!input.multipleConnections && input.hasConnection())

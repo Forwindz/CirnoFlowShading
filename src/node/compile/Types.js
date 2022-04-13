@@ -3,6 +3,7 @@ import { float2PointString } from "../utility/utility";
 import Rete from "rete";
 function defineTypes(){
     Types.define("any")
+    Types.define("null")
     Types.define("float",(v)=>{return float2PointString(v)});
     Types.define("int")
     Types.define("vec2",(v)=>{return `vec2(${float2PointString(v[0])},${float2PointString(v[1])})`})

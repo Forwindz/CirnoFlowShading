@@ -7,7 +7,7 @@ function convertToEnumType(name) {
             return v;
         } else {
             console.log("Undefined type enum > " + name);
-            return null;
+            return Types.members['null'];
         }
     }
     //debug code:
@@ -15,7 +15,7 @@ function convertToEnumType(name) {
         console.log("<Undefined Value> for type name");
         let a=null;
         a.b.c=1;
-        return null;
+        return Types.members['null'];
     }
     return name;
 }
@@ -209,6 +209,43 @@ Method.matchMethods = function(methods,name,inputs){
         }
     }
     return result;
+}
+
+// null will match every thing, extra inputs does not affect this
+// a more flexible version for matching methods
+Method.matchPartMethods = function(methods,name,inputs){
+    let resultFullMatch = []
+    let resultNullMatch = []
+    for(const m of methods){
+        if(m.name==name || name == null){ // if name is null, then match all methods
+            let flagMatch=true;
+            let flagNull=false;
+            for(const i in m.inputs){ //extra inputs will be ignored!
+                const a = convertToEnumType(inputs[i].type);
+                const b = convertToEnumType(m.inputs[i]);
+                if(typeof a == undefined || typeof b == undefined){
+                    flagMatch=false;
+                    break;
+                }
+                flagNull = flagNull || a.name=='null'
+                if(a!=b && a.name!='null'){
+                    flagMatch=false;
+                    break;
+                }
+            }
+            if(flagMatch){
+                if(flagNull){
+                    resultNullMatch.push(m)
+                }else{
+                    resultFullMatch.push(m)
+                }
+            }
+        }
+    }
+    return {
+        fullMatch:resultFullMatch,
+        nullMatch:resultNullMatch
+    };
 }
 
 Method.gatherMethodsTypeSet = function(methods,parameterPosition){

@@ -24,7 +24,7 @@ class ComputeComponent extends NodeComponent {
 
     worker(node, inputs, outputs) {
         this.clearErrorInfo(node);
-        let realNode = this.editor.nodes.find(n => n.id == node.id);
+        //let realNode = this.editor.nodes.find(n => n.id == node.id);
         let methodList = methods[this.methodTag];
         console.log(inputs)
         console.log(outputs)
