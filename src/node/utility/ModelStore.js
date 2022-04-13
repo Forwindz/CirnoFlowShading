@@ -19,6 +19,7 @@ class ModelStore{
         this.meshes = {};
         this.textureMaterialMap = {};
         this.objects = [];
+        this.meshToTexture = new Map();
     }
 
     //return a new object with shallow copy
@@ -60,6 +61,7 @@ class ModelStore{
                 this.meshes[subobj.uuid] = subobj
                 const orgmat = subobj.material;
                 if(orgmat.map){
+                    this.meshToTexture.set(subobj,orgmat.map);
                     if(!this.textureMaterialMap[orgmat.map.uuid]){
                         this.textureMaterialMap[orgmat.map.uuid] = {
                             "relatedMesh":[subobj],
@@ -126,6 +128,14 @@ class ModelStore{
         console.log(mat);
         for(let mesh of Object.values(this.meshes)){
             mesh.material = mat;
+            //let material = mat.clone();
+            ////material.map = mesh.material.map;
+            //const map = this.meshToTexture.get(mesh);
+            //console.log(map);
+            //console.log(material);
+            //console.log(material.uniforms);
+            //material.unifroms.ourTexture = map;
+            //mesh.material = material;
         }
         if(this.meshes){
             return;
@@ -148,6 +158,40 @@ class ModelStore{
                 tempSet.add(texture.uuid);
             }
         }
+        console.log("final r",this)
+    }
+
+
+    applyMaterialToAllBuilder(mat){
+        let tempSet = new Set();
+        console.log(this.meshes)
+        console.log(mat);
+        //for(let mesh of Object.values(this.meshes)){
+        //    mesh.material = mat;
+        //}
+        if(this.meshes){
+            
+            return;
+        }
+        for(let mesh of Object.values(this.meshes)){
+            //mesh.material = mat;
+            let texture=mesh.material.map;
+            if(texture && !(tempSet.has(texture.uuid))){ //retain the texture settings
+                let newmat = mat.clone();
+                newmat.map = texture;
+                //let testMat = new MeshLambertMaterial();
+                //testMat.emissive = new Color(0.1,0.2,0.9);
+                //testMat.emissiveIntensity=1.0;
+                let textMesh = this.textureMaterialMap[texture.uuid];
+                for(let rmesh of textMesh.relatedMesh){
+                    rmesh.material = newmat;
+                    console.log(rmesh);
+                }
+                newmat.needsUpdate=true;
+                tempSet.add(texture.uuid);
+            }
+        }
+        console.log("final r",this)
     }
 }
 

@@ -14,21 +14,26 @@ class MaterialBuilder{
         this.mesh = null;
         this.fragShaderText = "";
         this.vertShaderText = "";
+        this.map = null
         this.uniforms = {
-            "time": { value: 1.0 } //TODO: selective, make time dynamic
+            "time": { value: 1.0 }, //TODO: selective, make time dynamic
+            'ourTexture': null
         }
     }
 
-    _makeShaders(){
+    makeShaders(map_=null){
         console.log("Shader info");
         console.log(this.vertShaderText)
         console.log("--")
         console.log(this.fragShaderText)
         const material = new THREE.ShaderMaterial({
-            uniforms:this.uniforms,
+            uniforms:{
+                time: { value: 1.0 }, //TODO: selective, make time dynamic
+                ourTexture: {value: null}
+            },
             vertexShader: this.vertShaderText,
             fragmentShader: this.fragShaderText,
-
+            map: map_
         });
         return material;
     }
@@ -99,7 +104,7 @@ class MaterialBuilder{
         }
         this.fragShaderText = this._genFragShader(finalString);
         this.vertShaderText = this._genVertShader();
-        this.newMaterial = this._makeShaders();
+        this.newMaterial = this.makeShaders();
     }
 
     _generateUniformHeader(uniform){

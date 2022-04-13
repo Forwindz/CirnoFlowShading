@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     change(e) {
-      this.value = vecString2Float([
+      this.value = ([
             this.$refs.x.value,
             this.$refs.y.value,
             this.$refs.z.value
@@ -55,7 +55,12 @@ export default {
       this.update();
     },
     update() {
-      if (this.ikey) this.putData(this.ikey, new Variable('vec3',toRaw(this.value)));
+      let v = vecString2Float([
+            this.value[0],
+            this.value[1],
+            this.value[2]
+        ]);
+      if (this.ikey) this.putData(this.ikey, new Variable('vec3',toRaw(v)));
       this.emitter.trigger("process");
     },
   },
