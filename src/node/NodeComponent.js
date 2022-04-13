@@ -107,19 +107,19 @@ class NodeComponent extends Rete.Component {
     }
 
     _addInput(node,key,text,socketType = "any"){
-        let p = new Rete.Input(key,text,getSocket(socketType));
+        let p = new DynamicInput(key,text,getSocket(socketType));
         return node.addInput(p);
     }
 
     _addNumSocketInput(node,key,text,socketType="float", controlType=NumControl, defaultInput = new Variable("float",0)){
-        let p =new Rete.Input(key,text,getSocket(socketType));
+        let p =new DynamicInput(key,text,getSocket(socketType));
         p.addControl(new controlType(this.editor, key))
         this.defaultInput[key]=defaultInput;
         return node.addInput(p);
     }
 
     _addNumSocketOutput(node,key,text,socketType="float"){
-        return node.addOutput(new Rete.Output(key,text,getSocket(socketType)));
+        return node.addOutput(new DynamicOutput(key,text,getSocket(socketType)));
     }
 
 
@@ -190,6 +190,114 @@ class NodeComponent extends Rete.Component {
         this.setErrorInfo(node,"")
     }
 }
+/*
+Rete.IO.prototype.setSocket = function(socket){
+    if(this.socket==socket){
+        return;
+    }
+    for(let c of this.connections){
+
+    }
+}*/
+
+class DynamicInput extends Rete.Input{
+    constructor(key, title, socket, multiConns = false) {
+        super(key, title, socket, multiConns);
+        this.hide = false;
+        this.possibleSocket = new Set(); // a list of possible socket type
+    }
+
+    setSocket(socket){
+        if(this.socket==socket){
+            return;
+        }
+        this.socket = socket;
+    }
+
+    checkConnection(connection){
+        return true;
+    }
+
+    showControl(){
+        return super.showControl() && !this.hide
+    }
+}
+
+class DynamicOutput extends Rete.Output{
+    constructor(key, title, socket, multiConns = false) {
+        super(key, title, socket, multiConns);
+        this.hide = false;
+        this.possibleSocket = new Set(); // a list of possible socket type, 
+    }
+
+    setSocket(socket){
+        if(this.socket==socket){
+            return;
+        }
+        this.socket = socket;
+    }
+
+    connectTo(input) {
+        if (!input.multipleConnections && input.hasConnection())
+            throw new Error('Input already has one connection');
+        if (!this.multipleConnections && this.hasConnection())
+            throw new Error('Output already has one connection');
+        
+        let flag = false;
+        for(let thisSocket of this.possibleSocket.values()){
+            for(let inputSocket of input.possibleSocket.values()){
+                if(thisSocket.compatibleWith(inputSocket)){
+                    flag=true;
+                    break;
+                }
+            }
+            if(flag){
+                break;
+            }
+        }
+
+        if (!flag && !this.socket.compatibleWith(input.socket)){
+            console.log(this);
+            console.log(input);
+            throw new Error('Sockets not compatible');
+        }
+
+        const connection = new Rete.Connection(this, input);
+
+        this.connections.push(connection);
+        return connection;
+    }
+
+    checkConnection(connection){
+        if (!input.multipleConnections && input.hasConnection())
+            return false;
+        if (!this.multipleConnections && this.hasConnection())
+        return false;
+        
+        for(let thisSocket of this.possibleSocket.values()){
+            for(let inputSocket of input.possibleSocket.values()){
+                if(thisSocket.compatibleWith(inputSocket)){
+                    return true;
+                }
+            }
+        }
+
+        if (!this.socket.compatibleWith(input.socket)){
+            return false;
+        }
+        return true;
+    }
+
+    showControl(){
+        return super.showControl() && !this.hide
+    }
+}
+/*
+function installMethod(classType){
+    classType.prototype.setSocket = function(socket){
+        
+    }
+}*/
 
 class NodeCustomize extends Rete.Node{
 

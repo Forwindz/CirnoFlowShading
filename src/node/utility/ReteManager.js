@@ -10,7 +10,9 @@ import NodeListener from "../NodeListener";
 import PreviewComponent from "../comp/PreviewComponent";
 
 import NumComponent from "../comp/NumComponent";
-import AddComponent from "../comp/AddComponent";
+import {
+    addComponent,minusComponent,divComponent,multiComponent
+} from "../comp/ComputeComponent";
 import OutputComponent from "../comp/OutputComponent";
 import InputComponent from "../comp/InputComponent"
 import Floats2RGBComponent from "../comp/Floats2RGBComponent";
@@ -95,14 +97,15 @@ class ReteManager{
     }
 
     _buildComponents(){
+        this.outputComponent = new OutputComponent();
         this.components =[
             new NumComponent(),
-            new AddComponent(),
-            new OutputComponent(),
+            addComponent,minusComponent,divComponent,multiComponent,
             new Floats2RGBComponent(),
             new Vec2Component(),
             new Vec3Component(),
-            new Vec4Component()
+            new Vec4Component(),
+            this.outputComponent
             // Add component here
         ];
   
@@ -120,7 +123,7 @@ class ReteManager{
                 }
             }
         }
-        this.components[2].addWorkEvent((node) => {
+        this.outputComponent.addWorkEvent((node) => {
           console.log("--- Final result ---");
           let result = node.result[0];
           console.log(result);
@@ -162,7 +165,7 @@ class ReteManager{
         let n1 = await components[0].createNode({ num: 2 });
         let n2 = await components[0].createNode({ num: 0 });
         let add = await components[1].createNode();
-        let output = await components[2].createNode();
+        let output = await this.outputComponent.createNode();
 
         n1.position = [0, 200];
         n2.position = [0, 400];

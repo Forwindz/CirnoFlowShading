@@ -5,16 +5,18 @@ import NodeComponent from '../NodeComponent';
 import { methods } from "../compile/PredefinedMethod";
 import { Method } from "../compile/DataDefine";
 // dynamic node by: http://jsfiddle.net/vmxdcLbq/27/
-class AddComponent extends NodeComponent {
-    constructor() {
-        super("Add");
+class ComputeComponent extends NodeComponent {
+    constructor(name,methodTag,displayOp="") {
+        super(name);
+        this.methodTag = methodTag
+        this.displayOp=displayOp
     }
 
     builder(node) {
         
         super.builder(node);
         this._addNumSocketInput(node,'num', "Number1","any")
-        this._addNumSocketInput(node,'num2', "Number2","any")
+        this._addNumSocketInput(node,'num2', this.displayOp+"Number2","any")
         this._addNumSocketOutput(node,'num', "Result","any")
         node.addControl(new NumControl(this.editor, 'preview', true))
         return node;
@@ -23,11 +25,11 @@ class AddComponent extends NodeComponent {
     worker(node, inputs, outputs) {
         this.clearErrorInfo(node);
         let realNode = this.editor.nodes.find(n => n.id == node.id);
-        let methodList = methods["add"];
+        let methodList = methods[this.methodTag];
         console.log(inputs)
         console.log(outputs)
         let input2 = this._extractInput(node,inputs);
-        let method = Method.matchMethod(methodList,"add",input2);
+        let method = Method.matchMethod(methodList,this.methodTag,input2);
         if(!method){
             console.log(input2)
             this.setErrorInfo(node,
@@ -45,4 +47,12 @@ class AddComponent extends NodeComponent {
     }
 }
 
-export default AddComponent;
+var addComponent = new ComputeComponent("Add","add");
+var minusComponent = new ComputeComponent("Minus","minus");
+var divComponent = new ComputeComponent("Division","div");
+var multiComponent = new ComputeComponent("Multiply","mult");
+
+export default ComputeComponent;
+export{
+    addComponent,minusComponent,divComponent,multiComponent
+}

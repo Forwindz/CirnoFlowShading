@@ -17,8 +17,6 @@ class PreviewBoxComponent extends Rete.Component {
     }
 
     builder(node){
-        let p = new Rete.Input('a','test',new Socket('test'));
-        node.addInput(p);
         return node;
     }
 
