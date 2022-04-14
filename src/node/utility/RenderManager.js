@@ -16,7 +16,9 @@ const camera = new THREE.PerspectiveCamera(
 );
 const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
 const renderList = new Set();
-
+camera.position.z = 0
+camera.position.y = 0;
+camera.position.x = 200
 let renderer;// = new THREE.WebGLRenderer({ antialias: true, canvas:document.getElementById("threejscanvas") })
 
 function initThree(dom){

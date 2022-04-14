@@ -43,9 +43,9 @@ class MaterialBuilder{
         const attrs = mesh.geometry.attributes;
         let s = this._generateUniformHeader();
         const texture = mesh.material.map;
-        if(texture){
+        if(texture | true){
             s+= "\
-                uniform sampler2D texture;\n";
+                uniform sampler2D ourTexture;\n";
         }
         s+=this._genenrateBufferInput(mesh,"attribute","",IGNORE_ATTRS);
         s+=this._genenrateBufferInput(mesh,"varying",SUFFIX);
@@ -138,8 +138,8 @@ class MaterialBuilder{
         console.log(mesh);
         console.log(mesh.material);
         const texture = mesh.material.map;
-        if(texture){
-            s+= "uniform sampler2D texture;\n";
+        if(texture | true){
+            s+= "uniform sampler2D ourTexture;\n";
         }
         s+=this._genenrateBufferInput(mesh,"varying",SUFFIX);
         return s;
