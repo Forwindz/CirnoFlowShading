@@ -104,10 +104,10 @@ class RenderManager {
         for (const i of this.eles.mesh) {
             this.eles.scene.add(i)
         }
-        this.eles.light.position.set(0, 20, 200)
-        this.eles.camera.position.z = 0
-        this.eles.camera.position.y = 0;
-        this.eles.camera.position.x = 200
+        //this.eles.light.position.set(0, 20, 200)
+        //this.eles.camera.position.z = 0
+        //this.eles.camera.position.y = 0;
+        //this.eles.camera.position.x = 200
         this.eles.scene.background = new THREE.Color('rgb(255,255,255)')
         //this.eles.scene.add(new THREE.AmbientLight(new THREE.Color(1,1,1)))
 

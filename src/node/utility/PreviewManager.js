@@ -503,7 +503,7 @@ class NodePreviewLayoutInfo{
 }
 
 class PreviewInteractionPointFloat{
-    constructor(manager,node,el,timeoutIn=200, timeoutOut=2000){
+    constructor(manager,node,el,timeoutIn=200, timeoutOut=800){
         this.manager = manager;
         this.el=el;
         this.pres = [];
