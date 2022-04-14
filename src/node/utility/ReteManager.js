@@ -30,7 +30,7 @@ import Vec2Component from "../comp/Vec2Component";
 import Vec3Component from "../comp/Vec3Component";
 import Vec4Component from "../comp/Vec4Component";
 //import component here
-import { Variable } from "../compile/DataDefine";
+import { Method, Variable } from "../compile/DataDefine";
 
 import {emptyDom} from "./utility"
 
@@ -38,6 +38,8 @@ import MaterialBuilder, { SUFFIX } from "./MaterialBuilder";
 import {extractMeshBufferType} from "./utility"
 
 import PreviewManager from "./PreviewManager";
+import {MethodTemplateComponent, MethodsList} from "../comp/MethodTemplateComponent"
+import {methods} from "../compile/PredefinedMethod"
 
 class ReteManager{
 
@@ -106,6 +108,20 @@ class ReteManager{
         emptyDom(this.container);
     }
 
+    //for fast prototype only
+    _addMethod(method,name,outputName='Result',nameMapping={}){
+        if(!method.length){
+            method = [method]
+        }
+        let keys = []
+        for(let i in nameMapping){
+            keys.push(i)
+        }
+        let methodlist = new MethodsList(method,outputName,nameMapping,keys)
+        let comp = new MethodTemplateComponent(name,methodlist);
+        this.components.push(comp);
+    }
+
     _buildComponents(){
         this.outputComponent = new OutputComponent();
         this.components =[
@@ -138,6 +154,72 @@ class ReteManager{
                 }
             }
         }
+
+        //hard coded for the fast prototype!
+        let comp = new InputComponent(`Texture (Texture2D)`,'texture2D',new Variable('texture2D',`ourTexture`));
+        
+
+        this._addMethod(
+            new Method('sampleTexture2D',
+                {
+                    't':'texture2D',
+                    'uv':'vec2'
+                },
+                'vec4',
+                ()=>{},
+                'texture2D(#t#,#uv#)'
+                ),
+            'Sample Texture',
+            'Color (Vec4)',
+            {
+                't':'Texture',
+                'uv':'Sample Position (UV)'
+            }
+        )
+
+        this._addMethod(
+            methods['step'],
+            'Threshold',
+            'Is Pass?',
+            {
+                'v1':'Threshold',
+                'v2':'Test value'
+            }
+        )
+
+        this._addMethod(
+            methods['mix'],
+            'Mix',
+            'Result',
+            {
+                'v1':'Value 1',
+                'v2':'Value 2',
+                'v3':'weight'
+            }
+        )
+
+        this._addMethod(
+            methods['max'],
+            'Max',
+            'Result',
+            {
+                'v1':'Value 1',
+                'v2':'Value 2',
+            }
+        )
+
+        this._addMethod(
+            methods['min'],
+            'Min',
+            'Result',
+            {
+                'v1':'Value 1',
+                'v2':'Value 2',
+            }
+        )
+
+        
+        this.components.push(comp);
         this.outputComponent.addWorkEvent((node) => {
           console.log("--- Final result ---");
           let result = node.result[0];

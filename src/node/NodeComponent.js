@@ -302,8 +302,6 @@ class DynamicOutput extends Rete.Output{
             }
         }
         if (!flag && !this.socket.compatibleWith(input.socket)){
-            console.log(this);
-            console.log(input);
             throw new Error('Sockets not compatible');
         }
 
@@ -314,7 +312,6 @@ class DynamicOutput extends Rete.Output{
     }
 
     checkConnection(connection){
-        console.log(connection,"check connection")
         const input = connection.input
         const _this = connection.output
         //if (!input.multipleConnections && input.hasConnection())
@@ -332,18 +329,15 @@ class DynamicOutput extends Rete.Output{
 
         
         for(let inputSocket of input.possibleSocket.values()){
-            console.log("inputSocket",inputSocket)
             if(_this.socket.compatibleWith(inputSocket)){
                 return true;
             }
         }
         for(let thisSocket of _this.possibleSocket.values()){
-            console.log("thisSocket",thisSocket)
             if(thisSocket.compatibleWith(input.socket)){
                 return true;
             }
         }
-        console.log("final compare",_this.socket,input.socket)
         if (!_this.socket.compatibleWith(input.socket)){
             return false;
         }

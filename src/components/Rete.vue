@@ -27,11 +27,24 @@ export default {
       previousPressedCtrl:false
     };
   },
+  methods:{
+    initRete(){
+      let container = this.$refs.rete;
+      let rete = new ReteManager(container, this.modelStore);
+      this.$options.rawData.rete = rete;
+    },
+    inited(){
+      return this.$options.rawData.rete;
+    }
+  },
   props: ["modelStore"],
   async mounted() {
-    let container = this.$refs.rete;
-    let rete = new ReteManager(container, this.modelStore);
-    this.$options.rawData.rete = rete;
+    //let container = this.$refs.rete;
+    if(!this.inited() && this.modelStore){
+      this.initRete();
+    }
+    //let rete = new ReteManager(container, this.modelStore);
+    //this.$options.rawData.rete = rete;
     
     document.addEventListener('keydown',(e)=>{
       if(e.ctrlKey){
@@ -59,7 +72,13 @@ export default {
   watch: {
     modelStore: function (newv, oldv) {
       console.log("Update Mesh in Scene3D");
-      this.$options.rawData.rete.modelStore = toRaw(newv);
+      if(!this.inited() && this.modelStore){
+        this.initRete();
+      }
+      if(this.inited()){
+        this.$options.rawData.rete.modelStore = toRaw(newv);
+      }
+      
     },
     enablePreview: {
       handler(newv,oldv){

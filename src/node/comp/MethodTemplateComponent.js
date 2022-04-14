@@ -60,7 +60,6 @@ function generateInputSets(methods_,inputKeys = ['']){
         let result = Method.gatherMethodsTypeSet(methods_,key);
         inputSets.set(key,result)
     }
-    console.log(inputSets)
     return inputSets;
 }
 class MethodTemplateComponent extends NodeComponent {
@@ -69,8 +68,6 @@ class MethodTemplateComponent extends NodeComponent {
         if(!methodsLists.length){
             methodsLists = [methodsLists]
         }
-        console.log(methodsLists)
-        console.log(name,"Create component methodTemplate")
         this.methodsLists = methodsLists;
         this.inputSets = new Map();
         for(let ml of this.methodsLists){
@@ -108,11 +105,8 @@ class MethodTemplateComponent extends NodeComponent {
             return;
         }
         let p = this._addNumSocketOutput(node,key,name,output);
-        console.log(p);
         p.possibleSocket = this._wrapSocketType(set)
-        console.log(p);
         p.alwaysShowName=true;
-        console.log(p)
     }
 
     _createInputSocket(node,set,key,name){
@@ -121,11 +115,8 @@ class MethodTemplateComponent extends NodeComponent {
             return;
         }
         let p =this._addNumSocketInput(node,key,name,inputSocket,DynamicControl)
-        console.log(p);
         p.possibleSocket=this._wrapSocketType(set);
-        console.log(p);
         p.alwaysShowName=true;
-        console.log(p);
     }
 
     _getInputName(index){
@@ -145,7 +136,6 @@ class MethodTemplateComponent extends NodeComponent {
             ind++
         }
         for(const key of this.inputSets.keys()){
-            console.log("Display Name",this._getInputName(key),this.inputSets.get(key))
             this._createInputSocket(node,this.inputSets.get(key),`${key}`,this._getInputName(key))
         }
         if(!this.installed && this.editor){
@@ -189,17 +179,14 @@ class MethodTemplateComponent extends NodeComponent {
     }
 
     _wrapSocketType(s){
-        console.log(s,"wrap socket type")
         let r = new Set();
         for(const v of s.values()){
             r.add(this._getSocket(v))
         }
-        console.log(r)
         return r;
     }
 
     resetInputSocketsType(realNode){
-        console.log("reset node!")
         for(const key of this.inputSets.keys()){
             const inKey = `${key}`
             let inputSocket = realNode.inputs.get(inKey);
@@ -211,9 +198,7 @@ class MethodTemplateComponent extends NodeComponent {
     worker(node, inputs, outputs) {
         this.clearErrorInfo(node);
         let realNode = this.getRealNode(node);
-        console.log(inputs)
         const inputs2 = this._extractInput(node,inputs);
-        console.log(inputs2,"translated input")
         //try to match for each output
         let nullMatchMethods = []
         for(let indml=0;indml<this.methodsLists.length;indml++){
@@ -228,7 +213,6 @@ class MethodTemplateComponent extends NodeComponent {
                 }
                 const m = result.fullMatch[0];
                 outputs[outKey] = m.execute(inputs2)
-                console.log("output socket type ",outputs[outKey].type.name)
                 outSocket.setSocket(this._getSocket(outputs[outKey].type.name))
                 outSocket.possibleSocket = new Set();
                 outSocket.hide = false;
@@ -267,8 +251,6 @@ class MethodTemplateComponent extends NodeComponent {
                 const inKey = `${key}`
                 let inputSocket = realNode.inputs.get(inKey);
                 const inputSet = inputSets.get(key)
-                console.log(inKey)
-                console.log(inputSocket)
                 if(inputSet.size>1){
                     inputSocket.setSocket(this._getSocket('null'))
                     inputSocket.possibleSocket = this._wrapSocketType(inputSet);

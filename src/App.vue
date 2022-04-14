@@ -1,5 +1,6 @@
 <template>
   <RenderVue></RenderVue>
+  
   <Scene3D style = "width:200px;height:200px;position:fixed;padding:10px" ref="previewAll" v-bind:modelStore="this.modelStore"></Scene3D>
   <Rete style = "width:100%;height:100%" v-bind:modelStore="this.modelStore"></Rete>
 </template>
@@ -22,10 +23,10 @@ export default {
     RenderVue
   },
   mounted: function() {
-    this.loadModel(require('./assets/model/Chocola.fbx'));
+    this.loadModel(require('./assets/model/Chocola.glb'));
   },
   methods:{
-    loadModel(path){
+    async loadModel(path){
       let modelStore = new ModelStore();
       modelStore.load(path,()=>{
         console.log("Load complete");

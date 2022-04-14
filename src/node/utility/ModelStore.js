@@ -1,6 +1,7 @@
 import * as THREE from "three"
 import { Color, MeshLambertMaterial } from "three";
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 //TODO:!!!
 /*
 THREE.Mesh.prototype.clone = function ( object ) {
@@ -87,6 +88,8 @@ class ModelStore{
                 //TODO: parse this
             }else if(subobj.type == "Group"){
                 this.processGroup(subobj,layer+1);
+            }else if(subobj.type == "Object3D"){
+                this.processGroup(subobj,layer+1);
             }
         }
         if(layer==0){
@@ -101,10 +104,10 @@ class ModelStore{
         if(onComplete){
             manager.onLoad = onComplete;
         }
-        const fbxLoader = new FBXLoader(manager)
+        const fbxLoader = new GLTFLoader(manager)
         fbxLoader.load(
             path,
-            (obj)=>{this.processGroup(obj)},
+            (obj)=>{this.processGroup(obj.scene)},
             (xhr) => {
                 console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
             },
@@ -129,8 +132,9 @@ class ModelStore{
         for(let mesh of Object.values(this.meshes)){
             let material = mat.clone();
             ////material.map = mesh.material.map;
-            //const map = this.meshToTexture.get(mesh);
-            //material.uniforms.ourTexture = map
+            const map = this.meshToTexture.get(mesh);
+            material.uniforms.ourTexture.value = map
+            material.uniforms.uniformsNeedUpdate = true
             mesh.material = material;
         }
         /*

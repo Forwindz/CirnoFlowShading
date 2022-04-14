@@ -6,6 +6,7 @@ function defineTypes(){
     Types.define("null")
     Types.define("float",(v)=>{return float2PointString(v)});
     Types.define("int")
+    Types.define("texture2D")
     Types.define("vec2",(v)=>{return `vec2(${float2PointString(v[0])},${float2PointString(v[1])})`})
     Types.define("vec3",(v)=>{return `vec3(${float2PointString(v[0])},${float2PointString(v[1])},${float2PointString(v[2])})`})
     Types.define("vec4",(v)=>{return `vec4(${float2PointString(v[0])},${float2PointString(v[1])},${float2PointString(v[2])},${float2PointString(v[3])})`})

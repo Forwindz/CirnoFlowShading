@@ -72,13 +72,10 @@ class Types {
 
     turnVar2String(v){
         const vv = v.value;
-        console.log("toString",v);
         if(typeof vv =="string"){
-            console.log("toStringvv",v);
             return vv;
         }
         if(this.toStringFunc){
-            console.log("toStringf",v);
             return this.toStringFunc(vv);
         }else{
             return `${vv}`;
@@ -220,7 +217,6 @@ Method.matchMethods = function(methods,name,inputs){
 Method.matchPartMethods = function(methods,name,inputs){
     let resultFullMatch = []
     let resultNullMatch = []
-    console.log(methods,name,inputs,"matchPartMethods")
     for(const m of methods){
         if(m.name==name || name == null){ // if name is null, then match all methods
             let flagMatch=true;
@@ -262,7 +258,6 @@ Method.matchPartMethods = function(methods,name,inputs){
 Method.gatherMethodsTypeSet = function(methods,parameterPosition){
     let result = new Set();
     let tp;
-    console.log("gatherMethodsTypeSet",methods);
     for(const m of methods){
         if(parameterPosition==''){
            tp = m.outputType
@@ -273,7 +268,6 @@ Method.gatherMethodsTypeSet = function(methods,parameterPosition){
             result.add(tp.name)
         }
     }
-    console.log(result)
     return result;
 }
 

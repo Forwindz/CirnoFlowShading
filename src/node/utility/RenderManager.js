@@ -111,7 +111,7 @@ class RenderManager {
         //this.eles.camera.position.y = 0;
         //this.eles.camera.position.x = 200
         this.eles.scene.background = new THREE.Color('rgb(255,255,255)')
-        //this.eles.scene.add(new THREE.AmbientLight(new THREE.Color(1,1,1)))
+        this.eles.scene.add(new THREE.AmbientLight(new THREE.Color(1,1,1)))
 
     }
 

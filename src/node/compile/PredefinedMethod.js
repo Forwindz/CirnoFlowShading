@@ -34,8 +34,8 @@ function generateOperationMethod(name,singleOp,singleOpText){
         {"num":"#IT1#","num2":"#IT2#"},
         "#IT3#",
         (a,b)=>{
-            console.log(a)
-            console.log(b)
+            //console.log(a)
+            //console.log(b)
             if(a.length && b.length){
                 let r = []
                 for(let i in a){
@@ -264,11 +264,203 @@ function defineDot(methods_){
     ));
     methods_["dot"] = methods
 }
+
+function defineStep(methods_){
+    let template = new MethodTemplate(
+        'setp',
+        {
+            "v1":"#IT1#",
+            "v2":"#IT2#"
+        },
+        "#OT#",
+        (v1,v2)=>{
+            if(!v1.length && !v2.length){
+                return v1>v2?1.0:0.0
+            }
+            let result=[]
+            if(v1.length && v2.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(v1[i]>v2[i]?1.0:0.0)
+                }
+            }
+            if(!v1.length && v2.length){
+                for(let i=0;i<v2.length;i++){
+                    result.push(v1>v2[i]?1.0:0.0)
+                }
+            }
+            if(v1.length && !v2.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(v1[i]>v2?1.0:0.0)
+                }
+            }
+            return result;
+        },
+        'step(#v1#,#v2#)'
+    );
+
+    const list = ['float','vec2','vec3','vec4'];
+    const slist = ['vec2','vec3','vec4'];
+    let result = []
+    for(let input1 of list){
+        result.push(template.specialize({"IT1":input1,"IT2":input1,"OT":input1}))
+
+    }
+    for(let input1 of slist){
+        result.push(template.specialize({"IT1":'float',"IT2":input1,"OT":input1}))
+    }
+    methods_['step'] = result
+}
+
+
+function defineMix(methods_){
+    const interp = function(x,y,v){
+        return x*(1-v)+y*v
+    }
+    let template = new MethodTemplate(
+        'mix',
+        {
+            "v1":"#IT1#",
+            "v2":"#IT2#",
+            "v3":"#IT3#"
+        },
+        "#OT#",
+        (v1,v2,v3)=>{
+            if(!v1.length && !v2.length && !v3.length){
+                return interp(v1,v2,v3)
+            }
+            let result=[]
+            if(v1.length && v2.length && v3.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(interp(v1[i],v2[i],v3[i]))
+                }
+            }
+            if(v1.length && v2.length && !v3.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(interp(v1[i],v2[i],v3))
+                }
+            }
+            return result
+        },
+        'mix(#v1#,#v2#,#v3#)'
+    );
+
+    const list = ['float','vec2','vec3','vec4'];
+    const slist = ['vec2','vec3','vec4'];
+    let result = []
+    for(let input1 of list){
+        result.push(template.specialize({"IT1":input1,"IT2":input1,'IT3':input1,"OT":input1}))
+
+    }
+    for(let input1 of slist){
+        result.push(template.specialize({"IT1":input1,"IT2":input1,'IT3':'float',"OT":input1}))
+    }
+    methods_['mix'] = result
+}
+
+
+
+function defineMax(methods_){
+    let template = new MethodTemplate(
+        'max',
+        {
+            "v1":"#IT1#",
+            "v2":"#IT2#"
+        },
+        "#OT#",
+        (v1,v2)=>{
+            if(!v1.length && !v2.length){
+                return v1>v2?v1:v2
+            }
+            let result=[]
+            if(v1.length && v2.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(v1[i]>v2[i]?v1[i]:v2[i])
+                }
+            }
+            if(!v1.length && v2.length){
+                for(let i=0;i<v2.length;i++){
+                    result.push(v1>v2[i]?v1:v2[i])
+                }
+            }
+            if(v1.length && !v2.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(v1[i]>v2?v1[i]:v2)
+                }
+            }
+            return result;
+        },
+        'max(#v1#,#v2#)'
+    );
+
+    const list = ['float','vec2','vec3','vec4'];
+    const slist = ['vec2','vec3','vec4'];
+    let result = []
+    for(let input1 of list){
+        result.push(template.specialize({"IT1":input1,"IT2":input1,"OT":input1}))
+
+    }
+    for(let input1 of slist){
+        result.push(template.specialize({"IT1":input1,"IT2":'float',"OT":input1}))
+    }
+    methods_['max'] = result
+}
+
+
+function defineMin(methods_){
+    let template = new MethodTemplate(
+        'min',
+        {
+            "v1":"#IT1#",
+            "v2":"#IT2#"
+        },
+        "#OT#",
+        (v1,v2)=>{
+            if(!v1.length && !v2.length){
+                return v1<v2?v1:v2
+            }
+            let result=[]
+            if(v1.length && v2.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(v1[i]<v2[i]?v1[i]:v2[i])
+                }
+            }
+            if(!v1.length && v2.length){
+                for(let i=0;i<v2.length;i++){
+                    result.push(v1<v2[i]?v1:v2[i])
+                }
+            }
+            if(v1.length && !v2.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(v1[i]<v2?v1[i]:v2)
+                }
+            }
+            return result;
+        },
+        'min(#v1#,#v2#)'
+    );
+
+    const list = ['float','vec2','vec3','vec4'];
+    const slist = ['vec2','vec3','vec4'];
+    let result = []
+    for(let input1 of list){
+        result.push(template.specialize({"IT1":input1,"IT2":input1,"OT":input1}))
+
+    }
+    for(let input1 of slist){
+        result.push(template.specialize({"IT1":input1,"IT2":'float',"OT":input1}))
+    }
+    methods_['min'] = result
+}
+
 var methods= {}
 defineOpMethods(methods)
 defineBreakDownMethods(methods);
 defineVariesFunction(methods);
 defineDot(methods)
+defineStep(methods)
+defineMix(methods)
+defineMax(methods)
+defineMin(methods)
 
 console.log("FullMethods",methods);
 

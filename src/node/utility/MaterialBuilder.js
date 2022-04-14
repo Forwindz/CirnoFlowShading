@@ -4,7 +4,7 @@ import { extractMeshBufferType,float2PointString } from "./utility"
 
 const SUFFIX="_";
 const IGNORE_ATTRS=new Set(
-    ["position","normal","uv","tangent","color"]
+    ["position","normal","uv","color"]
 ) //these attribute should be ignored, as three.js has already define these element
 
 
@@ -19,6 +19,12 @@ class MaterialBuilder{
             "time": { value: 1.0 }, //TODO: selective, make time dynamic
             'ourTexture': null
         }
+        let loader = new THREE.TextureLoader();
+        this.errorTexture = null;
+        loader.load(require('./../../assets/defaultAssets/errorTexture.png'), 
+        (tex)=>{
+            this.errorTexture=tex
+        });
     }
 
     makeShaders(map_=null){
@@ -27,10 +33,10 @@ class MaterialBuilder{
         console.log("--")
         console.log(this.fragShaderText)
         const material = new THREE.ShaderMaterial({
-            uniforms:{
-                time: { value: 1.0 }, //TODO: selective, make time dynamic
-                ourTexture: {value: null}
-            },
+            uniforms:THREE.UniformsUtils.merge([{
+                //time: { value: 1.0 }, //TODO: selective, make time dynamic
+                ourTexture: {type:'t',value: this.errorTexture}
+            }]),
             vertexShader: this.vertShaderText,
             fragmentShader: this.fragShaderText,
             map: map_
@@ -88,6 +94,10 @@ class MaterialBuilder{
                     finalString = `vec4(${s},${s},${s},1.0f)`
                     break;
                 }
+                case "texture2D":
+                    finalString = `vec4(0.0f,0.0f,0.0f,0.0f)`
+                    break;
+                
                 default:
                     console.log("Unhandled final type "+code.type);
                     console.log(code);

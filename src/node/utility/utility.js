@@ -1,5 +1,5 @@
 
-import {Float32BufferAttribute} from "three"
+import {BufferAttribute, Float32BufferAttribute} from "three"
 
 function string2Float(x){
     if(typeof x=="number"){
@@ -32,7 +32,8 @@ function vecString2Float(x){
 //return a type name in glsl
 function extractMeshBufferType(v){
     let typeName = null;
-    if(v instanceof Float32BufferAttribute){
+    //fast coding!
+    if(v instanceof Float32BufferAttribute || v instanceof BufferAttribute){
         switch(v.itemSize){
             case 1:
                 typeName=`float`;
