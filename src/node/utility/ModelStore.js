@@ -74,7 +74,13 @@ class ModelStore{
                         
                     }
                 }
-                if(orgmat.type == "MeshPhongMaterial"){
+                if(orgmat.type == "ShaderMaterial"){
+                    const text = orgmat.uniforms.ourTexture;
+                    if(text){
+                        if(text.value){
+                            this.meshToTexture.set(subobj,text.value)
+                        }
+                    }
                     //trying to resolve black texture issue
                     //console.log("Phone!!!!")
                     //subobj.material.emissive=subobj.material.color;

@@ -168,13 +168,33 @@ $preview-independ-color-highlight: rgba(20, 127, 20,0.9)
   
 
 .context-menu
+  
+  
   left: 0
   top: 0
   position: absolute
   padding: 10px
   margin-top: -20px
+  max-height: 500px
+  min-width: 250px
+  overflow-y: scroll
+  overflow-x: hidden
+  .search
+    padding: 6px
+    border-bottom: 1px solid darken($node-color,50%)
+    color: #fff
+    background-color: #252570
+    cursor: pointer
+    width: 250px
+    position: relative
+    &:first-child
+      border-radius: $context-menu-round $context-menu-round 0 0
+    &:last-child
+      border-radius: 0 0 $context-menu-round $context-menu-round
+    &:hover
+      background-color: lighten($node-color,4%)
   & > .item
-    margin-left: -80%
+    margin-left: 0%
     .subitems
       position: absolute
       display: none
@@ -206,5 +226,6 @@ $preview-independ-color-highlight: rgba(20, 127, 20,0.9)
       border-radius: 0 0 $context-menu-round $context-menu-round
     &:hover
       background-color: lighten($node-color,4%)
+
       
 
