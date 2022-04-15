@@ -1,5 +1,5 @@
 <template>
-  <input
+  <input step=0.1
     ref="x"
     type="number"
     placeholder="X"
@@ -10,7 +10,7 @@
     @pointerdown.stop=""
     @pointermove.stop=""
   />
-  <input
+  <input step=0.1
     ref="y"
     type="number"
     placeholder="Y"

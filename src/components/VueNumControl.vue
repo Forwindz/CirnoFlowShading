@@ -1,5 +1,5 @@
 <template>
-  <input
+  <input step=0.1
     type="number"
     :readonly="readonly"
     :value="value"
