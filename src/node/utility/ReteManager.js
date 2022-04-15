@@ -178,6 +178,30 @@ class ReteManager{
         )
 
         this._addMethod(
+            new Method('CrossProduct',
+                {
+                    'a':'vec3',
+                    'b':'vec3'
+                },
+                'vec3',
+                (a,b)=>{
+                    return [
+                        a[1]*b[2]-b[1]*a[2],
+                        a[2]*b[0]-b[2]*a[0],
+                        a[0]*b[1]-b[0]*a[1]
+                    ]
+                },
+                'cross(#t#,#uv#)'
+                ),
+            'Cross Product',
+            'Vector 3',
+            {
+                'a':'Value a',
+                'b':'Value b'
+            }
+        )
+
+        this._addMethod(
             methods['step'],
             'Threshold',
             'Is Pass?',
@@ -217,6 +241,48 @@ class ReteManager{
                 'v2':'Value 2',
             }
         )
+
+        this._addMethod(
+            methods['pow'],
+            'Power',
+            'A^B',
+            {
+                'v1':'Value A',
+                'v2':'Value B',
+            }
+        )
+
+        this._addMethod(
+            methods['sin'],
+            'Sin',
+            'result',
+            {
+                'v1':'Value A',
+                'v2':'Value B',
+            }
+        )
+
+        this._addMethod(
+            methods['cos'],
+            'Cos',
+            'result',
+            {
+                'v1':'Value A',
+                'v2':'Value B',
+            }
+        )
+
+        this._addMethod(
+            methods['tan'],
+            'Tan',
+            'result',
+            {
+                'v1':'Value A',
+                'v2':'Value B',
+            }
+        )
+
+        
 
         
         this.components.push(comp);

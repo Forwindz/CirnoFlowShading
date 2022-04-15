@@ -249,7 +249,8 @@ Method.matchPartMethods = function(methods,name,inputs){
     }
     return {
         fullMatch:resultFullMatch,
-        nullMatch:resultNullMatch
+        nullMatch:resultNullMatch,
+        allMatch:[...resultFullMatch,...resultNullMatch]
     };
 }
 

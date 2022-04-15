@@ -5,7 +5,9 @@
     <div class="col" v-if="node.controls.size&gt;0 || node.inputs.size&gt;0">
       <div class="input" v-for="input in inputs()" :key="input.key" style="text-align: left">
         <Socket v-socket:input="input" type="input" :socket="input.socket" :used="() => input.connections.length" 
-          :socket-style-info="this.node.styleInfo.socketsStyle.get(input)"></Socket>
+          :socket-style-info="this.node.styleInfo.socketsStyle.get(input)"
+          :socket-dynamic-info="this.getSocketDynamicInfoString(input)"
+          ></Socket>
         <div class="input-title" v-show="!input.showControl()">{{input.name}}</div>
         <div v-show="input.showControl()" v-control="input.control"
           :class="'input-control '+this.getControlClass(input.control)"
@@ -20,7 +22,8 @@
       <div class="output" v-for="output in outputs()" :key="output.key" style="text-align: right">
         <div class="output-title">{{output.name}}</div>
         <Socket v-socket:output="output" type="output" :socket="output.socket" :used="() => output.connections.length"
-          :socket-style-info="this.node.styleInfo.socketsStyle.get(output)"></Socket>
+          :socket-style-info="this.node.styleInfo.socketsStyle.get(output)"
+          :socket-dynamic-info="this.getSocketDynamicInfoString(output)"></Socket>
       </div>
     </div>
   </div> 
@@ -58,6 +61,30 @@ export default{
           return ''
         }
         return this.node.styleInfo.getControl(control).styleInfo.value;
+      },
+      getSocketDynamicInfoString(socket){
+        
+        let st = ""+socket.socket.name
+        let sets = socket.possibleSocketTemp;
+        if(!sets){
+          sets = socket.possibleSocket;
+        }
+        if(sets){
+          for(let s of sets.values()){
+            st+= " "+s.name
+          }
+        }
+        return st
+      },
+      getSocketDynamicInfoList(socket){
+        if(socket.possibleSocket){
+          let st = []
+          for(let s of socket.possibleSocket.values()){
+            st.push(s.name)
+          }
+          return st
+        }
+        return []
       }
     },
     computed:{

@@ -221,6 +221,7 @@ class DynamicInput extends Rete.Input{
         this.hide = false;
         this.alwaysShowName = false;
         this.possibleSocket = new Set(); // a list of possible socket type
+        this.possibleSocketTemp = new Set(); // a list of possible socket type
     }
 
     setSocket(socket){
@@ -250,6 +251,7 @@ class DynamicOutput extends Rete.Output{
         this.hide = false;
         this.alwaysShowName = false;
         this.possibleSocket = new Set(); // a list of possible socket type, 
+        this.possibleSocketTemp = new Set(); 
     }
 
     setSocket(socket){

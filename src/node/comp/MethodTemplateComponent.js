@@ -180,6 +180,9 @@ class MethodTemplateComponent extends NodeComponent {
 
     _wrapSocketType(s){
         let r = new Set();
+        if(!s){
+            return r;
+        }
         for(const v of s.values()){
             r.add(this._getSocket(v))
         }
@@ -207,6 +210,8 @@ class MethodTemplateComponent extends NodeComponent {
             const result = Method.matchPartMethods(ml.methods,null,inputs2)
             let outSocket = realNode.outputs.get(outKey);
             console.log("Match result",result)
+            outSocket.possibleSocketTemp =  this._wrapSocketType(Method.gatherMethodsTypeSet(result.allMatch,''));
+            console.log(outSocket.possibleSocketTemp)
             if(result.fullMatch.length>0){
                 for(const m of result.fullMatch){
                     nullMatchMethods.push(m)
@@ -223,6 +228,7 @@ class MethodTemplateComponent extends NodeComponent {
                 }
                 outSocket.setSocket(this._getSocket('null'))
                 outSocket.possibleSocket =  this._wrapSocketType(Method.gatherMethodsTypeSet(result.nullMatch,''));
+                
                 outSocket.hide = false;
                 this.updateSocketConnections(outSocket)
             }else{
@@ -243,14 +249,16 @@ class MethodTemplateComponent extends NodeComponent {
             throw Error("Cannot match!")
         }else{
             let inputSets = generateInputSets(nullMatchMethods,this._getInputKeys());
-
+            console.log(inputSets)
             for(const key of inputSets.keys()){
-                if(inputs[key].length==0){
-                    continue;
-                }
                 const inKey = `${key}`
                 let inputSocket = realNode.inputs.get(inKey);
                 const inputSet = inputSets.get(key)
+                inputSocket.possibleSocketTemp = this._wrapSocketType(inputSet);
+                console.log(inputSet)
+                if(inputs[key].length==0){
+                    continue;
+                }
                 if(inputSet.size>1){
                     inputSocket.setSocket(this._getSocket('null'))
                     inputSocket.possibleSocket = this._wrapSocketType(inputSet);
@@ -267,9 +275,12 @@ class MethodTemplateComponent extends NodeComponent {
                     this.updateSocketConnections(inputSocket)
                 }
             }
-            this.resetInputSocketsType(realNode);
+            
         }
 
+        realNode.vueContext.$forceUpdate();
+
+        this.resetInputSocketsType(realNode);
         super.worker(node,inputs,outputs)
     }
 }

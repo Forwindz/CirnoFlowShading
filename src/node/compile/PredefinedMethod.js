@@ -452,6 +452,46 @@ function defineMin(methods_){
     methods_['min'] = result
 }
 
+function defineDirectMapping(
+    methods_,
+    name,
+    func,
+    grammarName =null
+    ){
+        if(!grammarName){
+            grammarName=name
+        }
+    let template = new MethodTemplate(
+        name,
+        {
+            "v1":"#IT1#",
+            "v2":"#IT2#"
+        },
+        "#OT#",
+        (v1,v2)=>{
+            if(!v1.length && !v2.length){
+                return func(v1,v2);
+            }
+            let result=[]
+            if(v1.length && v2.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(func(v1[i],v2[i]))
+                }
+            }
+            return result;
+        },
+        grammarName+'(#v1#,#v2#)'
+    );
+
+    const list = ['float','vec2','vec3','vec4'];
+    let result = []
+    for(let input1 of list){
+        result.push(template.specialize({"IT1":input1,"IT2":input1,"OT":input1}))
+
+    }
+    methods_[name] = result
+}
+
 var methods= {}
 defineOpMethods(methods)
 defineBreakDownMethods(methods);
@@ -461,6 +501,10 @@ defineStep(methods)
 defineMix(methods)
 defineMax(methods)
 defineMin(methods)
+defineDirectMapping(methods,'pow',(a,b)=>{return Math.pow(a,b)})
+defineDirectMapping(methods,'sin',(a,b)=>{return Math.sin(a,b)})
+defineDirectMapping(methods,'cos',(a,b)=>{return Math.cos(a,b)})
+defineDirectMapping(methods,'tan',(a,b)=>{return Math.tan(a,b)})
 
 console.log("FullMethods",methods);
 
