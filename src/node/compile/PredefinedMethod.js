@@ -492,6 +492,45 @@ function defineDirectMapping(
     methods_[name] = result
 }
 
+function defineDirectMappingSingle(
+    methods_,
+    name,
+    func,
+    grammarName =null
+    ){
+        if(!grammarName){
+            grammarName=name
+        }
+    let template = new MethodTemplate(
+        name,
+        {
+            "v1":"#IT1#"
+        },
+        "#OT#",
+        (v1)=>{
+            if(!v1.length){
+                return func(v1);
+            }
+            let result=[]
+            if(v1.length){
+                for(let i=0;i<v1.length;i++){
+                    result.push(func(v1[i]))
+                }
+            }
+            return result;
+        },
+        grammarName+'(#v1#)'
+    );
+
+    const list = ['float','vec2','vec3','vec4'];
+    let result = []
+    for(let input1 of list){
+        result.push(template.specialize({"IT1":input1,"OT":input1}))
+
+    }
+    methods_[name] = result
+}
+
 var methods= {}
 defineOpMethods(methods)
 defineBreakDownMethods(methods);
@@ -502,9 +541,9 @@ defineMix(methods)
 defineMax(methods)
 defineMin(methods)
 defineDirectMapping(methods,'pow',(a,b)=>{return Math.pow(a,b)})
-defineDirectMapping(methods,'sin',(a,b)=>{return Math.sin(a,b)})
-defineDirectMapping(methods,'cos',(a,b)=>{return Math.cos(a,b)})
-defineDirectMapping(methods,'tan',(a,b)=>{return Math.tan(a,b)})
+defineDirectMappingSingle(methods,'sin',(a)=>{return Math.sin(a)})
+defineDirectMappingSingle(methods,'cos',(a)=>{return Math.cos(a)})
+defineDirectMappingSingle(methods,'tan',(a)=>{return Math.tan(a)})
 
 console.log("FullMethods",methods);
 

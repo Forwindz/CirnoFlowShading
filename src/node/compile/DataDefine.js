@@ -273,8 +273,8 @@ Method.gatherMethodsTypeSet = function(methods,parameterPosition){
 }
 
 function tryCompute(vars, lambda, resultType, grammar) {
-    console.log(vars);
-    console.log(Object.values(vars));
+    //console.log(vars);
+    //console.log(Object.values(vars));
     let values = Object.values(vars);
     for (let i of values) {
         if (!i.isConstValue) {

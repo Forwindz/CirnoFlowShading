@@ -42,8 +42,6 @@ class PreviewBoxNode extends NodeCustomize{
 
     // we use this method to create a node
     createVueComp(el){
-        console.log("mount!")
-        console.log(this.data)
         if(!this.data.modelStore){
             this.data.modelStore = new ModelStore();
         }
@@ -95,7 +93,6 @@ function install(editor) {
         'rendernode',
         ({ el, node, component, bindSocket, bindControl }) => {
             if (component.render && component.render !== 'vue') return;
-            console.log({ el, node, component, bindSocket, bindControl })
             if (node.name == "PreviewBox"){
                 node.createVueComp(el); // replaced the view
             }

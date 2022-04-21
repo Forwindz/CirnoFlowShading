@@ -16,7 +16,6 @@ class Vec2Component extends NodeComponent {
 
     worker(node, inputs, outputs) {
         outputs['num'] = node.data.num;
-        console.log(outputs);
         super.worker(node,inputs,outputs);
     }
 }

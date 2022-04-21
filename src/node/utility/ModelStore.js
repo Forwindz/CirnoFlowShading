@@ -33,9 +33,9 @@ class ModelStore{
             ms.processGroup(obj.clone());
             //ms.objects.push(obj.clone());
         }
-        console.log("clone!!!")
-        console.log(this)
-        console.log(ms);
+        //console.log("clone!!!")
+        //console.log(this)
+        //console.log(ms);
         return ms;
     }
 /*
@@ -55,7 +55,7 @@ class ModelStore{
         if(!object){
             return;
         }
-        console.log(object)
+        //console.log(object)
         const subobjs = object.children;
         for(const subobj of subobjs){
             if(subobj.type == "Mesh"){
@@ -101,8 +101,8 @@ class ModelStore{
         if(layer==0){
             this.objects.push(object)
         }
-        console.log(this.objects);
-        console.log(this.textureMaterialMap)
+        //console.log(this.objects);
+        //console.log(this.textureMaterialMap)
     }
 
     load(path,onComplete=null){
@@ -133,8 +133,8 @@ class ModelStore{
     //set all model with the specific material
     applyMaterialToAll(mat){
         let tempSet = new Set();
-        console.log(this.meshes)
-        console.log(mat);
+        //console.log(this.meshes)
+        //console.log(mat);
         for(let mesh of Object.values(this.meshes)){
             let material = mat.clone();
             ////material.map = mesh.material.map;

@@ -44,7 +44,6 @@ export default{
             }*/
             basic = basic.substring(0,basic.length-1);
             basic+=");"
-            console.log("style_basic",basic)
             return basic;
         }
     }

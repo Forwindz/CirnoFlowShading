@@ -27,12 +27,9 @@ class ComputeComponent extends NodeComponent {
         this.clearErrorInfo(node);
         //let realNode = this.editor.nodes.find(n => n.id == node.id);
         let methodList = methods[this.methodTag];
-        console.log(inputs)
-        console.log(outputs)
         let input2 = this._extractInput(node,inputs);
         let method = Method.matchMethod(methodList,this.methodTag,input2);
         if(!method){
-            console.log(input2)
             this.setErrorInfo(node,
                 `Failed to compute\nPlease change inputs\nInput type:\n Number1:${input2['num'].type} \n Number2:${input2['num2'].type}\nFor example\nYou can use Floats2RGB component to build a vec3\n and DecomposeVec2 to break down vec2 into numbers`
             )
@@ -44,7 +41,6 @@ class ComputeComponent extends NodeComponent {
         //realNode.controls.get('preview').setValue(result.value);
         outputs['num'] = result;
         super.worker(node,inputs,outputs)
-        console.log(node);
     }
 }
 

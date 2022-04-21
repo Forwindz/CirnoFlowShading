@@ -80,7 +80,7 @@ class MethodTemplateComponent extends NodeComponent {
                 }
             }
         }
-        console.log(this)
+        //console.log(this)
         this.lastConnection = null;
         this.installed = false
         
@@ -209,9 +209,9 @@ class MethodTemplateComponent extends NodeComponent {
             const outKey = `out_${indml}`
             const result = Method.matchPartMethods(ml.methods,null,inputs2)
             let outSocket = realNode.outputs.get(outKey);
-            console.log("Match result",result)
+            //console.log("Match result",result)
             outSocket.possibleSocketTemp =  this._wrapSocketType(Method.gatherMethodsTypeSet(result.allMatch,''));
-            console.log(outSocket.possibleSocketTemp)
+            //console.log(outSocket.possibleSocketTemp)
             if(result.fullMatch.length>0){
                 for(const m of result.fullMatch){
                     nullMatchMethods.push(m)
@@ -249,13 +249,13 @@ class MethodTemplateComponent extends NodeComponent {
             throw Error("Cannot match!")
         }else{
             let inputSets = generateInputSets(nullMatchMethods,this._getInputKeys());
-            console.log(inputSets)
+            //console.log(inputSets)
             for(const key of inputSets.keys()){
                 const inKey = `${key}`
                 let inputSocket = realNode.inputs.get(inKey);
                 const inputSet = inputSets.get(key)
                 inputSocket.possibleSocketTemp = this._wrapSocketType(inputSet);
-                console.log(inputSet)
+                //console.log(inputSet)
                 if(inputs[key].length==0){
                     continue;
                 }

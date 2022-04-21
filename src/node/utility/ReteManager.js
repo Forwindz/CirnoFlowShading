@@ -257,8 +257,7 @@ class ReteManager{
             'Sin',
             'result',
             {
-                'v1':'Value A',
-                'v2':'Value B',
+                'v1':'Radian'
             }
         )
 
@@ -267,8 +266,7 @@ class ReteManager{
             'Cos',
             'result',
             {
-                'v1':'Value A',
-                'v2':'Value B',
+                'v1':'Radian'
             }
         )
 
@@ -277,8 +275,7 @@ class ReteManager{
             'Tan',
             'result',
             {
-                'v1':'Value A',
-                'v2':'Value B',
+                'v1':'Radian'
             }
         )
 

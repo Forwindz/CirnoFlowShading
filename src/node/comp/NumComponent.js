@@ -21,8 +21,6 @@ class NumComponent extends NodeComponent {
 
     worker(node, inputs, outputs) {
         outputs['num'] = node.data.num;
-        console.log("Output num")
-        console.log(node.data.num)
         super.worker(node,inputs,outputs);
     }
 }
